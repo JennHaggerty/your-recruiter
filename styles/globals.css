@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+  --gap: 20px;
+  --color-red: red;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --foreground-rgb: 255, 255, 255;
+    --background-start-rgb: 0, 0, 0;
+    --background-end-rgb: 0, 0, 0;
+  }
+}
+
+html {
+  display: flex;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 100%;
+  flex: 1;
+  height: 100%;
+
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+main {
+  max-width: 1920px;
+  margin: auto;
+  @apply min-h-screen
+    flex
+    flex-col
+    w-full
+    py-3
+    px-3
+    items-center
+    gap-5;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+h7,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+.h7 {
+  @apply text-white;
+}
+
+.form-group {
+  @apply flex
+    flex-col
+    w-full
+    p-5
+    gap-5;
+}
+
+@media (min-width: 1199px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
