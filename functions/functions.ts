@@ -231,7 +231,6 @@ export const createApplication = async (args: { body: string }) => {
 };
 export const deleteApplication = async (args: { id: string }) => {
   const { id } = args;
-  console.log(id, "here");
   await fetch("/api/applications/deleteApplication/", {
     method: "DELETE",
     body: id,

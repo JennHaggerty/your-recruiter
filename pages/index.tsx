@@ -65,14 +65,16 @@ const Home = ({
   };
   const refreshApplications = async () => {
     const applications = await fetchApplications()
-      .then((data) => setApplications(data))
+      .then((data) => {
+        return data;
+      })
       .catch(() =>
         addToast({
           color: 'danger',
           title: 'There was an error refreshing applications.',
         })
       );
-    return applications;
+    setApplications(applications);
   };
   useEffect(function detectWindowResize() {
     setWidth(window.innerWidth);
@@ -102,11 +104,12 @@ const Home = ({
   const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
+    setShowSkeletonList(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
     const body = JSON.stringify(data);
     await createApplication({ body })
-      .then(() => refreshApplications())
+      .then(async () => await refreshApplications())
       .catch(() =>
         addToast({
           color: 'danger',
@@ -114,6 +117,7 @@ const Home = ({
         })
       );
     setLoading(false);
+    setShowSkeletonList(false);
   };
   const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -157,7 +161,9 @@ const Home = ({
     onOpen();
   };
   const handleViewCard = (id: string) => {
-    const target = applications?.find((application) => application._id === id);
+    const target =
+      applications &&
+      applications.find((application) => application._id === id);
     setActiveApplication(target);
     setShowDetails(true);
     onOpen();
@@ -169,6 +175,7 @@ const Home = ({
       applications.find((application) => application._id === id);
     if (!applicationToUpdate) return;
     setLoadingAI(true);
+    setShowSkeletonList(true);
     await getListingData({
       url: applicationToUpdate.posting_url,
       apiKey: firecrawlKey,
@@ -179,7 +186,6 @@ const Home = ({
         const body = JSON.stringify(updatedApplication);
         await updateApplication({ id: updatedApplication._id!, body })
           .then(() => refreshApplications())
-          .finally(() => setLoadingAI(false))
           .catch(() =>
             addToast({
               color: 'danger',
@@ -193,8 +199,9 @@ const Home = ({
           color: 'danger',
           title: `There was an error with the AI collection process, ${e}`,
         });
-        setLoadingAI(false);
       });
+    setShowSkeletonList(false);
+    setLoadingAI(false);
   };
   const handleAutoWriteCoverLetter = async (id: string) => {
     if (!applications) return;
@@ -211,7 +218,6 @@ const Home = ({
         const body = JSON.stringify(application);
         await updateApplication({ id: application._id, body })
           .then(() => refreshApplications())
-          .finally(() => setLoading(false))
           .catch(() =>
             addToast({
               color: 'danger',
@@ -222,8 +228,8 @@ const Home = ({
       })
       .catch((e) => {
         addToast({ color: 'danger', title: `There was an error, ${e}` });
-        setLoading(false);
       });
+    setLoading(false);
   };
   const handleOpenAi = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -499,7 +505,10 @@ export const getServerSideProps: GetServerSideProps<
       },
     };
   } catch (e) {
-    console.error(e);
+    addToast({
+      color: 'danger',
+      title: `There was an error getting the MongoDB connection status, ${e}`,
+    });
     return {
       props: {
         isConnected: false,
