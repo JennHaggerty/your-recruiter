@@ -1,8 +1,7 @@
-import Job from "@/app/interfaces/Job";
-import { Chip, Divider } from "@heroui/react";
-import ApplicationActionButtons from "../ActionButtons/ApplicationActionButtons";
-import { getBadgeColor } from "@/functions/functions";
-
+import Job from '@/app/interfaces/Job';
+import { Chip, Divider } from '@heroui/react';
+import ApplicationActionButtons from '../ActionButtons/ApplicationActionButtons';
+import { getBadgeColor } from '@/functions/functions';
 interface Props {
   item: Job;
   loading?: boolean;
@@ -15,7 +14,6 @@ interface Props {
   disableOpenAi?: boolean;
   disableFirecrawl?: boolean;
 }
-
 const Details = (props: Props) => {
   const {
     item,
@@ -29,31 +27,26 @@ const Details = (props: Props) => {
     disableFirecrawl,
     disableOpenAi,
   } = props;
-
   const renderNotes = (item: Job) => {
     if (!item.notes) return;
-
     item.notes.sort((a, b) => {
       return new Date(a._date).getTime() - new Date(b._date).getTime();
     });
-
     return (
-      <div className="flex">
-        <div className="flex flex-col w-full">
+      <div className='flex'>
+        <div className='flex flex-col w-full'>
           {item.notes
             .sort((a, b) => {
               return new Date(a._date).getTime() - new Date(b._date).getTime();
             })
             .map((note, i) => {
               return (
-                <div key={`notes-${i}`} className="flex flex-col">
+                <div key={`notes-${i}`} className='flex flex-col'>
                   {note.content}
-
-                  <span className="w-full text-right text-default-500 italic mt-1">
+                  <span className='w-full text-right text-default-500 italic mt-1'>
                     {new Date(note._date).toDateString()}
                   </span>
-
-                  {item.notes!.length > 1 && <Divider className="my-1" />}
+                  {item.notes!.length > 1 && <Divider className='my-1' />}
                 </div>
               );
             })}
@@ -61,53 +54,48 @@ const Details = (props: Props) => {
       </div>
     );
   };
-
   return (
-    <dl className="flex flex-col gap-3">
+    <dl className='flex flex-col gap-3'>
       {Object.keys(item).map((key) => {
-        if (key === "tools" && item.tools) {
+        if (key === 'tools' && item.tools) {
           return (
             <div key={key}>
-              <dt className="font-bold">{key.toUpperCase()}</dt>
-
-              <dd className="flex flex-wrap gap-2 justify-content mb-2">
-                {item[key]?.split(",").map((_item, index) => {
+              <dt className='font-bold'>{key.toUpperCase()}</dt>
+              <dd className='flex flex-wrap gap-2 justify-content mb-2'>
+                {item[key]?.split(',').map((_item, index) => {
                   return (
-                    <Chip key={index} variant="flat" radius="none">
+                    <Chip key={index} variant='flat' radius='none'>
                       {_item}
                     </Chip>
                   );
                 })}
               </dd>
-
-              <Divider className="my-1" />
+              <Divider className='my-1' />
             </div>
           );
-        } else if (key === "notes") {
+        } else if (key === 'notes') {
           return (
             <div key={key}>
-              <div className="card-info">
-                <dt className="font-bold">{key.toUpperCase()}</dt>
-
+              <div className='card-info'>
+                <dt className='font-bold'>{key.toUpperCase()}</dt>
                 <dd>{renderNotes(item)}</dd>
               </div>
             </div>
           );
-        } else if (key === "stage") {
+        } else if (key === 'stage') {
           return (
             <div key={key}>
-              <div className="flex justify-between">
-                <dt className="font-bold">{key.toUpperCase()}</dt>
-
-                <dd className="flex flex-wrap gap-2 justify-content mb-2">
-                  {item[key]?.split(",").map((_item, index) => {
+              <div className='flex justify-between'>
+                <dt className='font-bold'>{key.toUpperCase()}</dt>
+                <dd className='flex flex-wrap gap-2 justify-content mb-2'>
+                  {item[key]?.split(',').map((_item, index) => {
                     return (
                       <Chip
                         key={index}
-                        className="capitalize"
+                        className='capitalize'
                         color={getBadgeColor(item.stage)}
-                        size="sm"
-                        variant="flat"
+                        size='sm'
+                        variant='flat'
                       >
                         {_item}
                       </Chip>
@@ -115,34 +103,30 @@ const Details = (props: Props) => {
                   })}
                 </dd>
               </div>
-
-              <Divider className="my-1" />
+              <Divider className='my-1' />
             </div>
           );
         } else if (
-          !key.startsWith("_") &&
-          key !== "posting_url" &&
-          key !== "company_name" &&
-          key !== "company_url" &&
-          key !== "automated_cover_letter"
+          !key.startsWith('_') &&
+          key !== 'posting_url' &&
+          key !== 'company_name' &&
+          key !== 'company_url' &&
+          key !== 'automated_cover_letter'
         ) {
           return (
             <div key={key}>
-              <div className="card-info">
-                <dt className="font-bold">
-                  {key.replaceAll("_", " ").toUpperCase()}
+              <div className='card-info'>
+                <dt className='font-bold'>
+                  {key.replaceAll('_', ' ').toUpperCase()}
                 </dt>
-
-                <dd className="">{item[key]}</dd>
+                <dd className=''>{item[key]}</dd>
               </div>
-
-              <Divider className="my-1" />
+              <Divider className='my-1' />
             </div>
           );
         }
       })}
-
-      <div className="flex flex-col gap-2 justify-center w-full">
+      <div className='flex flex-col gap-2 justify-center w-full'>
         <ApplicationActionButtons
           item={item}
           loading={loading}
@@ -154,23 +138,21 @@ const Details = (props: Props) => {
           onEdit={onEdit}
           disableFirecrawl={disableFirecrawl}
           disableOpenAi={disableOpenAi}
-          variant="solid"
+          variant='solid'
         />
-
         {item._date_modified ? (
-          <span className="text-default-500 italic text-center">
+          <span className='text-default-500 italic text-center'>
             Last updated {new Date(item._date_modified).toDateString()}
           </span>
         ) : item._date_added ? (
-          <span className="text-default-500 italic text-center">
+          <span className='text-default-500 italic text-center'>
             Added on {new Date(item._date_added).toDateString()}
           </span>
         ) : (
-          ""
+          ''
         )}
       </div>
     </dl>
   );
 };
-
 export default Details;

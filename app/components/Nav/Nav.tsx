@@ -1,5 +1,5 @@
-import React, { FormEvent, useEffect, useState } from "react";
-import LegendDrawer from "../Drawers/LegendDrawer";
+import React, { FormEvent, useEffect, useState } from 'react';
+import LegendDrawer from '../Drawers/LegendDrawer';
 import {
   Badge,
   Button,
@@ -7,24 +7,21 @@ import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-} from "@heroui/react";
-import strings from "@/common/strings";
-import LoginDrawer from "../Drawers/LoginDrawer";
-import { Settings } from "../Drawers/SettingsDrawer";
-import SignupDrawer from "../Drawers/SignupDrawer";
-
+} from '@heroui/react';
+import strings from '@/common/strings';
+import LoginDrawer from '../Drawers/LoginDrawer';
+import { Settings } from '../Drawers/SettingsDrawer';
+import SignupDrawer from '../Drawers/SignupDrawer';
 interface Props {
   isConnected: boolean;
   handleOpenAi: (e: FormEvent<HTMLFormElement>) => void;
   handleFirecrawl: (e: FormEvent<HTMLFormElement>) => void;
-
   handleLogin?: (e: FormEvent<HTMLFormElement>) => void;
   handleSignup?: (e: FormEvent<HTMLFormElement>) => void;
   isLoggedIn?: boolean;
   openAiKey?: string;
   firecrawlKey?: string;
 }
-
 const Nav = (props: Props) => {
   const {
     isConnected,
@@ -36,16 +33,13 @@ const Nav = (props: Props) => {
     openAiKey,
     firecrawlKey,
   } = props;
-
   const [showSignupForm, setShowSignupForm] = useState<boolean>();
   const [showLoginForm, setShowLoginForm] = useState<boolean>();
   const [showLegend, setShowLegend] = useState<boolean>();
   const [showSettings, setShowSettings] = useState<boolean>();
   const [badgeCount, setBadgeCount] = useState<number>(0);
-
   const hasOpenAiKey = !!openAiKey;
   const hasFirecrawlKey = !!firecrawlKey;
-
   useEffect(
     function getSettingsBadgeCount() {
       const array = [isConnected, hasFirecrawlKey, hasOpenAiKey];
@@ -58,59 +52,54 @@ const Nav = (props: Props) => {
     },
     [isConnected, hasFirecrawlKey, hasOpenAiKey]
   );
-
   return (
-    <Navbar className="w-full text-center justify-center p-3">
+    <Navbar className='w-full text-center justify-center p-3'>
       <NavbarBrand>
-        <p className="font-bold text-white">{strings.siteTitle}</p>
+        <p className='font-bold text-white'>{strings.siteTitle}</p>
       </NavbarBrand>
-
-      <NavbarContent justify="end">
+      <NavbarContent justify='end'>
         <NavbarItem>
           <Button
-            color="primary"
-            variant="flat"
+            color='primary'
+            variant='flat'
             onPress={() => setShowLegend(true)}
           >
             Legend
           </Button>
         </NavbarItem>
-
         <NavbarItem>
           <Badge
-            color="danger"
+            color='danger'
             content={badgeCount}
-            shape="circle"
+            shape='circle'
             isInvisible={badgeCount === 0}
           >
             <Button
-              color="primary"
-              variant="flat"
+              color='primary'
+              variant='flat'
               onPress={() => setShowSettings(true)}
             >
               Settings
             </Button>
           </Badge>
         </NavbarItem>
-
         {!isLoggedIn ? (
           <>
             {handleSignup && (
               <NavbarItem>
                 <Button
-                  color="primary"
-                  variant="flat"
+                  color='primary'
+                  variant='flat'
                   onPress={() => setShowSignupForm(true)}
                 >
                   Signup
                 </Button>
               </NavbarItem>
             )}
-
             <NavbarItem>
               <Button
-                color="primary"
-                variant="flat"
+                color='primary'
+                variant='flat'
                 onPress={() => setShowLoginForm(true)}
               >
                 Login
@@ -120,16 +109,15 @@ const Nav = (props: Props) => {
         ) : (
           <NavbarItem>
             <Button
-              color="primary"
-              variant="flat"
-              onPress={() => console.log("handleLogout")}
+              color='primary'
+              variant='flat'
+              onPress={() => console.log('handleLogout')}
             >
               Logout
             </Button>
           </NavbarItem>
         )}
       </NavbarContent>
-
       {showSignupForm && handleSignup && (
         <SignupDrawer
           isOpen={showSignupForm}
@@ -164,5 +152,4 @@ const Nav = (props: Props) => {
     </Navbar>
   );
 };
-
 export default Nav;

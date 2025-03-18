@@ -2,14 +2,12 @@ export interface Note {
   content: string;
   _date: Date;
 }
-
 export default interface Job extends Record<string, any> {
   _id: string;
   _userId?: string; //TODO make required when database updated
   role: string;
   company_name: string;
   posting_url: string;
-
   company_url?: string;
   location?: string;
   salary?: string;

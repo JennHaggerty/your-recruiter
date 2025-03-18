@@ -1,7 +1,5 @@
 import type { Config } from "tailwindcss";
-
 const {heroui} = require("@heroui/react");
-
 const config: Config = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",

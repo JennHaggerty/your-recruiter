@@ -7,7 +7,6 @@ export default async function handler(
   try {
     const { email, password } = req.body
     //await signIn('credentials', { email, password })
-
     console.log('login request', email)
  
     res.status(200).json({ success: true })
