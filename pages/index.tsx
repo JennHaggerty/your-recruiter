@@ -19,7 +19,7 @@ import {
 import { useState, useEffect, FormEvent } from 'react';
 import { automatedCoverLetter } from '@/lib/openai';
 import client from '@/lib/mongodb';
-import Job from '@/app/interfaces/Job';
+import Job from '@/interfaces/Job';
 import AddForm from '@/app/components/Forms/AddForm';
 import EditForm from '@/app/components/Forms/EditForm';
 import Details from '@/app/components/Details/Details';
@@ -27,7 +27,7 @@ import Footer from '@/app/components/Footer/Footer';
 import Nav from '@/app/components/Nav/Nav';
 import SkeletonList from '@/app/components/List/SkeletonList';
 import List from '@/app/components/List/List';
-import { User } from '@/app/interfaces/User';
+import { User } from '@/interfaces/User';
 import {
   createApplication,
   deleteApplication,

@@ -1,4 +1,4 @@
-import DatabaseResponse from "@/app/interfaces/DatabaseResponse";
+import DatabaseResponse from "@/interfaces/DatabaseResponse";
 import { scrapeResponse } from "@/lib/firecrawl";
 import { addToast } from "@heroui/react";
 import { FormEvent } from "react";

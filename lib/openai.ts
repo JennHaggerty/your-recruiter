@@ -1,4 +1,4 @@
-import Job from '@/app/interfaces/Job';
+import Job from '@/interfaces/Job';
 import { generateText } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
 export const automatedCoverLetter = async(args: { job: Job, openAiKey: string }) => {

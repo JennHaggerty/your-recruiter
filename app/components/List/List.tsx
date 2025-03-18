@@ -1,4 +1,4 @@
-import Job from '@/app/interfaces/Job';
+import Job from '@/interfaces/Job';
 import {
   Chip,
   Table,

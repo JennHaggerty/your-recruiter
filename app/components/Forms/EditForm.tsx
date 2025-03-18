@@ -11,7 +11,7 @@ import {
   Divider,
 } from '@heroui/react';
 import { today, getLocalTimeZone } from '@internationalized/date';
-import Job from '@/app/interfaces/Job';
+import Job from '@/interfaces/Job';
 import ActionButtons from '../ActionButtons/ActionButtons';
 const stages = [
   { key: 'interested', label: 'Interested' },

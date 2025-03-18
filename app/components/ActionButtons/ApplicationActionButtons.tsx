@@ -1,4 +1,4 @@
-import Job from '@/app/interfaces/Job';
+import Job from '@/interfaces/Job';
 import { Button, Tooltip } from '@heroui/react';
 import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';

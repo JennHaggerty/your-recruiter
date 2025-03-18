@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
 import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
-import Job from '@/app/interfaces/Job';
+import Job from '@/interfaces/Job';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const client = await clientPromise;
   const db = await client.db(process.env.MONGODB);
