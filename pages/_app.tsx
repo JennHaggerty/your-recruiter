@@ -41,7 +41,6 @@ export default function App({ Component, pageProps }: AppProps) {
     login: login,
     logout: logout,
   };
-  console.log(userContextValue);
   return (
     <userContext.Provider value={userContextValue}>
       <HeroUIProvider className='dark'>

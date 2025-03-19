@@ -156,12 +156,7 @@ export const fetchUserLogin = async (args: {
       window.localStorage.setItem('token', token);
       return user;
     })
-    .catch((e) => {
-      addToast({
-        color: 'danger',
-        title: `There was an error fetching user login, ${e}`,
-      });
-    });
+    .catch(() => {});
   return user;
 };
 export const fetchApplications = async () => {
