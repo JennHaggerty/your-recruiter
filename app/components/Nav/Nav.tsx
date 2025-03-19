@@ -12,6 +12,7 @@ import strings from '@/common/strings';
 import LoginDrawer from '../Drawers/LoginDrawer';
 import { Settings } from '../Drawers/SettingsDrawer';
 import SignupDrawer from '../Drawers/SignupDrawer';
+
 interface Props {
   isConnected: boolean;
   handleOpenAi: (e: FormEvent<HTMLFormElement>) => void;
@@ -22,6 +23,7 @@ interface Props {
   openAiKey?: string;
   firecrawlKey?: string;
 }
+
 const Nav = (props: Props) => {
   const {
     isConnected,
@@ -40,6 +42,7 @@ const Nav = (props: Props) => {
   const [badgeCount, setBadgeCount] = useState<number>(0);
   const hasOpenAiKey = !!openAiKey;
   const hasFirecrawlKey = !!firecrawlKey;
+
   useEffect(
     function getSettingsBadgeCount() {
       const array = [isConnected, hasFirecrawlKey, hasOpenAiKey];
@@ -52,6 +55,7 @@ const Nav = (props: Props) => {
     },
     [isConnected, hasFirecrawlKey, hasOpenAiKey]
   );
+
   return (
     <Navbar className='w-full text-center justify-center p-3'>
       <NavbarBrand>

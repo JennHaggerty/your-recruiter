@@ -1,5 +1,5 @@
 import { z } from 'zod';
-const User = z.object({
+const UserLoginType = z.object({
   email: z.string({
     invalid_type_error: 'Please enter an email address.',
   }),
@@ -15,4 +15,4 @@ const User = z.object({
     })
     .trim(),
 });
-export default User;
+export default UserLoginType;

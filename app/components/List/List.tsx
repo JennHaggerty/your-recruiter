@@ -1,4 +1,4 @@
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 import {
   Chip,
   Table,
@@ -22,7 +22,7 @@ import { EyeIcon } from '../Icons/EyeIcon';
 import { getBadgeColor } from '@/functions/functions';
 import { SearchIcon } from '../Icons/SearchIcon';
 interface Props {
-  items?: Job[];
+  items?: JobInterface[];
   selectedkeys?: string[];
   setSelectedKeys?: () => void;
   loading?: boolean;
@@ -58,7 +58,7 @@ const INITIAL_VISIBLE_COLUMNS = [
   'coverLetter',
   'actions',
 ];
-type Item = Job;
+type Item = JobInterface;
 const List = (props: Props) => {
   const {
     items,
@@ -83,7 +83,7 @@ const List = (props: Props) => {
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const hasSearchFilter = Boolean(filterValue);
-  const renderHeader = (item: Job) => (
+  const renderHeader = (item: JobInterface) => (
     <div className='flex flex-row gap-3'>
       <div className='flex gap-2 h-full my-auto'>
         {onViewCard && (
@@ -145,7 +145,7 @@ const List = (props: Props) => {
       </div>
     </div>
   );
-  const renderCoverLetterActions = (item: Job) => (
+  const renderCoverLetterActions = (item: JobInterface) => (
     <div className='flex flex-row gap-3 justify-center'>
       {onAutoCoverLetter && !item.automated_cover_letter && (
         <Tooltip
@@ -193,7 +193,7 @@ const List = (props: Props) => {
       )}
     </div>
   );
-  const renderActionButtons = (item: Job) => (
+  const renderActionButtons = (item: JobInterface) => (
     <div className='flex flex-row gap-3 justify-end'>
       {onAutoCollect && !item._markdown && (
         <Tooltip color='secondary' content='Get listing data'>
@@ -241,7 +241,7 @@ const List = (props: Props) => {
       )}
     </div>
   );
-  const renderCell = useCallback((item: Job, columnKey: string) => {
+  const renderCell = useCallback((item: JobInterface, columnKey: string) => {
     const cellValue = item[columnKey];
     switch (columnKey) {
       case 'name':

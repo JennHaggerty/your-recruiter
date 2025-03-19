@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Inter } from 'next/font/google';
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 import {
@@ -19,7 +19,7 @@ import {
 import { useState, useEffect, FormEvent } from 'react';
 import { automatedCoverLetter } from '@/lib/openai';
 import client from '@/lib/mongodb';
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 import AddForm from '@/app/components/Forms/AddForm';
 import EditForm from '@/app/components/Forms/EditForm';
 import Details from '@/app/components/Details/Details';
@@ -27,7 +27,6 @@ import Footer from '@/app/components/Footer/Footer';
 import Nav from '@/app/components/Nav/Nav';
 import SkeletonList from '@/app/components/List/SkeletonList';
 import List from '@/app/components/List/List';
-import { User } from '@/interfaces/User';
 import {
   createApplication,
   deleteApplication,
@@ -36,18 +35,25 @@ import {
   getListingData,
   updateApplication,
 } from '@/functions/functions';
+import userContext from '@/contexts/UserContext';
+import UserStateInterface from '@/interfaces/UserStateInterface';
 type ConnectionStatus = {
   isConnected: boolean;
 };
+interface Props {
+  user: UserStateInterface;
+}
 const inter = Inter({ subsets: ['latin'] });
-const Home = ({
-  isConnected,
-}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
+const Home = (
+  { isConnected }: InferGetServerSidePropsType<typeof getServerSideProps>,
+  props: Props
+) => {
+  const { user } = props;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [loadingAI, setLoadingAI] = useState<boolean>();
-  const [applications, setApplications] = useState<Job[]>();
-  const [activeApplication, setActiveApplication] = useState<Job>();
+  const [applications, setApplications] = useState<JobInterface[]>();
+  const [activeApplication, setActiveApplication] = useState<JobInterface>();
   const [showEditModal, setShowEditModal] = useState<boolean>();
   const [showAddModal, setShowAddModal] = useState<boolean>();
   const [showCoverLetterModal, setShowCoverLetterModal] = useState<boolean>();
@@ -56,7 +62,6 @@ const Home = ({
   const [firecrawlKey, setFirecrawlKey] = useState<string>();
   const [width, setWidth] = useState<number>();
   const [showSkeletonList, setShowSkeletonList] = useState<boolean>(true);
-  const [user, setUser] = useState<User>();
   const disableOpenAi = !openAiKey || loadingAI;
   const disableFirecrawl = !firecrawlKey || loadingAI;
   const isMobile = width && width < 600;
@@ -208,7 +213,7 @@ const Home = ({
     const application = applications.find((item) => item._id === id);
     if (!application) return;
     if (user) {
-      application.resume = user.resume;
+      application.resume = user.state.resume;
     }
     const key = openAiKey ? openAiKey : '';
     setLoadingAI(true);
@@ -445,50 +450,48 @@ const Home = ({
       </Card>
     );
   };
-  const handleUserLogin = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    const email = Object.fromEntries(formData).email.toString();
-    const password = Object.fromEntries(formData).password.toString();
-    const user: User = await fetchUserLogin({ email, password });
-    setUser(user);
-    setLoading(false);
-  };
   return (
     <>
-      <Nav
-        isConnected={isConnected}
-        handleOpenAi={handleOpenAi}
-        handleFirecrawl={handleFirecrawl}
-        openAiKey={openAiKey}
-        firecrawlKey={firecrawlKey}
-        handleLogin={handleUserLogin}
-      />
-      <main className={`${inter.className} relative`}>
-        {isOpen && showEditModal && renderEditModal()}
-        {isOpen && showAddModal && renderAddModal()}
-        {isOpen && showCoverLetterModal && renderViewCoverLetterModal()}
-        {isOpen && showDetails && renderDetailsModal()}
-        <div className='lg:w-full'>{renderWelcome()}</div>
-        {showSkeletonList ? (
-          <SkeletonList />
-        ) : (
-          <List
-            items={applications}
-            onDelete={handleDelete}
-            onEdit={handleListEditClick}
-            onAutoCollect={handleAutoCollect}
-            onAutoCoverLetter={handleAutoWriteCoverLetter}
-            onViewCoverLetter={handleViewCoverLetter}
-            onViewCard={handleViewCard}
-            loading={loading}
-            loadingAI={loadingAI}
-            disableOpenAi={disableOpenAi}
-            disableFirecrawl={disableFirecrawl}
-          />
-        )}
-      </main>
+      <userContext.Consumer>
+        {({ state, login }) => {
+          return (
+            <>
+              <Nav
+                isConnected={isConnected}
+                handleOpenAi={handleOpenAi}
+                handleFirecrawl={handleFirecrawl}
+                openAiKey={openAiKey}
+                firecrawlKey={firecrawlKey}
+                handleLogin={login}
+              />
+              <main className={`${inter.className} relative`}>
+                {isOpen && showEditModal && renderEditModal()}
+                {isOpen && showAddModal && renderAddModal()}
+                {isOpen && showCoverLetterModal && renderViewCoverLetterModal()}
+                {isOpen && showDetails && renderDetailsModal()}
+                <div className='lg:w-full'>{renderWelcome()}</div>
+                {showSkeletonList ? (
+                  <SkeletonList />
+                ) : (
+                  <List
+                    items={applications}
+                    onDelete={handleDelete}
+                    onEdit={handleListEditClick}
+                    onAutoCollect={handleAutoCollect}
+                    onAutoCoverLetter={handleAutoWriteCoverLetter}
+                    onViewCoverLetter={handleViewCoverLetter}
+                    onViewCard={handleViewCard}
+                    loading={loading}
+                    loadingAI={loadingAI}
+                    disableOpenAi={disableOpenAi}
+                    disableFirecrawl={disableFirecrawl}
+                  />
+                )}
+              </main>
+            </>
+          );
+        }}
+      </userContext.Consumer>
       <Footer />
     </>
   );

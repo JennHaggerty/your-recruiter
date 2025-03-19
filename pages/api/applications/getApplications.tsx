@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
 import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const client = await clientPromise;
   const db = await client.db(process.env.MONGODB);
@@ -14,7 +14,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const applications = await db
       .collection(collection)
-      .find<Job>({})
+      .find<JobInterface>({})
       .sort({ _date_added: 'desc' })
       .limit(100)
       .toArray();

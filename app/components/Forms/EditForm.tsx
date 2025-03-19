@@ -11,7 +11,7 @@ import {
   Divider,
 } from '@heroui/react';
 import { today, getLocalTimeZone } from '@internationalized/date';
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 import ActionButtons from '../ActionButtons/ActionButtons';
 const stages = [
   { key: 'interested', label: 'Interested' },
@@ -21,7 +21,7 @@ const stages = [
   { key: 'interviewing', label: 'Interviewing' },
 ];
 interface Props {
-  item: Job;
+  item: JobInterface;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   handleCancel?: () => void;
   loading?: boolean;

@@ -1,9 +1,9 @@
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 import { Button, Tooltip } from '@heroui/react';
 import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
 interface Props {
-  item: Job;
+  item: JobInterface;
   loading?: boolean;
   loadingAI?: boolean;
   onAutoCollect?: (id: string) => void;

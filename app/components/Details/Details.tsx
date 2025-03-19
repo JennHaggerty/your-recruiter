@@ -1,9 +1,9 @@
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 import { Chip, Divider } from '@heroui/react';
 import ApplicationActionButtons from '../ActionButtons/ApplicationActionButtons';
 import { getBadgeColor } from '@/functions/functions';
 interface Props {
-  item: Job;
+  item: JobInterface;
   loading?: boolean;
   loadingAI?: boolean;
   onAutoCollect: (id: string) => void;
@@ -27,7 +27,7 @@ const Details = (props: Props) => {
     disableFirecrawl,
     disableOpenAi,
   } = props;
-  const renderNotes = (item: Job) => {
+  const renderNotes = (item: JobInterface) => {
     if (!item.notes) return;
     item.notes.sort((a, b) => {
       return new Date(a._date).getTime() - new Date(b._date).getTime();

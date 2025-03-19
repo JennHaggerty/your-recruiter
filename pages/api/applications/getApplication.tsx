@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
 import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
-import Job from '@/interfaces/Job';
+import JobInterface from '@/interfaces/JobInterface';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const client = await clientPromise;
   const db = await client.db(process.env.MONGODB);
@@ -18,7 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const application = await db
       .collection(collection)
-      .find<Job>({ _id: id })
+      .find<JobInterface>({ _id: id })
       .toArray();
     res.json(application);
   } catch (e) {

@@ -1,7 +1,7 @@
 import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
-import User from '../types/user';
+import UserLoginType from '../types/userLoginType';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     const client = await clientPromise;
@@ -12,7 +12,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     const formData = req.body;
     const email: string = formData.email;
     const password: string = formData.password;
-    const validatedFields = User.safeParse({
+    const validatedFields = UserLoginType.safeParse({
       email,
       password,
     });

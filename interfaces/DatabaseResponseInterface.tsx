@@ -1,4 +1,4 @@
-export default interface DatabaseResponse {
+export default interface DatabaseResponseInterface {
   acknowledged: boolean;
   matchedCount: number;
   modifiedCount: number;

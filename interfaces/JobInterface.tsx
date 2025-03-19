@@ -2,7 +2,7 @@ export interface Note {
   content: string;
   _date: Date;
 }
-export default interface Job extends Record<string, any> {
+export default interface JobInterface extends Record<string, any> {
   _id: string;
   _userId?: string; //TODO make required when database updated
   role: string;

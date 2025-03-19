@@ -34,12 +34,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       success: true,
       token: token,
       user: {
-        // encrypt?
         _id: user._id,
-        email: user.email,
-        resume: user.resume,
+        resume: user.resume && user.resume,
       },
     });
+    if (response === undefined) {
+      return res
+        .status(400)
+        .json({ message: `Repsonse not found for user login.` });
+    }
     return response;
   } catch (e) {
     console.error(e);
