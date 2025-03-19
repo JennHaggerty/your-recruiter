@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Inter } from 'next/font/google';
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 import {
@@ -31,7 +31,6 @@ import {
   createApplication,
   deleteApplication,
   fetchApplications,
-  fetchUserLogin,
   getListingData,
   updateApplication,
 } from '@/functions/functions';
@@ -41,14 +40,13 @@ type ConnectionStatus = {
   isConnected: boolean;
 };
 interface Props {
-  user: UserStateInterface;
+  user?: UserStateInterface;
 }
 const inter = Inter({ subsets: ['latin'] });
 const Home = (
   { isConnected }: InferGetServerSidePropsType<typeof getServerSideProps>,
   props: Props
 ) => {
-  const { user } = props;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [loadingAI, setLoadingAI] = useState<boolean>();
@@ -208,34 +206,6 @@ const Home = (
     setShowSkeletonList(false);
     setLoadingAI(false);
   };
-  const handleAutoWriteCoverLetter = async (id: string) => {
-    if (!applications) return;
-    const application = applications.find((item) => item._id === id);
-    if (!application) return;
-    if (user) {
-      application.resume = user.state.resume;
-    }
-    const key = openAiKey ? openAiKey : '';
-    setLoadingAI(true);
-    await automatedCoverLetter({ job: application, openAiKey: key })
-      .then(async (res) => {
-        application.automated_cover_letter = res;
-        const body = JSON.stringify(application);
-        await updateApplication({ id: application._id, body })
-          .then(() => refreshApplications())
-          .catch(() =>
-            addToast({
-              color: 'danger',
-              title:
-                'There was an error updating the application with the automated cover letter.',
-            })
-          );
-      })
-      .catch((e) => {
-        addToast({ color: 'danger', title: `There was an error, ${e}` });
-      });
-    setLoading(false);
-  };
   const handleOpenAi = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -294,76 +264,6 @@ const Home = (
               loading={loading}
             />
           </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  };
-  const renderDetailsModal = () => {
-    if (!activeApplication) return;
-    const onClose = () => setShowDetails(false);
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-        scrollBehavior='outside'
-        size='3xl'
-      >
-        <ModalContent>
-          <ModalHeader>{activeApplication.company_name}</ModalHeader>
-          <ModalBody>
-            <Details
-              item={activeApplication}
-              onDelete={handleDelete}
-              onEdit={handleListEditClick}
-              onAutoCollect={handleAutoCollect}
-              onAutoCoverLetter={handleAutoWriteCoverLetter}
-              onViewCoverLetter={handleViewCoverLetter}
-              loading={loading}
-              loadingAI={loadingAI}
-              disableOpenAi={disableOpenAi}
-              disableFirecrawl={disableFirecrawl}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  };
-  const renderViewCoverLetterModal = () => {
-    if (!activeApplication || !activeApplication.automated_cover_letter) return;
-    const onClose = () => setShowCoverLetterModal(false);
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-        scrollBehavior='outside'
-        size='3xl'
-      >
-        <ModalContent>
-          <ModalHeader>
-            {activeApplication.company_name} Cover Letter
-          </ModalHeader>
-          <ModalBody>{activeApplication.automated_cover_letter}</ModalBody>
-          <ModalFooter>
-            <Button
-              onPress={() => handleAutoWriteCoverLetter(activeApplication?._id)}
-              color='secondary'
-              isLoading={loadingAI}
-              isDisabled={
-                activeApplication.stage?.toLocaleLowerCase() === 'closed'
-              }
-            >
-              <span
-                className='text-success'
-                aria-label='This action requires a financial transaction'
-              >
-                $
-              </span>
-              Rewrite
-            </Button>
-            <Button onPress={onClose}>Close</Button>
-          </ModalFooter>
         </ModalContent>
       </Modal>
     );
@@ -454,6 +354,114 @@ const Home = (
     <>
       <userContext.Consumer>
         {({ state, login }) => {
+          const userState = state;
+          const handleAutoWriteCoverLetter = async (id: string) => {
+            const application =
+              applications && applications.find((item) => item._id === id);
+            if (!application) return;
+            if (!application._resume && userState.resume) {
+              application.resume = userState.resume;
+            }
+            const key = openAiKey ? openAiKey : '';
+            setLoadingAI(true);
+            await automatedCoverLetter({ job: application, openAiKey: key })
+              .then(async (res) => {
+                application.automated_cover_letter = res;
+                const body = JSON.stringify(application);
+                await updateApplication({ id: application._id, body })
+                  .then(() => refreshApplications())
+                  .catch(() =>
+                    addToast({
+                      color: 'danger',
+                      title:
+                        'There was an error updating the application with the automated cover letter.',
+                    })
+                  );
+              })
+              .catch((e) => {
+                addToast({
+                  color: 'danger',
+                  title: `There was an error, ${e}`,
+                });
+              });
+            setLoading(false);
+          };
+          const renderDetailsModal = () => {
+            if (!activeApplication) return;
+            const onClose = () => setShowDetails(false);
+            return (
+              <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                onOpenChange={onOpenChange}
+                scrollBehavior='outside'
+                size='3xl'
+              >
+                <ModalContent>
+                  <ModalHeader>{activeApplication.company_name}</ModalHeader>
+                  <ModalBody>
+                    <Details
+                      item={activeApplication}
+                      onDelete={handleDelete}
+                      onEdit={handleListEditClick}
+                      onAutoCollect={handleAutoCollect}
+                      onAutoCoverLetter={handleAutoWriteCoverLetter}
+                      onViewCoverLetter={handleViewCoverLetter}
+                      loading={loading}
+                      loadingAI={loadingAI}
+                      disableOpenAi={disableOpenAi}
+                      disableFirecrawl={disableFirecrawl}
+                    />
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            );
+          };
+          const renderViewCoverLetterModal = () => {
+            if (!activeApplication || !activeApplication.automated_cover_letter)
+              return;
+            const onClose = () => setShowCoverLetterModal(false);
+            return (
+              <Modal
+                isOpen={isOpen}
+                onClose={onClose}
+                onOpenChange={onOpenChange}
+                scrollBehavior='outside'
+                size='3xl'
+              >
+                <ModalContent>
+                  <ModalHeader>
+                    {activeApplication.company_name} Cover Letter
+                  </ModalHeader>
+                  <ModalBody>
+                    {activeApplication.automated_cover_letter}
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button
+                      onPress={() =>
+                        handleAutoWriteCoverLetter(activeApplication?._id)
+                      }
+                      color='secondary'
+                      isLoading={loadingAI}
+                      isDisabled={
+                        activeApplication.stage?.toLocaleLowerCase() ===
+                        'closed'
+                      }
+                    >
+                      <span
+                        className='text-success'
+                        aria-label='This action requires a financial transaction'
+                      >
+                        $
+                      </span>
+                      Rewrite
+                    </Button>
+                    <Button onPress={onClose}>Close</Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+            );
+          };
           return (
             <>
               <Nav
