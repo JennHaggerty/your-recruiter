@@ -12,14 +12,13 @@ import strings from '@/common/strings';
 import LoginDrawer from '../Drawers/LoginDrawer';
 import { Settings } from '../Drawers/SettingsDrawer';
 import SignupDrawer from '../Drawers/SignupDrawer';
+import { useUserContext } from '@/contexts/UserContext';
 
 interface Props {
   isConnected: boolean;
   handleOpenAi: (e: FormEvent<HTMLFormElement>) => void;
   handleFirecrawl: (e: FormEvent<HTMLFormElement>) => void;
-  handleLogin?: (e: FormEvent<HTMLFormElement>) => void;
   handleSignup?: (e: FormEvent<HTMLFormElement>) => void;
-  isLoggedIn?: boolean;
   openAiKey?: string;
   firecrawlKey?: string;
 }
@@ -29,12 +28,11 @@ const Nav = (props: Props) => {
     isConnected,
     handleFirecrawl,
     handleOpenAi,
-    handleLogin,
     handleSignup,
-    isLoggedIn,
     openAiKey,
     firecrawlKey,
   } = props;
+  const { id, logout, login } = useUserContext();
   const [showSignupForm, setShowSignupForm] = useState<boolean>();
   const [showLoginForm, setShowLoginForm] = useState<boolean>();
   const [showLegend, setShowLegend] = useState<boolean>();
@@ -71,24 +69,24 @@ const Nav = (props: Props) => {
             Legend
           </Button>
         </NavbarItem>
-        <NavbarItem>
-          <Badge
-            color='danger'
-            content={badgeCount}
-            shape='circle'
-            isInvisible={badgeCount === 0}
-          >
-            <Button
-              color='primary'
-              variant='flat'
-              onPress={() => setShowSettings(true)}
-            >
-              Settings
-            </Button>
-          </Badge>
-        </NavbarItem>
-        {!isLoggedIn ? (
+        {!id ? (
           <>
+            <NavbarItem>
+              <Badge
+                color='danger'
+                content={badgeCount}
+                shape='circle'
+                isInvisible={badgeCount === 0}
+              >
+                <Button
+                  color='primary'
+                  variant='flat'
+                  onPress={() => setShowSettings(true)}
+                >
+                  Playground Settings
+                </Button>
+              </Badge>
+            </NavbarItem>
             {handleSignup && (
               <NavbarItem>
                 <Button
@@ -111,15 +109,29 @@ const Nav = (props: Props) => {
             </NavbarItem>
           </>
         ) : (
-          <NavbarItem>
-            <Button
-              color='primary'
-              variant='flat'
-              onPress={() => console.log('handleLogout')}
-            >
-              Logout
-            </Button>
-          </NavbarItem>
+          <>
+            <NavbarItem>
+              <Badge
+                color='danger'
+                content={badgeCount}
+                shape='circle'
+                isInvisible={badgeCount === 0}
+              >
+                <Button
+                  color='primary'
+                  variant='flat'
+                  onPress={() => setShowSettings(true)}
+                >
+                  User Settings
+                </Button>
+              </Badge>
+            </NavbarItem>
+            <NavbarItem>
+              <Button color='primary' variant='flat' onPress={logout}>
+                Logout
+              </Button>
+            </NavbarItem>
+          </>
         )}
       </NavbarContent>
       {showSignupForm && handleSignup && (
@@ -129,11 +141,11 @@ const Nav = (props: Props) => {
           handleSubmit={handleSignup}
         />
       )}
-      {showLoginForm && handleLogin && (
+      {!id && showLoginForm && login && (
         <LoginDrawer
           isOpen={showLoginForm}
           onClose={() => setShowLoginForm(false)}
-          handleSubmit={handleLogin}
+          handleSubmit={login}
         />
       )}
       {showLegend && (

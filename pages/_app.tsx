@@ -1,29 +1,27 @@
-import userContext, { emptyUserState } from '@/contexts/UserContext';
+import { UserContext } from '@/contexts/UserContext';
 import { fetchUser, fetchUserLogin } from '@/functions/functions';
-import UserContextInterface from '@/interfaces/UserContextInterface';
 import '@/styles/globals.css';
 import { addToast, HeroUIProvider, ToastProvider } from '@heroui/react';
 import type { AppProps } from 'next/app';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 export default function App({ Component, pageProps }: AppProps) {
-  const [userState, setUserState] =
-    useState<UserContextInterface>(emptyUserState);
+  const [user, setUser] = useState<UserContext>();
   const fetchMyUser = useCallback(async (args: { token: string }) => {
     const { token } = args;
-    const user = await fetchUser({ token });
-    setUserState({ user: user });
+    const userData = await fetchUser({ token });
+    setUser(userData);
   }, []);
   useEffect(function checkForUser() {
     const token = window.localStorage.getItem('token');
     if (token) {
+      //TODO add check to token expiry?
       fetchMyUser({ token });
     } else {
-      setUserState(emptyUserState);
+      setUser(undefined);
     }
   }, []);
-  if (!userState) return;
   const logout = () => {
-    setUserState(emptyUserState);
+    setUser(undefined);
   };
   const login = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,31 +29,34 @@ export default function App({ Component, pageProps }: AppProps) {
     const email = Object.fromEntries(formData).email.toString();
     const password = Object.fromEntries(formData).password.toString();
     await fetchUserLogin({ email, password })
-      .then((data) => (userState.user.id = data))
-      .catch((e) =>
+      .then((data) => {
+        const userId = {
+          id: data,
+        };
+        return setUser(userId);
+      })
+      .catch((e) => {
         addToast({
           color: 'danger',
           title: `There was an error logging in, ${e}`,
-        })
-      );
+        });
+        return;
+      });
   };
   const userContextValue = {
-    user: {
-      id: userState.user.id,
-      name: userState.user.name,
-      resume: userState.user.resume,
-      openai_key: userState.user.openai_key,
-      firecrawl_key: userState.user.firecrawl_key,
-    },
+    id: user && user.id,
+    resume: user && user.resume,
+    openai_key: user && user.openai_key,
+    firecrawl_key: user && user.firecrawl_key,
     login: login,
     logout: logout,
   };
   return (
-    <userContext.Provider value={userContextValue}>
+    <UserContext.Provider value={userContextValue}>
       <HeroUIProvider className='dark'>
         <ToastProvider placement='top-center' />
         <Component {...pageProps} />
       </HeroUIProvider>
-    </userContext.Provider>
+    </UserContext.Provider>
   );
 }
