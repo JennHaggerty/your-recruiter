@@ -1,4 +1,4 @@
-import userContext, { emptyUserState } from '@/contexts/UserContext';
+import { emptyUserState } from '@/contexts/UserContext';
 import { fetchUser, fetchUserLogin } from '@/functions/functions';
 import UserContextInterface from '@/interfaces/UserContextInterface';
 import '@/styles/globals.css';
@@ -11,17 +11,16 @@ export default function App({ Component, pageProps }: AppProps) {
   const fetchMyUser = useCallback(async (args: { token: string }) => {
     const { token } = args;
     const user = await fetchUser({ token });
-    setUserState({ user: user });
+    console.log(user);
   }, []);
   useEffect(function checkForUser() {
     const token = window.localStorage.getItem('token');
     if (token) {
       fetchMyUser({ token });
     } else {
-      setUserState(emptyUserState);
+      // do nothing
     }
   }, []);
-  if (!userState) return;
   const logout = () => {
     setUserState(emptyUserState);
   };
@@ -39,23 +38,10 @@ export default function App({ Component, pageProps }: AppProps) {
         })
       );
   };
-  const userContextValue = {
-    user: {
-      id: userState.user.id,
-      name: userState.user.name,
-      resume: userState.user.resume,
-      openai_key: userState.user.openai_key,
-      firecrawl_key: userState.user.firecrawl_key,
-    },
-    login: login,
-    logout: logout,
-  };
   return (
-    <userContext.Provider value={userContextValue}>
-      <HeroUIProvider className='dark'>
-        <ToastProvider placement='top-center' />
-        <Component {...pageProps} />
-      </HeroUIProvider>
-    </userContext.Provider>
+    <HeroUIProvider className='dark'>
+      <ToastProvider placement='top-center' />
+      <Component {...pageProps} />
+    </HeroUIProvider>
   );
 }

@@ -345,155 +345,143 @@ const Home = ({
       </Card>
     );
   };
+  const handleAutoWriteCoverLetter = async (id: string) => {
+    const application =
+      applications && applications.find((item) => item._id === id);
+    if (!application) {
+      addToast({
+        color: 'warning',
+        title: 'Unable to locate application to write the cover letter.',
+      });
+      return;
+    }
+    const key = openAiKey ? openAiKey : '';
+    setLoadingAI(true);
+    await automatedCoverLetter({ job: application, openAiKey: key })
+      .then(async (res) => {
+        application.automated_cover_letter = res;
+        const body = JSON.stringify(application);
+        await updateApplication({ id: application._id, body })
+          .then(() => refreshApplications())
+          .catch(() =>
+            addToast({
+              color: 'danger',
+              title:
+                'There was an error updating the application with the automated cover letter.',
+            })
+          );
+      })
+      .catch((e) => {
+        addToast({
+          color: 'danger',
+          title: `There was an error, ${e}`,
+        });
+      });
+    setLoading(false);
+  };
+  const renderDetailsModal = () => {
+    if (!activeApplication) return;
+    const onClose = () => setShowDetails(false);
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        onOpenChange={onOpenChange}
+        scrollBehavior='outside'
+        size='3xl'
+      >
+        <ModalContent>
+          <ModalHeader>{activeApplication.company_name}</ModalHeader>
+          <ModalBody>
+            <Details
+              item={activeApplication}
+              onDelete={handleDelete}
+              onEdit={handleListEditClick}
+              onAutoCollect={handleAutoCollect}
+              onAutoCoverLetter={handleAutoWriteCoverLetter}
+              onViewCoverLetter={handleViewCoverLetter}
+              loading={loading}
+              loadingAI={loadingAI}
+              disableOpenAi={disableOpenAi}
+              disableFirecrawl={disableFirecrawl}
+            />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+    );
+  };
+  const renderViewCoverLetterModal = () => {
+    if (!activeApplication || !activeApplication.automated_cover_letter) return;
+    const onClose = () => setShowCoverLetterModal(false);
+    return (
+      <Modal
+        isOpen={isOpen}
+        onClose={onClose}
+        onOpenChange={onOpenChange}
+        scrollBehavior='outside'
+        size='3xl'
+      >
+        <ModalContent>
+          <ModalHeader>
+            {activeApplication.company_name} Cover Letter
+          </ModalHeader>
+          <ModalBody>{activeApplication.automated_cover_letter}</ModalBody>
+          <ModalFooter>
+            <Button
+              onPress={() => handleAutoWriteCoverLetter(activeApplication?._id)}
+              color='secondary'
+              isLoading={loadingAI}
+              isDisabled={
+                activeApplication.stage?.toLocaleLowerCase() === 'closed'
+              }
+            >
+              <span
+                className='text-success'
+                aria-label='This action requires a financial transaction'
+              >
+                $
+              </span>
+              Rewrite
+            </Button>
+            <Button onPress={onClose}>Close</Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  };
   return (
     <>
-      <userContext.Consumer>
-        {({ user, login }) => {
-          const handleAutoWriteCoverLetter = async (id: string) => {
-            const application =
-              applications && applications.find((item) => item._id === id);
-            if (!application) return;
-            if (!application._resume && user.resume) {
-              application.resume = user.resume;
-            }
-            const key = openAiKey ? openAiKey : '';
-            setLoadingAI(true);
-            await automatedCoverLetter({ job: application, openAiKey: key })
-              .then(async (res) => {
-                application.automated_cover_letter = res;
-                const body = JSON.stringify(application);
-                await updateApplication({ id: application._id, body })
-                  .then(() => refreshApplications())
-                  .catch(() =>
-                    addToast({
-                      color: 'danger',
-                      title:
-                        'There was an error updating the application with the automated cover letter.',
-                    })
-                  );
-              })
-              .catch((e) => {
-                addToast({
-                  color: 'danger',
-                  title: `There was an error, ${e}`,
-                });
-              });
-            setLoading(false);
-          };
-          const renderDetailsModal = () => {
-            if (!activeApplication) return;
-            const onClose = () => setShowDetails(false);
-            return (
-              <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                onOpenChange={onOpenChange}
-                scrollBehavior='outside'
-                size='3xl'
-              >
-                <ModalContent>
-                  <ModalHeader>{activeApplication.company_name}</ModalHeader>
-                  <ModalBody>
-                    <Details
-                      item={activeApplication}
-                      onDelete={handleDelete}
-                      onEdit={handleListEditClick}
-                      onAutoCollect={handleAutoCollect}
-                      onAutoCoverLetter={handleAutoWriteCoverLetter}
-                      onViewCoverLetter={handleViewCoverLetter}
-                      loading={loading}
-                      loadingAI={loadingAI}
-                      disableOpenAi={disableOpenAi}
-                      disableFirecrawl={disableFirecrawl}
-                    />
-                  </ModalBody>
-                </ModalContent>
-              </Modal>
-            );
-          };
-          const renderViewCoverLetterModal = () => {
-            if (!activeApplication || !activeApplication.automated_cover_letter)
-              return;
-            const onClose = () => setShowCoverLetterModal(false);
-            return (
-              <Modal
-                isOpen={isOpen}
-                onClose={onClose}
-                onOpenChange={onOpenChange}
-                scrollBehavior='outside'
-                size='3xl'
-              >
-                <ModalContent>
-                  <ModalHeader>
-                    {activeApplication.company_name} Cover Letter
-                  </ModalHeader>
-                  <ModalBody>
-                    {activeApplication.automated_cover_letter}
-                  </ModalBody>
-                  <ModalFooter>
-                    <Button
-                      onPress={() =>
-                        handleAutoWriteCoverLetter(activeApplication?._id)
-                      }
-                      color='secondary'
-                      isLoading={loadingAI}
-                      isDisabled={
-                        activeApplication.stage?.toLocaleLowerCase() ===
-                        'closed'
-                      }
-                    >
-                      <span
-                        className='text-success'
-                        aria-label='This action requires a financial transaction'
-                      >
-                        $
-                      </span>
-                      Rewrite
-                    </Button>
-                    <Button onPress={onClose}>Close</Button>
-                  </ModalFooter>
-                </ModalContent>
-              </Modal>
-            );
-          };
-          return (
-            <>
-              <Nav
-                isConnected={isConnected}
-                handleOpenAi={handleOpenAi}
-                handleFirecrawl={handleFirecrawl}
-                openAiKey={openAiKey}
-                firecrawlKey={firecrawlKey}
-                handleLogin={login}
-              />
-              <main className={`${inter.className} relative`}>
-                {isOpen && showEditModal && renderEditModal()}
-                {isOpen && showAddModal && renderAddModal()}
-                {isOpen && showCoverLetterModal && renderViewCoverLetterModal()}
-                {isOpen && showDetails && renderDetailsModal()}
-                <div className='lg:w-full'>{renderWelcome()}</div>
-                {showSkeletonList ? (
-                  <SkeletonList />
-                ) : (
-                  <List
-                    items={applications}
-                    onDelete={handleDelete}
-                    onEdit={handleListEditClick}
-                    onAutoCollect={handleAutoCollect}
-                    onAutoCoverLetter={handleAutoWriteCoverLetter}
-                    onViewCoverLetter={handleViewCoverLetter}
-                    onViewCard={handleViewCard}
-                    loading={loading}
-                    loadingAI={loadingAI}
-                    disableOpenAi={disableOpenAi}
-                    disableFirecrawl={disableFirecrawl}
-                  />
-                )}
-              </main>
-            </>
-          );
-        }}
-      </userContext.Consumer>
+      <Nav
+        isConnected={isConnected}
+        handleOpenAi={handleOpenAi}
+        handleFirecrawl={handleFirecrawl}
+        openAiKey={openAiKey}
+        firecrawlKey={firecrawlKey}
+      />
+      <main className={`${inter.className} relative`}>
+        {isOpen && showEditModal && renderEditModal()}
+        {isOpen && showAddModal && renderAddModal()}
+        {isOpen && showCoverLetterModal && renderViewCoverLetterModal()}
+        {isOpen && showDetails && renderDetailsModal()}
+        <div className='lg:w-full'>{renderWelcome()}</div>
+        {showSkeletonList ? (
+          <SkeletonList />
+        ) : (
+          <List
+            items={applications}
+            onDelete={handleDelete}
+            onEdit={handleListEditClick}
+            onAutoCollect={handleAutoCollect}
+            onAutoCoverLetter={handleAutoWriteCoverLetter}
+            onViewCoverLetter={handleViewCoverLetter}
+            onViewCard={handleViewCard}
+            loading={loading}
+            loadingAI={loadingAI}
+            disableOpenAi={disableOpenAi}
+            disableFirecrawl={disableFirecrawl}
+          />
+        )}
+      </main>
       <Footer />
     </>
   );
