@@ -1,23 +1,29 @@
-import userContext, { emptyUser } from '@/contexts/UserContext';
-import { fetchUserLogin } from '@/functions/functions';
-import UserStateInterface from '@/interfaces/UserStateInterface';
+import userContext, { emptyUserState } from '@/contexts/UserContext';
+import { fetchUser, fetchUserLogin } from '@/functions/functions';
+import UserContextInterface from '@/interfaces/UserContextInterface';
 import '@/styles/globals.css';
 import { addToast, HeroUIProvider, ToastProvider } from '@heroui/react';
 import type { AppProps } from 'next/app';
-import { FormEvent, useEffect, useState } from 'react';
+import { FormEvent, useCallback, useEffect, useState } from 'react';
 export default function App({ Component, pageProps }: AppProps) {
-  const [user, setUser] = useState<UserStateInterface>();
+  const [userState, setUserState] =
+    useState<UserContextInterface>(emptyUserState);
+  const fetchMyUser = useCallback(async (args: { token: string }) => {
+    const { token } = args;
+    const user = await fetchUser({ token });
+    setUserState({ user: user });
+  }, []);
   useEffect(function checkForUser() {
-    if (window.localStorage.getItem('token')) {
-      //TODO add token handling
-    }
-    if (!user) {
-      setUser(emptyUser);
+    const token = window.localStorage.getItem('token');
+    if (token) {
+      fetchMyUser({ token });
+    } else {
+      setUserState(emptyUserState);
     }
   }, []);
-  if (!user) return;
+  if (!userState) return;
   const logout = () => {
-    setUser(emptyUser);
+    setUserState(emptyUserState);
   };
   const login = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -25,7 +31,7 @@ export default function App({ Component, pageProps }: AppProps) {
     const email = Object.fromEntries(formData).email.toString();
     const password = Object.fromEntries(formData).password.toString();
     await fetchUserLogin({ email, password })
-      .then((data) => (user.state = data))
+      .then((data) => (userState.user.id = data))
       .catch((e) =>
         addToast({
           color: 'danger',
@@ -34,9 +40,12 @@ export default function App({ Component, pageProps }: AppProps) {
       );
   };
   const userContextValue = {
-    state: {
-      _id: user.state._id,
-      resume: user.state.resume,
+    user: {
+      id: userState.user.id,
+      name: userState.user.name,
+      resume: userState.user.resume,
+      openai_key: userState.user.openai_key,
+      firecrawl_key: userState.user.firecrawl_key,
     },
     login: login,
     logout: logout,

@@ -1,7 +1,7 @@
-import UserStateInterface from '@/interfaces/UserStateInterface';
+import UserContextInterface from '@/interfaces/UserContextInterface';
 import { createContext } from 'react';
-export const emptyUser = {
-  state: { _id: '' },
+export const emptyUserState = {
+  user: { id: '' },
 };
-const userContext = createContext<UserStateInterface>(emptyUser);
+const userContext = createContext<UserContextInterface>(emptyUserState);
 export default userContext;

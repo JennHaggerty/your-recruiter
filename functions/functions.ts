@@ -159,6 +159,45 @@ export const fetchUserLogin = async (args: {
     .catch(() => {});
   return user;
 };
+const fetchUserId = async (args: { token: string }) => {
+  const { token } = args;
+  const id = await fetch('/api/users/getUserId?token=' + token)
+    .then((res) => {
+      if (res.status !== 201) {
+        addToast({ color: 'danger', title: res.json() });
+      } else {
+        return res.json();
+      }
+    })
+    .catch((e) => {
+      addToast({
+        color: 'danger',
+        title: `There was an error fetching session, ${e}`,
+      });
+    });
+  return id;
+};
+export const fetchUser = async (args: { token: string }) => {
+  const { token } = args;
+  const data = await fetchUserId({ token }).then(async (id) => {
+    const user = await fetch('/api/users/getUser?id=' + id)
+      .then((res) => {
+        if (res.status !== 201) {
+          addToast({ color: 'danger', title: res.json() });
+        } else {
+          return res.json();
+        }
+      })
+      .catch((e) => {
+        addToast({
+          color: 'danger',
+          title: `There was an error fetching user, ${e}`,
+        });
+      });
+    return user;
+  });
+  return data;
+};
 export const fetchApplications = async () => {
   const data = await fetch('/api/applications/getApplications')
     .then((res) => res.json())

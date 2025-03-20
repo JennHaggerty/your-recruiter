@@ -35,18 +35,13 @@ import {
   updateApplication,
 } from '@/functions/functions';
 import userContext from '@/contexts/UserContext';
-import UserStateInterface from '@/interfaces/UserStateInterface';
 type ConnectionStatus = {
   isConnected: boolean;
 };
-interface Props {
-  user?: UserStateInterface;
-}
 const inter = Inter({ subsets: ['latin'] });
-const Home = (
-  { isConnected }: InferGetServerSidePropsType<typeof getServerSideProps>,
-  props: Props
-) => {
+const Home = ({
+  isConnected,
+}: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [loadingAI, setLoadingAI] = useState<boolean>();
@@ -353,14 +348,13 @@ const Home = (
   return (
     <>
       <userContext.Consumer>
-        {({ state, login }) => {
-          const userState = state;
+        {({ user, login }) => {
           const handleAutoWriteCoverLetter = async (id: string) => {
             const application =
               applications && applications.find((item) => item._id === id);
             if (!application) return;
-            if (!application._resume && userState.resume) {
-              application.resume = userState.resume;
+            if (!application._resume && user.resume) {
+              application.resume = user.resume;
             }
             const key = openAiKey ? openAiKey : '';
             setLoadingAI(true);
