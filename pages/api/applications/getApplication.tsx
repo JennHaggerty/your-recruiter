@@ -5,7 +5,7 @@ import JobInterface from '@/interfaces/JobInterface';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const client = await clientPromise;
   const db = await client.db(process.env.MONGODB);
-  const collection = process.env.MONGODB_COLLECTION;
+  const collection = process.env.MONGODB_COLLECTION_USERS;
   if (!db || !collection) {
     return res.status(500).json({
       message: `The database or collection is missing. Check your setup.`,

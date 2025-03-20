@@ -3,12 +3,15 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import bcrypt from 'bcrypt';
 import UserLoginType from '../types/userLoginType';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
+  const client = await clientPromise;
+  const db = await client.db(process.env.MONGODB);
+  const collection = process.env.MONGODB_COLLECTION_USERS;
+  if (!db || !collection) {
+    return res.status(500).json({
+      message: `The database or applications collection is missing. Check your setup.`,
+    });
+  }
   try {
-    const client = await clientPromise;
-    const db = client.db(process.env.MONGODB);
-    if (!db) return res.status(500).json('Missing database.');
-    const collection = process.env.MONGODB_COLLECTION_USERS;
-    if (!collection) return res.status(500).json('Missing users collection.');
     const formData = req.body;
     const email: string = formData.email;
     const password: string = formData.password;

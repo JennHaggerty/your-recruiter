@@ -8,16 +8,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   // check for database and users collection
   const client = await clientPromise;
   const db = client.db(process.env.MONGODB);
-  if (!db) {
-    return res.status(500).json('Missing database variable.');
-  }
   const sessionsCollectionVariable = process.env.MONGODB_COLLECTION_SESSIONS;
   if (!sessionsCollectionVariable) {
     return res.status(500).json('Missing sessions collection variable.');
   }
   const sessionsCollection = await db.collection(sessionsCollectionVariable);
-  if (!sessionsCollection) {
-    return res.status(500).json('Missing sessions collection.');
+  if (!db || !sessionsCollection) {
+    return res.status(500).json('Missing database or sessions collection.');
   }
   const tokenSecret = process.env.TOKEN_SECRET;
   if (!tokenSecret) {
