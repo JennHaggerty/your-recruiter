@@ -15,9 +15,9 @@ import SignupDrawer from '../Drawers/SignupDrawer';
 import { useUserContext } from '@/contexts/UserContext';
 
 interface Props {
-  isConnected: boolean;
-  handleOpenAi: (e: FormEvent<HTMLFormElement>) => void;
-  handleFirecrawl: (e: FormEvent<HTMLFormElement>) => void;
+  isConnected?: boolean;
+  handleOpenAi?: (e: FormEvent<HTMLFormElement>) => void;
+  handleFirecrawl?: (e: FormEvent<HTMLFormElement>) => void;
   handleSignup?: (e: FormEvent<HTMLFormElement>) => void;
   openAiKey?: string;
   firecrawlKey?: string;
@@ -32,7 +32,7 @@ const Nav = (props: Props) => {
     openAiKey,
     firecrawlKey,
   } = props;
-  const { id, logout, login } = useUserContext();
+  const { user_id, logout, login, signup } = useUserContext();
   const [showSignupForm, setShowSignupForm] = useState<boolean>();
   const [showLoginForm, setShowLoginForm] = useState<boolean>();
   const [showLegend, setShowLegend] = useState<boolean>();
@@ -69,25 +69,9 @@ const Nav = (props: Props) => {
             Legend
           </Button>
         </NavbarItem>
-        {!id ? (
+        {!user_id ? (
           <>
-            <NavbarItem>
-              <Badge
-                color='danger'
-                content={badgeCount}
-                shape='circle'
-                isInvisible={badgeCount === 0}
-              >
-                <Button
-                  color='primary'
-                  variant='flat'
-                  onPress={() => setShowSettings(true)}
-                >
-                  Playground Settings
-                </Button>
-              </Badge>
-            </NavbarItem>
-            {handleSignup && (
+            {signup && (
               <NavbarItem>
                 <Button
                   color='primary'
@@ -122,7 +106,7 @@ const Nav = (props: Props) => {
                   variant='flat'
                   onPress={() => setShowSettings(true)}
                 >
-                  User Settings
+                  Settings
                 </Button>
               </Badge>
             </NavbarItem>
@@ -134,14 +118,14 @@ const Nav = (props: Props) => {
           </>
         )}
       </NavbarContent>
-      {showSignupForm && handleSignup && (
+      {showSignupForm && signup && (
         <SignupDrawer
           isOpen={showSignupForm}
           onClose={() => setShowSignupForm(false)}
-          handleSubmit={handleSignup}
+          handleSubmit={signup}
         />
       )}
-      {!id && showLoginForm && login && (
+      {!user_id && showLoginForm && login && (
         <LoginDrawer
           isOpen={showLoginForm}
           onClose={() => setShowLoginForm(false)}

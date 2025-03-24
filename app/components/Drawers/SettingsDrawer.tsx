@@ -17,9 +17,9 @@ import React, { FormEvent } from 'react';
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  isConnected: boolean;
-  handleOpenAi: (e: FormEvent<HTMLFormElement>) => void;
-  handleFirecrawl: (e: FormEvent<HTMLFormElement>) => void;
+  isConnected?: boolean;
+  handleOpenAi?: (e: FormEvent<HTMLFormElement>) => void;
+  handleFirecrawl?: (e: FormEvent<HTMLFormElement>) => void;
   firecrawlKey?: string;
   openAiKey?: string;
   loading?: boolean;

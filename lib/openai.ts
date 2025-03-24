@@ -14,7 +14,7 @@ export const automatedCoverLetter = async (args: {
 
   try {
     const posting = job._markdown;
-    const resume = job.resume;
+    const resume = job._resume;
     const requirements = job.cover_letter_requirements;
     const coverLetterWording = requirements
       ? ` can you write me a cover letter with these requirements ${requirements}`

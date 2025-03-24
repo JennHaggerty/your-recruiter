@@ -76,7 +76,7 @@ const Details = (props: Props) => {
         } else if (key === 'notes') {
           return (
             <div key={key}>
-              <div className='card-info'>
+              <div className='card-info flex justify-between'>
                 <dt className='font-bold'>{key.toUpperCase()}</dt>
                 <dd>{renderNotes(item)}</dd>
               </div>
@@ -111,11 +111,12 @@ const Details = (props: Props) => {
           key !== 'posting_url' &&
           key !== 'company_name' &&
           key !== 'company_url' &&
-          key !== 'automated_cover_letter'
+          key !== 'automated_cover_letter' &&
+          item[key]
         ) {
           return (
             <div key={key}>
-              <div className='card-info'>
+              <div className='card-info flex justify-between'>
                 <dt className='font-bold'>
                   {key.replaceAll('_', ' ').toUpperCase()}
                 </dt>

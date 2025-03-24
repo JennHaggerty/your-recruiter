@@ -42,8 +42,8 @@ const inter = Inter({ subsets: ['latin'] });
 const Home = ({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { id, resume, openai_key, firecrawl_key, login, logout } =
-    useUserContext();
+  const { user_id, resume } = useUserContext();
+  if (!user_id) return;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [loadingAI, setLoadingAI] = useState<boolean>();
@@ -64,16 +64,17 @@ const Home = ({
     setWidth(window.innerWidth);
   };
   const refreshApplications = async () => {
-    const applications = await fetchApplications()
+    const applications = await fetchApplications({ user_id })
       .then((data) => {
         return data;
       })
-      .catch(() =>
+      .catch(() => {
         addToast({
           color: 'danger',
           title: 'There was an error refreshing applications.',
-        })
-      );
+        });
+        return;
+      });
     setApplications(applications);
   };
   useEffect(function detectWindowResize() {
@@ -103,12 +104,13 @@ const Home = ({
   }, []);
   const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!user_id) return;
     setLoading(true);
     setShowSkeletonList(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
     const body = JSON.stringify(data);
-    await createApplication({ body })
+    await createApplication({ user_id, body })
       .then(async () => await refreshApplications())
       .catch(() =>
         addToast({
@@ -220,7 +222,7 @@ const Home = ({
       applications && applications.find((item) => item._id === id);
     if (!application) return;
     if (!application._resume && resume) {
-      application.resume = resume;
+      application._resume = resume;
     }
     const key = openAiKey ? openAiKey : '';
     setLoadingAI(true);
@@ -369,6 +371,7 @@ const Home = ({
   const renderWelcome = () => {
     const quickAdd = async (e: FormEvent<HTMLFormElement>) => {
       e.preventDefault();
+      if (!user_id) return;
       setLoadingAI(true);
       const formData = new FormData(e.currentTarget);
       const url = formData.get('posting_url') as string;
@@ -376,7 +379,7 @@ const Home = ({
         .then(async (data) => {
           const scrapedData = data;
           const body = JSON.stringify(scrapedData);
-          await createApplication({ body })
+          await createApplication({ user_id, body })
             .then(() => refreshApplications())
             .finally(() => setLoadingAI(false))
             .catch(() =>
@@ -398,13 +401,12 @@ const Home = ({
     return (
       <Card className='w-full flex flex-col lg:w-full p-3 md:p-5 mb-8'>
         <CardHeader className='flex flex-col'>
-          <h1 className='text-xl mb-3'>Welcome to the Recruiter</h1>
-          The CMS that logs job listings and writes cover letter templates.
+          <h2>Enter your next adventure</h2>
         </CardHeader>
         <CardBody>
           <Form
             id='quick-add'
-            className='flex flex-col mt-5'
+            className='flex flex-col'
             validationBehavior='native'
             onSubmit={quickAdd}
           >

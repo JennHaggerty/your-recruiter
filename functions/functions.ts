@@ -159,7 +159,7 @@ export const fetchUserLogin = async (args: {
     .catch(() => {});
   return user;
 };
-const fetchUserId = async (args: { token: string }) => {
+export const fetchUserId = async (args: { token: string }) => {
   const { token } = args;
   const id = await fetch('/api/users/getUserId?token=' + token)
     .then((res) => {
@@ -177,29 +177,29 @@ const fetchUserId = async (args: { token: string }) => {
     });
   return id;
 };
-export const fetchUser = async (args: { token: string }) => {
-  const { token } = args;
-  const data = await fetchUserId({ token }).then(async (id) => {
-    const user = await fetch('/api/users/getUser?id=' + id)
-      .then((res) => {
-        if (res.status !== 201) {
-          addToast({ color: 'danger', title: res.json() });
-        } else {
-          return res.json();
-        }
-      })
-      .catch((e) => {
-        addToast({
-          color: 'danger',
-          title: `There was an error fetching user, ${e}`,
-        });
+export const fetchUser = async (args: { id: string }) => {
+  const { id } = args;
+  const user = await fetch('/api/users/getUser?id=' + id)
+    .then((res) => {
+      if (res.status !== 201) {
+        addToast({ color: 'danger', title: res.json() });
+        return;
+      } else {
+        return res.json();
+      }
+    })
+    .catch((e) => {
+      addToast({
+        color: 'danger',
+        title: `There was an error fetching user, ${e}`,
       });
-    return user;
-  });
-  return data;
+      return;
+    });
+  return user;
 };
-export const fetchApplications = async () => {
-  const data = await fetch('/api/applications/getApplications')
+export const fetchApplications = async (args: { user_id: string }) => {
+  const { user_id } = args;
+  const data = await fetch('/api/applications/getApplications?user=' + user_id)
     .then((res) => res.json())
     .then((data) => {
       return data;
@@ -242,7 +242,6 @@ export const updateApplication = async (args: { id: string; body: string }) => {
           description: 'No changes made. Not updating.',
         });
       }
-      fetchApplications();
     })
     .catch((e) => {
       addToast({
@@ -250,9 +249,13 @@ export const updateApplication = async (args: { id: string; body: string }) => {
         description: `There was an error updating application, ${e}`,
       });
     });
+  return;
 };
-export const createApplication = async (args: { body: string }) => {
-  const { body } = args;
+export const createApplication = async (args: {
+  user_id: string;
+  body: string;
+}) => {
+  const { user_id, body } = args;
   await fetch('/api/applications/createApplication', {
     method: 'POST',
     headers: {
@@ -260,16 +263,14 @@ export const createApplication = async (args: { body: string }) => {
     },
     body,
   })
-    .then(() => fetchApplications())
-    .finally(() => {
-      addToast({ color: 'success', title: 'Successfully added.' });
-    })
+    .then((res) => addToast({ color: 'success', title: 'Successfully added.' }))
     .catch((e) => {
       addToast({
         color: 'danger',
         title: `There was an error creating application, ${e}`,
       });
     });
+  return;
 };
 export const deleteApplication = async (args: { id: string }) => {
   const { id } = args;
@@ -278,7 +279,7 @@ export const deleteApplication = async (args: { id: string }) => {
     body: id,
   })
     .then(() => {
-      fetchApplications();
+      addToast({ color: 'success', title: 'Successfully deleted.' });
     })
     .catch((e) => {
       addToast({

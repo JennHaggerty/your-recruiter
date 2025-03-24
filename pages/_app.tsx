@@ -1,27 +1,56 @@
 import { UserContext } from '@/contexts/UserContext';
-import { fetchUser, fetchUserLogin } from '@/functions/functions';
+import {
+  fetchUser,
+  fetchUserId,
+  fetchUserLogin,
+  handleUserSignup,
+} from '@/functions/functions';
 import '@/styles/globals.css';
-import { addToast, HeroUIProvider, ToastProvider } from '@heroui/react';
+import {
+  addToast,
+  HeroUIProvider,
+  Spinner,
+  ToastProvider,
+} from '@heroui/react';
 import type { AppProps } from 'next/app';
+import Router from 'next/router';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 export default function App({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<UserContext>();
+  const [loading, setLoading] = useState<boolean>(true);
   const fetchMyUser = useCallback(async (args: { token: string }) => {
     const { token } = args;
-    const userData = await fetchUser({ token });
-    setUser(userData);
+    await fetchUserId({ token })
+      .then(async (id) => {
+        const data = await fetchUser({ id })
+          .then((data) => {
+            return data;
+          })
+          .catch((e) => {
+            addToast({ color: 'danger', title: `Cannot retrieve user, ${e}` });
+            return;
+          });
+        setUser(data);
+      })
+      .then(() => Router.push('./'))
+      .catch((e) => {
+        addToast({ color: 'danger', title: `Cannot retrieve user id, ${e}` });
+        return;
+      });
   }, []);
   useEffect(function checkForUser() {
     const token = window.localStorage.getItem('token');
     if (token) {
-      //TODO add check to token expiry?
       fetchMyUser({ token });
     } else {
-      setUser(undefined);
+      logout();
     }
+    return;
   }, []);
   const logout = () => {
+    window.localStorage.removeItem('token');
     setUser(undefined);
+    Router.push('./welcome');
   };
   const login = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,12 +58,10 @@ export default function App({ Component, pageProps }: AppProps) {
     const email = Object.fromEntries(formData).email.toString();
     const password = Object.fromEntries(formData).password.toString();
     await fetchUserLogin({ email, password })
-      .then((data) => {
-        const userId = {
-          id: data,
-        };
-        return setUser(userId);
+      .then((user) => {
+        setUser(user);
       })
+      .finally(() => Router.reload())
       .catch((e) => {
         addToast({
           color: 'danger',
@@ -44,19 +71,20 @@ export default function App({ Component, pageProps }: AppProps) {
       });
   };
   const userContextValue = {
-    id: user && user.id,
+    user_id: user && user.user_id,
     resume: user && user.resume,
     openai_key: user && user.openai_key,
     firecrawl_key: user && user.firecrawl_key,
     login: login,
     logout: logout,
+    signup: handleUserSignup,
   };
   return (
-    <UserContext.Provider value={userContextValue}>
-      <HeroUIProvider className='dark'>
-        <ToastProvider placement='top-center' />
+    <HeroUIProvider className='dark'>
+      <ToastProvider placement='top-center' />
+      <UserContext.Provider value={userContextValue}>
         <Component {...pageProps} />
-      </HeroUIProvider>
-    </UserContext.Provider>
+      </UserContext.Provider>
+    </HeroUIProvider>
   );
 }

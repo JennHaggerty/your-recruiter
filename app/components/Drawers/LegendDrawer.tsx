@@ -78,6 +78,10 @@ const LegendDrawer = (props: Props) => {
                     <Chip variant='bordered'>Gray buttons</Chip> clear and reset
                     forms.
                   </li>
+                  <li>
+                    Gray buttons will be used when side-by-side buttons are the
+                    same color to help distinguish them.
+                  </li>
                 </ul>
               </dd>
               <dt>Green is success or cash money!</dt>
