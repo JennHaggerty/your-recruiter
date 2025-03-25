@@ -138,43 +138,52 @@ const Home = () => {
     <>
       <Nav />
       <main className={`${inter.className} relative`}>
-        <div className='flex'>
-          <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
-            Welcome to your&nbsp;
-          </h1>
-          <h1 className='tracking-tight inline font-semibold from-[#6FEE8D] to-[#17c964] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
-            next adventure.
-          </h1>
-        </div>
-        <p className='w-4/5 md:w-5/6 my-2 text-medium lg:text-large font-normal text-default-500 block max-w-full'>
-          Finding your next position can be overwhelming after sending out tens
-          of applications a day, hundreds of applications a week, to thousands
-          by the end of the month! Keep all of your application information and
-          their timelines in one place tracking where you found the position,
-          when you applied and with what resume and cover letter, and the
-          various notes and stages using the power of AI to rapidly speed up
-          your cover letter and resume writing and get back to what is
-          important, preparing for your next adventure.
-        </p>
-        <Card
-          isBlurred
-          className='border-none bg-background/60 dark:bg-default-100/50 max-w-[990px]'
-          shadow='sm'
-        >
-          <CardBody>
-            <iframe
-              width='900'
-              height='615'
-              src=''
-              title='Your Recruiter video introduction and tutorial'
-              allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
-              referrerPolicy='strict-origin-when-cross-origin'
-              allowFullScreen
-            ></iframe>
-          </CardBody>
-        </Card>
+        <section className='my-20'>
+          <div className='flex flex-col gap-3 justify-center mx-auto'>
+            <div className='flex justify-center'>
+              <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
+                Welcome to your&nbsp;
+              </h1>
+              <h1 className='tracking-tight inline font-semibold from-[#6FEE8D] to-[#17c964] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
+                next adventure.
+              </h1>
+            </div>
+            <div className='flex flex-col gap-5'>
+              <p className='my-2 pb-10 text-medium lg:text-large font-normal text-default-500 block w-[85%] m-auto'>
+                Finding your next position can be overwhelming after sending out
+                tens of applications a day, hundreds of applications a week, to
+                thousands by the end of the month! Keep all of your application
+                information and their timelines in one place tracking where you
+                found the position, when you applied and with what resume and
+                cover letter, and the various notes and stages using the power
+                of AI to rapidly speed up your cover letter and resume writing
+                and get back to what is important, preparing for your next
+                adventure.
+              </p>
+              <Card
+                isBlurred
+                className='border-none bg-background/60 dark:bg-default-100/50'
+                shadow='sm'
+              >
+                <CardBody>
+                  <iframe
+                    width='900'
+                    height='615'
+                    src=''
+                    title='Your Recruiter video introduction and tutorial'
+                    allow='accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share'
+                    referrerPolicy='strict-origin-when-cross-origin'
+                    allowFullScreen
+                  ></iframe>
+                </CardBody>
+              </Card>
+            </div>
+          </div>
+        </section>
+        add section for ai vs. manual
         <section className='my-20'>{renderFeatureBlocks()}</section>
         <section className='my-20'>{renderMobileDetails()}</section>
+        add color code with ping to legend?
       </main>
       <Footer />
     </>
