@@ -2,7 +2,7 @@ import React from 'react';
 import { Inter } from 'next/font/google';
 import Footer from '@/app/components/Footer/Footer';
 import Nav from '@/app/components/Nav/Nav';
-import { Card, CardBody } from '@heroui/react';
+import { Card, CardBody, Divider, Image } from '@heroui/react';
 import { MagicWandIcon } from '@/app/components/Icons/MagicWantIcon';
 import { UserBlurbIcon } from '@/app/components/Icons/UserBlurbIcon';
 import { CodeIcon } from '@/app/components/Icons/CodeIcon';
@@ -58,7 +58,7 @@ const Home = () => {
     ];
     return (
       <>
-        <div className='flex flex-col gap-2 justify-center w-full items-center pt-5'>
+        <div className='flex flex-col gap-2 justify-center w-full items-center pb-5'>
           <div>
             <h1 className='tracking-tight inline font-semibold from-[#FF705B] to-[#FFB457] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
               Features&nbsp;
@@ -98,8 +98,8 @@ const Home = () => {
   };
   const renderMobileDetails = () => {
     return (
-      <div className='flex gap-8'>
-        <div>
+      <div className='flex flex-col md:flex-row gap-8'>
+        <div className='w-full my-auto'>
           <div className='flex flex-col gap-2 items-start justify-center w-full'>
             <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
               Responsiveness
@@ -113,20 +113,20 @@ const Home = () => {
               </h1>
             </div>
           </div>
-          <p className='w-full md:w-1/2 my-2 text-medium lg:text-large font-normal text-default-500 block max-w-full'>
-            The table will show fewer columns and minimized menu on mobile
-            devices and expand out when using larger screens.
+          <p className='w-full my-2 text-medium lg:text-large font-normal text-default-500 block max-w-full'>
+            We had cards and quickly realized it was too much with so many
+            applications, so TABLES! The table view will show fewer columns on
+            mobile devices and expand out when using larger screens.
           </p>
         </div>
-        <div className='grid grid-cols-1 gap-4'>
-          <div className='flex flex-col justify-center'>
-            <div className='flex relative w-full h-auto bg-gradient-to-tr from-[#5EA2EF] to-[#0072F5] rounded-2xl items-center justify-center py-14 px-4 lg:px-8'>
-              <div className='flex flex-col relative overflow-hidden h-auto text-foreground box-border outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-small rounded-large backdrop-blur-md backdrop-saturate-150 transition-transform-background motion-reduce:transition-none border-none bg-background/60 dark:bg-default-100/50'>
-                <div className='relative flex w-full p-3 flex-auto flex-col place-content-inherit align-items-inherit h-auto break-words text-left overflow-y-auto subpixel-antialiased'>
-                  <div className='md:max-h-[200px] items-center justify-center'>
-                    Screenshot here
-                  </div>
-                </div>
+        <div className='flex flex-col justify-center w-full md-:w-1/2'>
+          <div className='flex relative w-full h-auto bg-gradient-to-tr from-[#5EA2EF] to-[#0072F5] rounded-2xl items-center justify-center py-4 px-4 lg:px-8'>
+            <div className='relative flex w-full p-3 flex-auto flex-col place-content-inherit align-items-inherit h-auto break-words text-left overflow-y-auto subpixel-antialiased'>
+              <div className='max-h-[500px] items-center justify-center mx-auto'>
+                <Image
+                  alt='Mobile view of Your Recruiter table.'
+                  src='./mobile-view.png'
+                />
               </div>
             </div>
           </div>
@@ -138,15 +138,12 @@ const Home = () => {
     <>
       <Nav />
       <main className={`${inter.className} relative`}>
-        <div className='mt-5'>
+        <div className='flex'>
           <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
             Welcome to your&nbsp;
           </h1>
           <h1 className='tracking-tight inline font-semibold from-[#6FEE8D] to-[#17c964] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
-            next adventure
-          </h1>
-          <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
-            .
+            next adventure.
           </h1>
         </div>
         <p className='w-4/5 md:w-5/6 my-2 text-medium lg:text-large font-normal text-default-500 block max-w-full'>
@@ -176,8 +173,8 @@ const Home = () => {
             ></iframe>
           </CardBody>
         </Card>
-        {renderFeatureBlocks()}
-        {renderMobileDetails()}
+        <section className='my-20'>{renderFeatureBlocks()}</section>
+        <section className='my-20'>{renderMobileDetails()}</section>
       </main>
       <Footer />
     </>

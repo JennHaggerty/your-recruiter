@@ -356,7 +356,7 @@ const statusColorMap: Record<string, ChipProps['color']> = {
 };
 const INITIAL_VISIBLE_COLUMNS = ['name', 'role', 'status', 'actions'];
 type User = (typeof users)[0];
-export default function App() {
+export default function ExampleList() {
   const [filterValue, setFilterValue] = React.useState('');
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(
     new Set([])

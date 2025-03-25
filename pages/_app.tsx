@@ -1,23 +1,12 @@
 import { UserContext } from '@/contexts/UserContext';
-import {
-  fetchUser,
-  fetchUserId,
-  fetchUserLogin,
-  handleUserSignup,
-} from '@/functions/functions';
+import { fetchUser, fetchUserId, fetchUserLogin } from '@/functions/functions';
 import '@/styles/globals.css';
-import {
-  addToast,
-  HeroUIProvider,
-  Spinner,
-  ToastProvider,
-} from '@heroui/react';
+import { addToast, HeroUIProvider, ToastProvider } from '@heroui/react';
 import type { AppProps } from 'next/app';
 import Router from 'next/router';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 export default function App({ Component, pageProps }: AppProps) {
   const [user, setUser] = useState<UserContext>();
-  const [loading, setLoading] = useState<boolean>(true);
   const fetchMyUser = useCallback(async (args: { token: string }) => {
     const { token } = args;
     await fetchUserId({ token })
@@ -77,7 +66,6 @@ export default function App({ Component, pageProps }: AppProps) {
     firecrawl_key: user && user.firecrawl_key,
     login: login,
     logout: logout,
-    signup: handleUserSignup,
   };
   return (
     <HeroUIProvider className='dark'>
