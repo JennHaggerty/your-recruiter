@@ -84,21 +84,21 @@ export const getListingData = async (args: { url: string; apiKey: string }) => {
   const { url, apiKey } = args;
   const data = await scrapeResponse({
     url: url,
-    apiKey: apiKey!,
+    apiKey: apiKey,
   })
     .then((res) => res)
-    .then(async (data) => {
+    .then((data) => {
       if (!data || data === undefined) {
-        addToast({
+        return addToast({
           color: 'danger',
           title:
             'Nothing was returned form the AI. Make sure it is a top-level domain, AI will not work on LinkedIn listings.',
         });
-        return;
       }
+      return data;
     })
     .catch((e) => {
-      addToast({
+      return addToast({
         color: 'danger',
         title: `There was an error getting listing data, ${e}`,
       });
@@ -214,17 +214,18 @@ export const fetchApplications = async (args: { user_id: string }) => {
 };
 export const fetchApplication = async (args: { id: string }) => {
   const { id } = args;
-  await fetch('/api/applications/getApplication/?id=' + id)
+  const application = await fetch('/api/applications/getApplication/?id=' + id)
     .then((res) => res.json())
     .then((data) => {
       return data;
     })
     .catch((e) => {
-      addToast({
+      return addToast({
         color: 'danger',
         title: `There wsas an error fetching application, ${e}`,
       });
     });
+  return application;
 };
 export const updateApplication = async (args: { id: string; body: string }) => {
   const { id, body } = args;
@@ -251,11 +252,8 @@ export const updateApplication = async (args: { id: string; body: string }) => {
     });
   return;
 };
-export const createApplication = async (args: {
-  user_id: string;
-  body: string;
-}) => {
-  const { user_id, body } = args;
+export const createApplication = async (args: { body: string }) => {
+  const { body } = args;
   await fetch('/api/applications/createApplication', {
     method: 'POST',
     headers: {
@@ -263,7 +261,16 @@ export const createApplication = async (args: {
     },
     body,
   })
-    .then((res) => addToast({ color: 'success', title: 'Successfully added.' }))
+    .then((res) => {
+      if (res.status !== 201) {
+        addToast({
+          color: 'danger',
+          title: `There was an error creating application`,
+        });
+      } else {
+        addToast({ color: 'success', title: 'Successfully added.' });
+      }
+    })
     .catch((e) => {
       addToast({
         color: 'danger',

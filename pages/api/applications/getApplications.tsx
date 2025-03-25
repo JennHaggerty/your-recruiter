@@ -15,8 +15,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(403).json('Missing user id, cannot get applications.');
   }
   try {
-    const id = new ObjectId(req.query.user.toString());
-    const filter = { _user_id: new ObjectId(id) };
+    const id = req.query.user.toString();
+    const filter = { _user_id: id };
     const applications = await db
       .collection(collection)
       .find<JobInterface>(filter)

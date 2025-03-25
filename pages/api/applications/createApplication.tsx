@@ -1,3 +1,4 @@
+import { ObjectId } from 'bson';
 import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
 export default async (req: NextApiRequest, res: NextApiResponse) => {
@@ -22,7 +23,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     formData._date_added = Date.now();
     const applications = await db.collection(collection!);
     const result = await applications.insertOne(formData);
-    res.status(201).json(result.acknowledged);
+    return res.status(201).json(result.acknowledged);
   } catch (e) {
     console.error(e);
   }

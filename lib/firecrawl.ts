@@ -1,6 +1,9 @@
 import FirecrawlApp from '@mendable/firecrawl-js';
 import { z } from 'zod';
-export const scrapeResponse = async (args: { url: string; apiKey: string }) => {
+export const scrapeResponse = async (args: {
+  url: string;
+  apiKey: string;
+}): Promise<any> => {
   const { url, apiKey } = args;
   const myApiKey = process.env.NEXT_PUBLIC_FIRECRAWL_KEY;
   if (!myApiKey && !apiKey) return;

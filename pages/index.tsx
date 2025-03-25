@@ -104,13 +104,12 @@ const Home = ({
   }, []);
   const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!user_id) return;
     setLoading(true);
     setShowSkeletonList(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
     const body = JSON.stringify(data);
-    await createApplication({ user_id, body })
+    await createApplication({ body })
       .then(async () => await refreshApplications())
       .catch(() =>
         addToast({
@@ -177,14 +176,13 @@ const Home = ({
       applications.find((application) => application._id === id);
     if (!applicationToUpdate) return;
     setLoadingAI(true);
-    setShowSkeletonList(true);
     await getListingData({
       url: applicationToUpdate.posting_url,
       apiKey: firecrawlKey,
     })
       .then(async (data) => {
         const scrapedData = data;
-        const updatedApplication = { ...applicationToUpdate, scrapedData };
+        const updatedApplication = { ...applicationToUpdate, ...scrapedData };
         const body = JSON.stringify(updatedApplication);
         await updateApplication({ id: updatedApplication._id!, body })
           .then(() => refreshApplications())
@@ -202,7 +200,6 @@ const Home = ({
           title: `There was an error with the AI collection process, ${e}`,
         });
       });
-    setShowSkeletonList(false);
     setLoadingAI(false);
   };
   const handleOpenAi = (e: FormEvent<HTMLFormElement>) => {
@@ -368,36 +365,35 @@ const Home = ({
       </Modal>
     );
   };
-  const renderWelcome = () => {
-    const quickAdd = async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!user_id) return;
-      setLoadingAI(true);
-      const formData = new FormData(e.currentTarget);
-      const url = formData.get('posting_url') as string;
-      await getListingData({ url, apiKey: firecrawlKey! })
-        .then(async (data) => {
-          const scrapedData = data;
-          const body = JSON.stringify(scrapedData);
-          await createApplication({ user_id, body })
-            .then(() => refreshApplications())
-            .finally(() => setLoadingAI(false))
-            .catch(() =>
-              addToast({
-                color: 'danger',
-                title:
-                  'There was an error creating application with the listing data.',
-              })
-            );
-        })
-        .catch((e) => {
-          addToast({
-            color: 'danger',
-            title: `There was an error with quickly adding the application, ${e}`,
-          });
-          setLoadingAI(false);
+  const quickAdd = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoadingAI(true);
+    const formData = new FormData(e.currentTarget);
+    const url = formData.get('posting_url') as string;
+    await getListingData({ url, apiKey: firecrawlKey! })
+      .then(async (data) => {
+        const scrapedData = data;
+        scrapedData._user_id = user_id;
+        const body = JSON.stringify(scrapedData);
+        await createApplication({ body })
+          .then(() => refreshApplications())
+          .catch(() =>
+            addToast({
+              color: 'danger',
+              title:
+                'There was an error creating application with the listing data.',
+            })
+          );
+      })
+      .catch((e) => {
+        addToast({
+          color: 'danger',
+          title: `There was an error with quickly adding the application, ${e}`,
         });
-    };
+      });
+    setLoadingAI(false);
+  };
+  const renderWelcome = () => {
     return (
       <Card className='w-full flex flex-col lg:w-full p-3 md:p-5 mb-8'>
         <CardHeader className='flex flex-col'>
@@ -410,6 +406,7 @@ const Home = ({
             validationBehavior='native'
             onSubmit={quickAdd}
           >
+            <Input className='hidden' name='_user_id' defaultValue={user_id} />
             <Input
               isRequired
               variant={'underlined'}

@@ -12,6 +12,7 @@ import {
 import { today, getLocalTimeZone } from '@internationalized/date';
 import ActionButtons from '../ActionButtons/ActionButtons';
 import { label } from 'framer-motion/client';
+import { useUserContext } from '@/contexts/UserContext';
 const stages = [
   { key: 'interested', label: 'Interested' },
   { key: 'applied', label: 'Applied' },
@@ -25,8 +26,9 @@ interface Props {
   loading?: boolean;
 }
 const AddForm = (props: Props) => {
+  const { user_id } = useUserContext();
+  if (!user_id) return;
   const { handleSubmit, handleCancel, loading } = props;
-  const [addCustomStage, setAddCustomStage] = useState(false);
   const [followUp, setFollowUp] = useState(false);
   const [followupDate, setFollowUpDate] = useState(
     today(getLocalTimeZone()).toString()
@@ -35,6 +37,7 @@ const AddForm = (props: Props) => {
     <Form className='form' validationBehavior='native' onSubmit={handleSubmit}>
       <div className='flex flex-col gap-4 w-full mb-3'>
         <span>Required Fields</span>
+        <Input className='hidden' name='_user_id' defaultValue={user_id} />
         <Input
           isRequired
           variant={'underlined'}
