@@ -123,7 +123,9 @@ const Home = () => {
             <div className='flex relative w-full h-auto bg-gradient-to-tr from-[#5EA2EF] to-[#0072F5] rounded-2xl items-center justify-center py-14 px-4 lg:px-8'>
               <div className='flex flex-col relative overflow-hidden h-auto text-foreground box-border outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-small rounded-large backdrop-blur-md backdrop-saturate-150 transition-transform-background motion-reduce:transition-none border-none bg-background/60 dark:bg-default-100/50'>
                 <div className='relative flex w-full p-3 flex-auto flex-col place-content-inherit align-items-inherit h-auto break-words text-left overflow-y-auto subpixel-antialiased'>
-                  <div className='md:max-h-[200px] grid grid-cols-6 md:grid-cols-12 gap-6 md:gap-4 items-center justify-center'></div>
+                  <div className='md:max-h-[200px] items-center justify-center'>
+                    Screenshot here
+                  </div>
                 </div>
               </div>
             </div>
