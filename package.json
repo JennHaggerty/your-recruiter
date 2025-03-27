@@ -9,6 +9,7 @@
     "@ai-sdk/openai": "^1.1.2",
     "@heroui/react": "^2.7.4",
     "@mendable/firecrawl-js": "^1.15.7",
+    "@vercel/analytics": "^1.5.0",
     "ai": "^4.1.10",
     "bcrypt": "^5.1.1",
     "bson": "^6.10.1",
