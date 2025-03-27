@@ -28,7 +28,6 @@ const Nav = (props: Props) => {
     isConnected,
     handleFirecrawl,
     handleOpenAi,
-    handleSignup,
     openAiKey,
     firecrawlKey,
   } = props;
@@ -82,15 +81,17 @@ const Nav = (props: Props) => {
                 </Button>
               </NavbarItem>
             )}
-            <NavbarItem>
-              <Button
-                color='primary'
-                variant='flat'
-                onPress={() => setShowLoginForm(true)}
-              >
-                Login
-              </Button>
-            </NavbarItem>
+            {login && (
+              <NavbarItem>
+                <Button
+                  color='primary'
+                  variant='flat'
+                  onPress={() => setShowLoginForm(true)}
+                >
+                  Login
+                </Button>
+              </NavbarItem>
+            )}
           </>
         ) : (
           <>

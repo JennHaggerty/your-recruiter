@@ -64,7 +64,6 @@ export default function App({ Component, pageProps }: AppProps) {
     resume: user && user.resume,
     openai_key: user && user.openai_key,
     firecrawl_key: user && user.firecrawl_key,
-    login: login,
     logout: logout,
   };
   return (
