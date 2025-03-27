@@ -7,7 +7,7 @@ const LearnMore = () => {
     <>
       <section className="relative  z-10 flex-col gap-2 bg-transparent dark:bg-transparent before:bg-background/10 before:content-[''] before:block before:z-[-1] before:absolute before:inset-0 before:backdrop-blur-md before:backdrop-saturate-200 border-t border-b border-divider  flex justify-center items-center py-8">
         <div className='px-12 lg:px-10 flex flex-col gap-8 md:max-w-7xl'>
-          <div className='grid grid-cols-2 gap-6'>
+          <div className='grid md:grid-cols-2 gap-6'>
             <div className='flex flex-col gap-2 justify-center w-full mb-4'>
               <div className='inline-flex items-center'>
                 <h2 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>

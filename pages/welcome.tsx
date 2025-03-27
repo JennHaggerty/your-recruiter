@@ -6,7 +6,6 @@ import { Card, CardBody } from '@heroui/react';
 import { MagicWandIcon } from '@/app/components/Icons/MagicWantIcon';
 import { UserBlurbIcon } from '@/app/components/Icons/UserBlurbIcon';
 import { CodeIcon } from '@/app/components/Icons/CodeIcon';
-import { LightningBoltIcon } from '@/app/components/Icons/LightningBoltIcon';
 import { AiIcon } from '@/app/components/Icons/AiIcon';
 import { EditIcon } from '@/app/components/Icons/EditIcon';
 import { StarIcon } from '@/app/components/Icons/StarIcon';
@@ -21,11 +20,11 @@ const inter = Inter({ subsets: ['latin'] });
 const Welcome = () => {
   const renderJumbotron = () => (
     <div className='flex flex-col gap-3 justify-center mx-auto'>
-      <div className='flex justify-center mb-10'>
-        <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
+      <div className='flex flex-col md:flex-row justify-center mb-10'>
+        <h1 className='tracking-tight inline font-semibold text-3xl  md:text-4xl lg:text-6xl'>
           Welcome to your&nbsp;
         </h1>
-        <h1 className='tracking-tight inline font-semibold from-[#6FEE8D] to-[#17c964] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
+        <h1 className='tracking-tight inline font-semibold from-[#6FEE8D] to-[#17c964] text-3xl md:text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
           next adventure.
         </h1>
       </div>
@@ -48,7 +47,7 @@ const Welcome = () => {
     </div>
   );
   const renderAiVsManual = () => (
-    <section className="relative z-10 flex-col gap-2 bg-transparent dark:bg-transparent before:bg-background/10 before:content-[''] before:block before:z-[-1] before:absolute before:inset-0 before:backdrop-blur-md before:backdrop-saturate-200 border-t border-b border-divider  flex justify-center items-center">
+    <section className="relative z-10 flex-col gap-2 before:bg-background/10 before:content-[''] before:block before:z-[-1] before:absolute before:inset-0 before:backdrop-blur-md before:backdrop-saturate-200 border-t border-b border-divider  flex justify-center items-center">
       <div className='py-10 grid grid-cols-12 gap-6 z-20'>
         <div className='flex flex-col gap-2 col-span-12 md:col-span-6'>
           <div className='flex flex-col'>
@@ -70,7 +69,7 @@ const Welcome = () => {
           </p>
         </div>
         <div className='col-span-12 md:col-span-6'>
-          <div className='grid grid-cols-2 gap-4 lg:grid-cols-2'>
+          <div className='grid md:grid-cols-2 gap-4 lg:grid-cols-2'>
             <div className='flex flex-col relative overflow-hidden h-auto text-foreground box-border outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-medium rounded-large transition-transform-background motion-reduce:transition-none data-[pressed=true]:scale-[0.97] tap-highlight-transparent border-transparent bg-white/5 dark:bg-default-400/10 backdrop-blur-lg backdrop-saturate-[1.8]'>
               <div className='flex p-3 z-10 w-full justify-center items-center shrink-0 overflow-inherit color-inherit subpixel-antialiased rounded-t-large gap-2 pb-0'>
                 <div className='w-[56px] h-[56px] flex justify-center p-2 rounded-full items-center bg-primary-100/80 text-primary-500'>
@@ -85,7 +84,7 @@ const Welcome = () => {
                 </p>
               </div>
             </div>
-            <div className='flex flex-col relative overflow-hidden h-auto text-foreground box-border outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-medium rounded-largetransition-transform-background motion-reduce:transition-none data-[pressed=true]:scale-[0.97] tap-highlight-transparent border-transparent bg-white/5 dark:bg-default-400/10 backdrop-blur-lg backdrop-saturate-[1.8]'>
+            <div className='flex flex-col relative overflow-hidden h-auto text-foreground box-border outline-none data-[focus-visible=true]:z-10 data-[focus-visible=true]:outline-2 data-[focus-visible=true]:outline-focus data-[focus-visible=true]:outline-offset-2 shadow-medium rounded-large transition-transform-background motion-reduce:transition-none data-[pressed=true]:scale-[0.97] tap-highlight-transparent border-transparent bg-white/5 dark:bg-default-400/10 backdrop-blur-lg backdrop-saturate-[1.8]'>
               <div className='flex p-3 z-10 w-full justify-center items-center shrink-0 overflow-inherit color-inherit subpixel-antialiased rounded-t-large gap-2 pb-0'>
                 <div className='w-[56px] h-[56px] flex justify-center p-2 rounded-full items-center bg-secondary-100/80 text-pink-500'>
                   <AiIcon />
@@ -105,56 +104,6 @@ const Welcome = () => {
       <div className='' data-mounted='true'></div>
     </section>
   );
-  const renderMobileDetails = () => {
-    return (
-      <div className='flex flex-col md:flex-row gap-8'>
-        <div className='w-full my-auto'>
-          <div className='flex flex-col gap-2 items-start justify-center w-full'>
-            <h2 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
-              Responsiveness
-            </h2>
-            <div>
-              <h2 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
-                is&nbsp;
-              </h2>
-              <h2 className='tracking-tight inline font-semibold from-[#5EA2EF] to-[#0072F5] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
-                effortless.
-              </h2>
-            </div>
-          </div>
-          <p className='w-full my-2 text-medium lg:text-large font-normal text-default-500 block max-w-full'>
-            We had cards and quickly realized it was too much with so many
-            applications, so TABLES! The table view will show fewer columns on
-            mobile devices and expand out when using larger screens.
-          </p>
-        </div>
-        <div className='flex flex-col justify-center w-full md-:w-1/2'>
-          <div className='flex relative w-full h-auto bg-gradient-to-tr from-[#5EA2EF] to-[#0072F5] rounded-2xl items-center justify-center py-4 px-4 lg:px-8'>
-            <div className='relative flex w-full p-3 flex-auto flex-col place-content-inherit align-items-inherit h-auto break-words text-left overflow-y-auto subpixel-antialiased'>
-              <div className='max-h-[500px] items-center justify-center mx-auto mobile-only'>
-                <video controls autoPlay loop muted>
-                  <source
-                    src='./your-recruiter-mobile-view.mp4'
-                    type='video/mp4'
-                  />
-                  This browser does not display the video tag.
-                </video>
-              </div>{' '}
-              <div className='max-h-[500px] items-center justify-center mx-auto desktop-only'>
-                <video controls autoPlay loop muted>
-                  <source
-                    src='./your-recruiter-desktop-view.mp4'
-                    type='video/mp4'
-                  />
-                  This browser does not display the video tag.
-                </video>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
   const renderFeatureBlocks = () => {
     const items = [
       {
@@ -214,7 +163,7 @@ const Welcome = () => {
             </h1>
           </div>
         </div>
-        <div id='features' className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+        <div id='features' className='grid md:grid-cols-2 lg:grid-cols-4 gap-4'>
           {items.map((item, i) => {
             return (
               <div
@@ -237,6 +186,56 @@ const Welcome = () => {
           })}
         </div>
       </>
+    );
+  };
+  const renderMobileDetails = () => {
+    return (
+      <div className='flex flex-col md:flex-row gap-8'>
+        <div className='w-full my-auto'>
+          <div className='flex flex-col gap-2 items-start justify-center w-full'>
+            <h2 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
+              Responsiveness
+            </h2>
+            <div>
+              <h2 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
+                is&nbsp;
+              </h2>
+              <h2 className='tracking-tight inline font-semibold from-[#5EA2EF] to-[#0072F5] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
+                effortless.
+              </h2>
+            </div>
+          </div>
+          <p className='w-full my-2 text-medium lg:text-large font-normal text-default-500 block max-w-full'>
+            We had cards and quickly realized it was too much with so many
+            applications, so TABLES! The table view will show fewer columns on
+            mobile devices and expand out when using larger screens.
+          </p>
+        </div>
+        <div className='flex flex-col justify-center w-full md-:w-1/2'>
+          <div className='flex relative w-full h-auto bg-gradient-to-tr from-[#5EA2EF] to-[#0072F5] rounded-2xl items-center justify-center py-4 px-4 lg:px-8'>
+            <div className='relative flex w-full p-3 flex-auto flex-col place-content-inherit align-items-inherit h-auto break-words text-left overflow-y-auto subpixel-antialiased'>
+              <div className='max-h-[500px] items-center justify-center mx-auto mobile-only'>
+                <video controls autoPlay loop muted>
+                  <source
+                    src='./your-recruiter-mobile-view.mp4'
+                    type='video/mp4'
+                  />
+                  This browser does not display the video tag.
+                </video>
+              </div>{' '}
+              <div className='max-h-[500px] items-center justify-center mx-auto desktop-only'>
+                <video controls autoPlay loop muted>
+                  <source
+                    src='./your-recruiter-desktop-view.mp4'
+                    type='video/mp4'
+                  />
+                  This browser does not display the video tag.
+                </video>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     );
   };
   const renderColorBlocks = () => {
@@ -276,7 +275,7 @@ const Welcome = () => {
         icon: <WarningIcon />,
         color: 'warning',
         title: `Yellow is a Warning`,
-        content: `Yellow is converying a warning.`,
+        content: `Yellow is conveying a warning.`,
       },
     ];
     return (
@@ -294,7 +293,7 @@ const Welcome = () => {
             </h2>
           </div>
         </div>
-        <div id='features' className='grid grid-cols-2 lg:grid-cols-3 gap-4'>
+        <div id='features' className='grid md:grid-cols-2 lg:grid-cols-3 gap-4'>
           {items.map((item, i) => {
             return (
               <div
@@ -326,7 +325,9 @@ const Welcome = () => {
   return (
     <>
       <Nav />
-      <main className={`${inter.className} relative px-12 lg:px-8  max-w-7xl`}>
+      <main
+        className={`${inter.className} dark relative px-12 lg:px-8  max-w-7xl`}
+      >
         <section className='my-8 md:my-20'>{renderJumbotron()}</section>
         <section className='my-8 md:my-20'>{renderAiVsManual()}</section>
         <section className='my-8 md:my-20'>{renderFeatureBlocks()}</section>

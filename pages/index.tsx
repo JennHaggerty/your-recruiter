@@ -452,7 +452,7 @@ const Home = ({
         openAiKey={openAiKey}
         firecrawlKey={firecrawlKey}
       />
-      <main className={`${inter.className} relative md:max-w-7xl`}>
+      <main className={`${inter.className} dark relative md:max-w-7xl`}>
         {loading && <Loading />}
         {isOpen && showEditModal && renderEditModal()}
         {isOpen && showAddModal && renderAddModal()}
