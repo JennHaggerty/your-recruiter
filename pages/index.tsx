@@ -26,7 +26,6 @@ import Details from '@/app/components/Details/Details';
 import Footer from '@/app/components/Footer/Footer';
 import Nav from '@/app/components/Nav/Nav';
 import SkeletonList from '@/app/components/List/SkeletonList';
-import List from '@/app/components/List/List';
 import {
   createApplication,
   deleteApplication,
@@ -35,6 +34,8 @@ import {
   updateApplication,
 } from '@/functions/functions';
 import { useUserContext } from '@/contexts/UserContext';
+import DesktopList from '@/app/components/List/DesktopList';
+import MobileList from '@/app/components/List/MobileList';
 type ConnectionStatus = {
   isConnected: boolean;
 };
@@ -475,24 +476,42 @@ const Home = ({
         {showSkeletonList ? (
           <SkeletonList />
         ) : (
-          <List
-            items={applications}
-            onAdd={() => {
-              onOpen();
-              setShowAddModal(true);
-            }}
-            onDelete={handleDelete}
-            onEdit={handleListEditClick}
-            onAutoCollect={handleAutoCollect}
-            onAutoCoverLetter={handleAutoWriteCoverLetter}
-            onViewCoverLetter={handleViewCoverLetter}
-            onViewCard={handleViewCard}
-            loading={loading}
-            loadingAI={loadingAI}
-            disableOpenAi={disableOpenAi}
-            disableFirecrawl={disableFirecrawl}
-            mobileView={isMobile}
-          />
+          <>
+            <MobileList
+              items={applications}
+              onAdd={() => {
+                onOpen();
+                setShowAddModal(true);
+              }}
+              onDelete={handleDelete}
+              onEdit={handleListEditClick}
+              onAutoCollect={handleAutoCollect}
+              onAutoCoverLetter={handleAutoWriteCoverLetter}
+              onViewCoverLetter={handleViewCoverLetter}
+              onViewCard={handleViewCard}
+              loading={loading}
+              loadingAI={loadingAI}
+              disableOpenAi={disableOpenAi}
+              disableFirecrawl={disableFirecrawl}
+            />
+            <DesktopList
+              items={applications}
+              onAdd={() => {
+                onOpen();
+                setShowAddModal(true);
+              }}
+              onDelete={handleDelete}
+              onEdit={handleListEditClick}
+              onAutoCollect={handleAutoCollect}
+              onAutoCoverLetter={handleAutoWriteCoverLetter}
+              onViewCoverLetter={handleViewCoverLetter}
+              onViewCard={handleViewCard}
+              loading={loading}
+              loadingAI={loadingAI}
+              disableOpenAi={disableOpenAi}
+              disableFirecrawl={disableFirecrawl}
+            />
+          </>
         )}
       </main>
       <Footer />

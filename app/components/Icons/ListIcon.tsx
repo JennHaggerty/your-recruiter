@@ -1,10 +1,14 @@
 import React from 'react';
-export const ListIcon = () => {
+export const ListIcon = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
     <svg
       fill='currentColor'
-      height='800px'
-      width='800px'
+      width={width}
+      height={height}
       viewBox='0 0 487.3 487.3'
     >
       <g>

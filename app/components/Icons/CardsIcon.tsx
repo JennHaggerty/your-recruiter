@@ -1,7 +1,17 @@
 import React from 'react';
-export const CardsIcon = () => {
+export const CardsIcon = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
-    <svg width='800px' height='800px' viewBox='0 0 24 24' fill='none'>
+    <svg
+      width={width}
+      height={height}
+      viewBox='0 0 24 24'
+      fill='none'
+      {...props}
+    >
       <path
         d='M9.4 7.53333C9.2 7.26667 8.8 7.26667 8.6 7.53333L6.225 10.7C6.09167 10.8778 6.09167 11.1222 6.225 11.3L8.6 14.4667C8.8 14.7333 9.2 14.7333 9.4 14.4667L11.775 11.3C11.9083 11.1222 11.9083 10.8778 11.775 10.7L9.4 7.53333Z'
         fill='currentColor'

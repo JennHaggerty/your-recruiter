@@ -2,15 +2,17 @@ import React from 'react';
 export const EyeFilledIcon = (
   props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
 ) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
     <svg
+      width={width}
+      height={height}
       aria-hidden='true'
       fill='none'
       focusable='false'
-      height='1em'
       role='presentation'
       viewBox='0 0 24 24'
-      width='1em'
       {...props}
     >
       <path

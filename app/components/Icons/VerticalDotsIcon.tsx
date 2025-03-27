@@ -1,19 +1,17 @@
-import { IconSvgProps } from '@/app/types/IconSvgProps';
-export const VerticalDotsIcon = ({
-  size = 24,
-  width,
-  height,
-  ...props
-}: IconSvgProps) => {
+export const VerticalDotsIcon = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
     <svg
+      width={width}
+      height={height}
       aria-hidden='true'
       fill='none'
       focusable='false'
-      height={size || height}
       role='presentation'
       viewBox='0 0 24 24'
-      width={size || width}
       {...props}
     >
       <path

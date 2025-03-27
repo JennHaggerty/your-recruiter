@@ -1,7 +1,11 @@
 import React from 'react';
-export const GridIcon = () => {
+export const GridIcon = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
-    <svg width='800px' height='800px' viewBox='0 0 16 16' fill='none'>
+    <svg width={width} height={height} viewBox='0 0 16 16' fill='none'>
       <path
         fillRule='evenodd'
         clipRule='evenodd'

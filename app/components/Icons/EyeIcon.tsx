@@ -1,14 +1,19 @@
 import React from 'react';
-export const EyeIcon = () => {
+export const EyeIcon = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
     <svg
+      width={width}
+      height={height}
       aria-hidden='true'
       fill='none'
       focusable='false'
-      height='1em'
       role='presentation'
       viewBox='0 0 20 20'
-      width='1em'
+      {...props}
     >
       <path
         d='M12.9833 10C12.9833 11.65 11.65 12.9833 10 12.9833C8.35 12.9833 7.01666 11.65 7.01666 10C7.01666 8.35 8.35 7.01666 10 7.01666C11.65 7.01666 12.9833 8.35 12.9833 10Z'

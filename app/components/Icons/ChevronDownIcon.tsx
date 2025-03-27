@@ -1,15 +1,19 @@
 import React from 'react';
-export const ChevronDownIcon = ({ strokeWidth = 1.5, ...otherProps }) => {
+export const ChevronDownIcon = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>
+) => {
+  const height = props.height || '25px';
+  const width = props.width || '25px';
   return (
     <svg
       aria-hidden='true'
       fill='none'
       focusable='false'
-      height='1em'
       role='presentation'
       viewBox='0 0 24 24'
-      width='1em'
-      {...otherProps}
+      width={width}
+      height={height}
+      {...props}
     >
       <path
         d='m19.92 8.95-6.52 6.52c-.77.77-2.03.77-2.8 0L4.08 8.95'
@@ -17,7 +21,7 @@ export const ChevronDownIcon = ({ strokeWidth = 1.5, ...otherProps }) => {
         strokeLinecap='round'
         strokeLinejoin='round'
         strokeMiterlimit={10}
-        strokeWidth={strokeWidth}
+        strokeWidth={props.strokeWidth}
       />
     </svg>
   );
