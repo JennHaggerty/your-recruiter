@@ -36,6 +36,7 @@ import {
 import { useUserContext } from '@/contexts/UserContext';
 import DesktopList from '@/app/components/List/DesktopList';
 import MobileList from '@/app/components/List/MobileList';
+import Loading from '@/app/components/Loading/Loading';
 type ConnectionStatus = {
   isConnected: boolean;
 };
@@ -47,7 +48,6 @@ const Home = ({
   if (!user_id) return;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
-  const [loadingAI, setLoadingAI] = useState<boolean>();
   const [applications, setApplications] = useState<JobInterface[]>();
   const [activeApplication, setActiveApplication] = useState<JobInterface>();
   const [showEditModal, setShowEditModal] = useState<boolean>();
@@ -56,15 +56,11 @@ const Home = ({
   const [showDetails, setShowDetails] = useState<boolean>();
   const [openAiKey, setOpenAiKey] = useState<string>();
   const [firecrawlKey, setFirecrawlKey] = useState<string>();
-  const [width, setWidth] = useState<number>();
   const [showSkeletonList, setShowSkeletonList] = useState<boolean>(true);
-  const disableOpenAi = !openAiKey || loadingAI;
-  const disableFirecrawl = !firecrawlKey || loadingAI;
-  const isMobile: boolean = width ? width < 600 : false;
-  const handleWindowSizeChange = () => {
-    setWidth(window.innerWidth);
-  };
+  const disableOpenAi = !openAiKey || loading;
+  const disableFirecrawl = !firecrawlKey || loading;
   const refreshApplications = async () => {
+    setShowSkeletonList(true);
     const applications = await fetchApplications({ user_id })
       .then((data) => {
         return data;
@@ -77,14 +73,8 @@ const Home = ({
         return;
       });
     setApplications(applications);
+    setShowSkeletonList(false);
   };
-  useEffect(function detectWindowResize() {
-    setWidth(window.innerWidth);
-    window.addEventListener('resize', handleWindowSizeChange);
-    return () => {
-      window.removeEventListener('resize', handleWindowSizeChange);
-    };
-  }, []);
   useEffect(function fetchApplicationsOnPageLoad() {
     refreshApplications()
       .then(() => setShowSkeletonList(false))
@@ -176,7 +166,7 @@ const Home = ({
       applications &&
       applications.find((application) => application._id === id);
     if (!applicationToUpdate) return;
-    setLoadingAI(true);
+    setLoading(true);
     await getListingData({
       url: applicationToUpdate.posting_url,
       apiKey: firecrawlKey,
@@ -201,7 +191,7 @@ const Home = ({
           title: `There was an error with the AI collection process, ${e}`,
         });
       });
-    setLoadingAI(false);
+    setLoading(false);
   };
   const handleOpenAi = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -223,7 +213,7 @@ const Home = ({
       application._resume = resume;
     }
     const key = openAiKey ? openAiKey : '';
-    setLoadingAI(true);
+    setLoading(true);
     await automatedCoverLetter({ job: application, openAiKey: key })
       .then(async (res) => {
         application.automated_cover_letter = res;
@@ -268,7 +258,6 @@ const Home = ({
               onAutoCoverLetter={handleAutoWriteCoverLetter}
               onViewCoverLetter={handleViewCoverLetter}
               loading={loading}
-              loadingAI={loadingAI}
               disableOpenAi={disableOpenAi}
               disableFirecrawl={disableFirecrawl}
             />
@@ -297,7 +286,6 @@ const Home = ({
             <Button
               onPress={() => handleAutoWriteCoverLetter(activeApplication?._id)}
               color='secondary'
-              isLoading={loadingAI}
               isDisabled={
                 activeApplication.stage?.toLocaleLowerCase() === 'closed'
               }
@@ -368,7 +356,7 @@ const Home = ({
   };
   const quickAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoadingAI(true);
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
     const url = formData.get('posting_url') as string;
     await getListingData({ url, apiKey: firecrawlKey! })
@@ -376,15 +364,13 @@ const Home = ({
         const scrapedData = data;
         scrapedData._user_id = user_id;
         const body = JSON.stringify(scrapedData);
-        await createApplication({ body })
-          .then(() => refreshApplications())
-          .catch(() =>
-            addToast({
-              color: 'danger',
-              title:
-                'There was an error creating application with the listing data.',
-            })
-          );
+        await createApplication({ body }).catch(() =>
+          addToast({
+            color: 'danger',
+            title:
+              'There was an error creating application with the listing data.',
+          })
+        );
       })
       .catch((e) => {
         addToast({
@@ -392,7 +378,8 @@ const Home = ({
           title: `There was an error with quickly adding the application, ${e}`,
         });
       });
-    setLoadingAI(false);
+    refreshApplications();
+    setLoading(false);
   };
   const renderWelcome = () => {
     return (
@@ -437,7 +424,6 @@ const Home = ({
                     onOpen();
                     setShowAddModal(true);
                   }}
-                  isLoading={loading}
                   className='w-full'
                 >
                   Add Manually
@@ -445,8 +431,7 @@ const Home = ({
                 <Button
                   color='secondary'
                   type='submit'
-                  isLoading={loading || loadingAI}
-                  isDisabled={loadingAI || !openAiKey}
+                  isDisabled={loading || !openAiKey}
                   className='w-full'
                 >
                   Add with AI
@@ -467,52 +452,53 @@ const Home = ({
         openAiKey={openAiKey}
         firecrawlKey={firecrawlKey}
       />
-      <main className={`${inter.className} relative`}>
+      <main className={`${inter.className} relative md:max-w-7xl`}>
+        {loading && <Loading />}
         {isOpen && showEditModal && renderEditModal()}
         {isOpen && showAddModal && renderAddModal()}
         {isOpen && showCoverLetterModal && renderViewCoverLetterModal()}
         {isOpen && showDetails && renderDetailsModal()}
         {renderWelcome()}
-        {showSkeletonList ? (
-          <SkeletonList />
-        ) : (
-          <>
-            <MobileList
-              items={applications}
-              onAdd={() => {
-                onOpen();
-                setShowAddModal(true);
-              }}
-              onDelete={handleDelete}
-              onEdit={handleListEditClick}
-              onAutoCollect={handleAutoCollect}
-              onAutoCoverLetter={handleAutoWriteCoverLetter}
-              onViewCoverLetter={handleViewCoverLetter}
-              onViewCard={handleViewCard}
-              loading={loading}
-              loadingAI={loadingAI}
-              disableOpenAi={disableOpenAi}
-              disableFirecrawl={disableFirecrawl}
-            />
-            <DesktopList
-              items={applications}
-              onAdd={() => {
-                onOpen();
-                setShowAddModal(true);
-              }}
-              onDelete={handleDelete}
-              onEdit={handleListEditClick}
-              onAutoCollect={handleAutoCollect}
-              onAutoCoverLetter={handleAutoWriteCoverLetter}
-              onViewCoverLetter={handleViewCoverLetter}
-              onViewCard={handleViewCard}
-              loading={loading}
-              loadingAI={loadingAI}
-              disableOpenAi={disableOpenAi}
-              disableFirecrawl={disableFirecrawl}
-            />
-          </>
-        )}
+        <section className='mt-8 p-0 w-full'>
+          {showSkeletonList ? (
+            <SkeletonList />
+          ) : (
+            <>
+              <MobileList
+                items={applications}
+                onAdd={() => {
+                  onOpen();
+                  setShowAddModal(true);
+                }}
+                onDelete={handleDelete}
+                onEdit={handleListEditClick}
+                onAutoCollect={handleAutoCollect}
+                onAutoCoverLetter={handleAutoWriteCoverLetter}
+                onViewCoverLetter={handleViewCoverLetter}
+                onViewCard={handleViewCard}
+                loading={loading}
+                disableOpenAi={disableOpenAi}
+                disableFirecrawl={disableFirecrawl}
+              />
+              <DesktopList
+                items={applications}
+                onAdd={() => {
+                  onOpen();
+                  setShowAddModal(true);
+                }}
+                onDelete={handleDelete}
+                onEdit={handleListEditClick}
+                onAutoCollect={handleAutoCollect}
+                onAutoCoverLetter={handleAutoWriteCoverLetter}
+                onViewCoverLetter={handleViewCoverLetter}
+                onViewCard={handleViewCard}
+                loading={loading}
+                disableOpenAi={disableOpenAi}
+                disableFirecrawl={disableFirecrawl}
+              />
+            </>
+          )}
+        </section>
       </main>
       <Footer />
     </>

@@ -70,7 +70,7 @@ export const getBadgeColor = (stage: string | undefined) => {
       badgeColor = 'warning';
       break;
     case 'closed':
-      badgeColor = 'default';
+      badgeColor = 'danger';
       break;
     default:
       badgeColor = 'default';
@@ -263,16 +263,16 @@ export const createApplication = async (args: { body: string }) => {
   })
     .then((res) => {
       if (res.status !== 201) {
-        addToast({
+        return addToast({
           color: 'danger',
           title: `There was an error creating application`,
         });
       } else {
-        addToast({ color: 'success', title: 'Successfully added.' });
+        return addToast({ color: 'success', title: 'Successfully added.' });
       }
     })
     .catch((e) => {
-      addToast({
+      return addToast({
         color: 'danger',
         title: `There was an error creating application, ${e}`,
       });

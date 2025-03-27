@@ -15,11 +15,11 @@ const LearnMore = () => {
                 </h2>
               </div>
               <p className='w-full my-2 text-left font-normal text-default-500 block max-w-full md:w-full text-base lg:text-lg'>
-                Jennifer began this project while searching for employment.
-                Wanting a "source of truth" to reference where she applied, when
-                and with whom, she created Your Recruiter. Her goal for this
-                project is to share with local libraries and improve employment
-                rates within the community.
+                Jennifer began this project while searching for employment and
+                wanting a "source of truth" to where she applied, when and with
+                whom, she created Your Recruiter. Her goal for this project is
+                to share with local libraries and improve employment rates
+                within the community.
               </p>
             </div>
             <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>

@@ -75,13 +75,13 @@ h7,
     gap-5;
 }
 
-@media (min-width: 767px) {
+@media (min-width: 768px) {
   .mobile-only {
     display: none !important;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 769px) {
   .desktop-only {
     display: none !important;
   }

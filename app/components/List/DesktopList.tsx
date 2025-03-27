@@ -25,14 +25,13 @@ import { AiIcon } from '../Icons/AiIcon';
 import { EyeIcon } from '../Icons/EyeIcon';
 import { capitalize, getBadgeColor } from '@/functions/functions';
 import { SearchIcon } from '../Icons/SearchIcon';
-import { ChevronDownIcon, PlusIcon } from './ExampleList';
-import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
+import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
+import { PlusIcon } from '../Icons/PlusIcon';
 interface Props {
   items?: JobInterface[];
   selectedkeys?: string[];
   setSelectedKeys?: () => void;
   loading?: boolean;
-  loadingAI?: boolean;
   onAdd?: () => void;
   onAutoCollect?: (id: string) => void;
   onAutoCoverLetter?: (id: string) => void;
@@ -45,6 +44,7 @@ interface Props {
 }
 const columns = [
   { name: 'Details', uid: 'name', sortable: true },
+  { name: 'Location', uid: 'location', sortable: true },
   { name: 'Role', uid: 'role', sortable: true },
   { name: 'Salary', uid: 'salary', sortable: true },
   { name: 'Stage', uid: 'stage', sortable: true },
@@ -70,7 +70,6 @@ const DesktopList = (props: Props) => {
   const {
     items,
     loading,
-    loadingAI,
     onAdd,
     onAutoCollect,
     onAutoCoverLetter,
@@ -90,6 +89,7 @@ const DesktopList = (props: Props) => {
   const [statusFilter, setStatusFilter] = React.useState<Selection>('all');
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
+  const iconWidth = '15px';
   const hasSearchFilter = Boolean(filterValue);
   const headerColumns = React.useMemo(() => {
     if (visibleColumns === 'all') return columns;
@@ -297,7 +297,7 @@ const DesktopList = (props: Props) => {
               isIconOnly={true}
               className='m-auto'
             >
-              <EyeIcon />
+              <EyeIcon width={iconWidth} />
             </Button>
           </Tooltip>
         )}
@@ -356,7 +356,6 @@ const DesktopList = (props: Props) => {
             variant='flat'
             color='secondary'
             onPress={() => onAutoCoverLetter(item._id)}
-            isLoading={loadingAI}
             isDisabled={
               !!item.automated_cover_letter ||
               !item._markdown ||
@@ -372,7 +371,7 @@ const DesktopList = (props: Props) => {
             >
               $
             </span>
-            <EditIcon />
+            <EditIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
@@ -387,7 +386,7 @@ const DesktopList = (props: Props) => {
             aria-label='View your cover letter.'
             isIconOnly={true}
           >
-            <EyeIcon />
+            <EyeIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
@@ -401,13 +400,11 @@ const DesktopList = (props: Props) => {
             variant='flat'
             color='secondary'
             onPress={() => onAutoCollect(item._id)}
-            isLoading={loadingAI}
             aria-label='Get Listing Data'
             isIconOnly={true}
-            className='w-full'
             isDisabled={!!item._markdown || disableFirecrawl}
           >
-            <AiIcon />
+            <AiIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
@@ -421,7 +418,7 @@ const DesktopList = (props: Props) => {
             aria-label='Edit'
             isIconOnly={true}
           >
-            <EditIcon />
+            <EditIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
@@ -435,7 +432,7 @@ const DesktopList = (props: Props) => {
             aria-label='Delete'
             isIconOnly={true}
           >
-            <DeleteIcon />
+            <DeleteIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
@@ -451,6 +448,14 @@ const DesktopList = (props: Props) => {
           <div className='flex flex-col'>
             <p className='text-bold text-sm capitalize text-default-400'>
               {item.role}
+            </p>
+          </div>
+        );
+      case 'location':
+        return (
+          <div className='flex flex-col'>
+            <p className='text-bold text-sm capitalize text-default-400'>
+              {item.location}
             </p>
           </div>
         );

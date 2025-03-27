@@ -19,14 +19,13 @@ import {
   DropdownTrigger,
 } from '@heroui/react';
 import React, { ChangeEvent, useCallback, useMemo, useState } from 'react';
-import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
-import { AiIcon } from '../Icons/AiIcon';
 import { EyeIcon } from '../Icons/EyeIcon';
 import { capitalize, getBadgeColor } from '@/functions/functions';
 import { SearchIcon } from '../Icons/SearchIcon';
-import { ChevronDownIcon, PlusIcon } from './ExampleList';
 import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
+import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
+import { PlusIcon } from '../Icons/PlusIcon';
 interface Props {
   items?: JobInterface[];
   selectedkeys?: string[];
@@ -72,7 +71,6 @@ const MobileList = (props: Props) => {
     onDelete,
     onEdit,
     disableOpenAi,
-    disableFirecrawl,
   } = props;
   if (!items) return;
   const [filterValue, setFilterValue] = useState('');
@@ -393,6 +391,13 @@ const MobileList = (props: Props) => {
             isReadOnly={!onEdit}
           >
             Edit Application
+          </DropdownItem>
+          <DropdownItem
+            key='viewCoverLetter'
+            onPress={() => onAutoCollect && onAutoCollect(item._id)}
+            isReadOnly={!onAutoCollect || !!item._markdown}
+          >
+            Collect listing with AI
           </DropdownItem>
           <DropdownItem
             key='viewCoverLetter'

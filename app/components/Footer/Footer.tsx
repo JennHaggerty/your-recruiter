@@ -5,7 +5,7 @@ import LearnMore from '../LearnMore/LearnMore';
 interface Props {}
 const Footer = (props: Props) => {
   return (
-    <footer className='w-full text-center justify-center mb-8 mt-10'>
+    <footer className='w-full text-center justify-center mb-8 mt-20'>
       <div className='mb-10'>
         <LearnMore />
       </div>
