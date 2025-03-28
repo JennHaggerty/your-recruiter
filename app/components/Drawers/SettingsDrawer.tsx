@@ -13,6 +13,7 @@ import {
   DrawerFooter,
   DrawerHeader,
 } from '@heroui/react';
+import { label } from 'framer-motion/client';
 import React, { FormEvent } from 'react';
 interface Props {
   isOpen: boolean;
@@ -35,6 +36,103 @@ export const Settings = (props: Props) => {
     openAiKey,
     loading,
   } = props;
+  const userSettings = [
+    {
+      name: isConnected,
+      title: 'MongoDB',
+      success: 'You are connected to MongoDB!',
+      error: 'You are NOT connected to MongoDB.',
+    },
+    {
+      name: openAiKey,
+      title: 'OpenAI Key',
+      success: 'Open AI Key successfully added.',
+      error: `Open AI is required to use AI features,{' '}
+                <Link
+                  href='https://platform.openai.com/api-keys'
+                  className='inline'
+                >
+                  get a key on the Open AI website.
+                </Link>`,
+      form: {
+        id: 'add-openai',
+        required: true,
+        name: 'openAiKey',
+        placeholder: 'sk-proj-***************',
+        error: 'Please enter your Open AI key.',
+        handleSubmit: handleOpenAi,
+      },
+    },
+    {
+      name: firecrawlKey,
+      title: 'Firecrawl Key',
+      success: 'Firecrawl Key successfully added.',
+      error: `Firecrawl is required to use AI features,{' '}
+                <Link href='https://www.firecrawl.dev' className='inline'>
+                  get a key on the Firecrawl website.
+                </Link>`,
+      form: {
+        id: 'add-firecrawl',
+        required: true,
+        name: 'firecrawl',
+        placeholder: 'fc-***************',
+        error: 'Please enter your Firecrawl key.',
+        handleSubmit: handleFirecrawl,
+      },
+    },
+  ];
+  const renderAccordionItems = () =>
+    userSettings.map((setting, i) => (
+      <AccordionItem
+        key={i}
+        aria-label={setting.title}
+        title={
+          !setting.name ? (
+            <Badge color='danger' content='1' shape='circle'>
+              <div className='pr-8'>{setting.title}</div>
+            </Badge>
+          ) : (
+            setting.title
+          )
+        }
+      >
+        <div className='mb-3'>
+          {setting.name ? (
+            <span className='text-success'>{setting.success}</span>
+          ) : (
+            <span className='text-warning'>{setting.error}</span>
+          )}
+        </div>
+        {setting.form && (
+          <Form
+            id={setting.form.id}
+            className='flex flex-col gap-3'
+            validationBehavior='native'
+            onSubmit={setting.form.handleSubmit}
+          >
+            <div className='w-full flex flex-col gap-3 mb-5'>
+              <Input
+                isRequired={setting.form.required}
+                variant={'underlined'}
+                errorMessage={setting.form.error}
+                label={setting.title}
+                labelPlacement={'outside'}
+                name={setting.form.name}
+                placeholder={setting.form.placeholder}
+              />
+              <Button
+                color='primary'
+                type='submit'
+                isLoading={loading}
+                className='w-full'
+              >
+                {setting.name ? 'Update' : 'Add'}
+              </Button>
+            </div>
+          </Form>
+        )}
+      </AccordionItem>
+    ));
   return (
     <Drawer
       isOpen={isOpen}
@@ -48,154 +146,9 @@ export const Settings = (props: Props) => {
           <Accordion
             variant='bordered'
             selectionMode='multiple'
-            defaultExpandedKeys={['1']}
+            defaultExpandedKeys={['0']}
           >
-            <AccordionItem
-              key='1'
-              aria-label='MongoDB settings'
-              title={
-                isConnected ? (
-                  'MongoDB'
-                ) : (
-                  <Badge color='danger' content='1' shape='circle'>
-                    <div className='pr-4'>MongoDB</div>
-                  </Badge>
-                )
-              }
-            >
-              {isConnected ? (
-                <span className='text-green-500'>
-                  You are connected to MongoDB!
-                </span>
-              ) : (
-                <span className='text-red-500'>
-                  You are NOT connected to MongoDB. Please notify the site
-                  owner.
-                </span>
-              )}
-            </AccordionItem>
-            <AccordionItem
-              key='2'
-              aria-label='Open AI settings'
-              title={
-                !openAiKey ? (
-                  <Badge color='danger' content='1' shape='circle'>
-                    <div className='pr-8'>Open AI</div>
-                  </Badge>
-                ) : (
-                  'Open AI'
-                )
-              }
-            >
-              {openAiKey ? (
-                <span className='text-success'>
-                  Open AI Key successfully added.
-                </span>
-              ) : (
-                <div>
-                  <span className='text-warning'>
-                    Open AI is required to use AI features,{' '}
-                    <Link
-                      href='https://platform.openai.com/api-keys'
-                      className='inline'
-                    >
-                      get a key on the Open AI website.
-                    </Link>{' '}
-                  </span>
-                </div>
-              )}
-              <Form
-                id='add-openai'
-                className='flex flex-col gap-3'
-                validationBehavior='native'
-                onSubmit={handleOpenAi}
-              >
-                <Alert
-                  color='warning'
-                  title='Your Open AI key gets erased when you close or refresh this browser.'
-                  className='my-3'
-                />
-                <div className='w-full flex flex-col gap-3 mb-5'>
-                  <Input
-                    isRequired
-                    variant={'underlined'}
-                    errorMessage='Please enter your Open AI key.'
-                    label='Open AI Key'
-                    labelPlacement={'outside'}
-                    name='openAiKey'
-                    placeholder='sk-proj-***************'
-                  />
-                  <Button
-                    color='primary'
-                    type='submit'
-                    isLoading={loading}
-                    className='w-full'
-                  >
-                    {openAiKey ? 'Update' : 'Add'}
-                  </Button>
-                </div>
-              </Form>
-            </AccordionItem>
-            <AccordionItem
-              key='3'
-              aria-label='Firecrawl settings'
-              title={
-                !firecrawlKey ? (
-                  <Badge color='danger' content='1' shape='circle'>
-                    <div className='pr-6'>Firecrawl</div>
-                  </Badge>
-                ) : (
-                  'Firecrawl'
-                )
-              }
-            >
-              {firecrawlKey ? (
-                <span className='text-success'>
-                  Firecrawl Key successfully added.
-                </span>
-              ) : (
-                <div>
-                  <span className='text-warning'>
-                    Firecrawl is required to use AI features,{' '}
-                    <Link href='https://www.firecrawl.dev' className='inline'>
-                      get a key on the Firecrawl website.
-                    </Link>{' '}
-                  </span>
-                </div>
-              )}
-              <Form
-                id='add-firecrawl-key'
-                className='flex flex-col mb-5'
-                validationBehavior='native'
-                onSubmit={handleFirecrawl}
-              >
-                <Alert
-                  color='warning'
-                  title='Firecrawl key is erased when browser is closed or refreshed.'
-                  className='my-3'
-                />
-                <div className='w-full flex flex-col gap-3'>
-                  <Input
-                    isRequired
-                    variant={'underlined'}
-                    errorMessage='Please enter your Firecrawl key.'
-                    label='Firecrawl Key'
-                    labelPlacement={'outside'}
-                    name='firecrawlKey'
-                    placeholder='fc-***************'
-                    className='w-full'
-                  />
-                  <Button
-                    color='primary'
-                    type='submit'
-                    isLoading={loading}
-                    className='w-full'
-                  >
-                    {firecrawlKey ? 'Update' : 'Add'}
-                  </Button>
-                </div>
-              </Form>
-            </AccordionItem>
+            {renderAccordionItems()}
           </Accordion>
         </DrawerBody>
         <DrawerFooter>
