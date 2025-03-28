@@ -2,6 +2,63 @@ import DatabaseResponseInterface from '@/interfaces/DatabaseResponseInterface';
 import { scrapeResponse } from '@/lib/firecrawl';
 import { addToast } from '@heroui/react';
 import { FormEvent } from 'react';
+// General functions
+export const getBadgeColor = (stage: string | undefined) => {
+  let badgeColor:
+    | 'success'
+    | 'default'
+    | 'primary'
+    | 'secondary'
+    | 'warning'
+    | 'danger'
+    | undefined;
+  switch (stage) {
+    case 'interested':
+      badgeColor = 'primary';
+      break;
+    case 'applied':
+      badgeColor = 'success';
+      break;
+    case 'rejected':
+      badgeColor = 'warning';
+      break;
+    case 'closed':
+      badgeColor = 'danger';
+      break;
+    default:
+      badgeColor = 'default';
+  }
+  return badgeColor;
+};
+export function capitalize(s: string) {
+  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
+}
+export const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData);
+  const body = JSON.stringify(data);
+  await createApplication({ body }).catch(() =>
+    addToast({
+      color: 'danger',
+      title: 'There was an error adding application.',
+    })
+  );
+};
+export const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData);
+  const id = JSON.stringify(data.id);
+  const body = JSON.stringify(data);
+  await updateApplication({ id, body }).catch(() =>
+    addToast({
+      color: 'danger',
+      title: 'There was an error updating application.',
+    })
+  );
+};
+// Users
 const createUser = async (data: any) => {
   const response = await fetch('/api/users/createUser', {
     method: 'POST',
@@ -49,61 +106,6 @@ export const handleUserSignup = (e: FormEvent<HTMLFormElement>) => {
     .catch((error) => {
       addToast({ color: 'danger', description: 'There was an error.' });
     });
-};
-export const getBadgeColor = (stage: string | undefined) => {
-  let badgeColor:
-    | 'success'
-    | 'default'
-    | 'primary'
-    | 'secondary'
-    | 'warning'
-    | 'danger'
-    | undefined;
-  switch (stage) {
-    case 'interested':
-      badgeColor = 'primary';
-      break;
-    case 'applied':
-      badgeColor = 'success';
-      break;
-    case 'rejected':
-      badgeColor = 'warning';
-      break;
-    case 'closed':
-      badgeColor = 'danger';
-      break;
-    default:
-      badgeColor = 'default';
-  }
-  return badgeColor;
-};
-export function capitalize(s: string) {
-  return s ? s.charAt(0).toUpperCase() + s.slice(1).toLowerCase() : '';
-}
-export const getListingData = async (args: { url: string; apiKey: string }) => {
-  const { url, apiKey } = args;
-  const data = await scrapeResponse({
-    url: url,
-    apiKey: apiKey,
-  })
-    .then((res) => res)
-    .then((data) => {
-      if (!data || data === undefined) {
-        return addToast({
-          color: 'danger',
-          title:
-            'Nothing was returned form the AI. Make sure it is a top-level domain, AI will not work on LinkedIn listings.',
-        });
-      }
-      return data;
-    })
-    .catch((e) => {
-      return addToast({
-        color: 'danger',
-        title: `There was an error getting listing data, ${e}`,
-      });
-    });
-  return data;
 };
 export const fetchUserLogin = async (args: {
   email: string;
@@ -196,6 +198,32 @@ export const fetchUser = async (args: { id: string }) => {
       return;
     });
   return user;
+};
+// Applications
+export const getListingData = async (args: { url: string; apiKey: string }) => {
+  const { url, apiKey } = args;
+  const data = await scrapeResponse({
+    url: url,
+    apiKey: apiKey,
+  })
+    .then((res) => res)
+    .then((data) => {
+      if (!data || data === undefined) {
+        return addToast({
+          color: 'danger',
+          title:
+            'Nothing was returned form the AI. Make sure it is a top-level domain, AI will not work on LinkedIn listings.',
+        });
+      }
+      return data;
+    })
+    .catch((e) => {
+      return addToast({
+        color: 'danger',
+        title: `There was an error getting listing data, ${e}`,
+      });
+    });
+  return data;
 };
 export const fetchApplications = async (args: { user_id: string }) => {
   const { user_id } = args;
@@ -294,4 +322,61 @@ export const deleteApplication = async (args: { id: string }) => {
         title: `There was an error deleting application, ${e}`,
       });
     });
+};
+// Fircrawl & Open AI
+export const handleOpenAi = async (args: {
+  e: FormEvent<HTMLFormElement>;
+  user_id: string;
+}) => {
+  const { e, user_id } = args;
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData);
+  const body = JSON.stringify(data);
+  await fetch('./api/users/editUser?id=' + user_id, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then((res) => {
+    if (res.status !== 201) {
+      return addToast({
+        color: 'danger',
+        title: 'Could not add OpenAi Key.',
+        description: JSON.stringify(res.json),
+      });
+    }
+    if (res.status === 201) {
+      return addToast({ color: 'success', title: 'OpenAi Key added.' });
+    }
+  });
+};
+export const handleFirecrawl = async (args: {
+  e: FormEvent<HTMLFormElement>;
+  user_id: string;
+}) => {
+  const { e, user_id } = args;
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData);
+  const body = JSON.stringify(data);
+  await fetch('./api/users/editUser?id=' + user_id, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then((res) => {
+    if (res.status !== 201) {
+      return addToast({
+        color: 'danger',
+        title: 'Could not add Firecrawl Key.',
+        description: JSON.stringify(res.json),
+      });
+    }
+    if (res.status === 201) {
+      return addToast({ color: 'success', title: 'Firecrawl Key added.' });
+    }
+  });
 };

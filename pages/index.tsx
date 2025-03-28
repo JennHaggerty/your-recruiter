@@ -31,6 +31,10 @@ import {
   deleteApplication,
   fetchApplications,
   getListingData,
+  handleAdd,
+  handleFirecrawl,
+  handleOpenAi,
+  handleUpdate,
   updateApplication,
 } from '@/functions/functions';
 import { useUserContext } from '@/contexts/UserContext';
@@ -76,43 +80,7 @@ const Home = ({
   useEffect(function fetchApplicationsOnPageLoad() {
     refreshApplications();
   }, []);
-  const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    setShowSkeletonList(true);
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
-    const body = JSON.stringify(data);
-    await createApplication({ body })
-      .then(async () => await refreshApplications())
-      .catch(() =>
-        addToast({
-          color: 'danger',
-          title: 'There was an error adding application.',
-        })
-      );
-    setLoading(false);
-    setShowSkeletonList(false);
-  };
-  const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
-    const id = JSON.stringify(data.id);
-    const body = JSON.stringify(data);
-    setLoading(true);
-    await updateApplication({ id, body })
-      .then(() => refreshApplications())
-      .catch(() =>
-        addToast({
-          color: 'danger',
-          title: 'There was an error updating application.',
-        })
-      );
-    setLoading(false);
-  };
   const handleDelete = async (id: string) => {
-    setLoading(true);
     await deleteApplication({ id })
       .then(() => refreshApplications())
       .catch(() =>
@@ -121,7 +89,6 @@ const Home = ({
           title: 'There was an error deleting application.',
         })
       );
-    setLoading(false);
   };
   const handleListEditClick = async (id: string) => {
     const target = applications?.find((application) => application._id === id);
@@ -174,57 +141,6 @@ const Home = ({
           title: `There was an error with the AI collection process, ${e}`,
         });
       });
-    setLoading(false);
-  };
-  const handleOpenAi = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
-    const body = JSON.stringify(data);
-    await fetch('./api/users/editUser?id=' + user_id, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body,
-    }).then((res) => {
-      if (res.status !== 201) {
-        return addToast({
-          color: 'danger',
-          title: 'Could not add OpenAi Key.',
-          description: JSON.stringify(res.json),
-        });
-      }
-      if (res.status === 201) {
-        return addToast({ color: 'success', title: 'OpenAi Key added.' });
-      }
-    });
-    setLoading(false);
-  };
-  const handleFirecrawl = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData);
-    const body = JSON.stringify(data);
-    await fetch('./api/users/editUser?id=' + user_id, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body,
-    }).then((res) => {
-      if (res.status !== 201) {
-        return addToast({
-          color: 'danger',
-          title: 'Could not add Firecrawl Key.',
-          description: JSON.stringify(res.json),
-        });
-      }
-      if (res.status === 201) {
-        return addToast({ color: 'success', title: 'Firecrawl Key added.' });
-      }
-    });
     setLoading(false);
   };
   const handleAutoWriteCoverLetter = async (id: string) => {
@@ -347,7 +263,9 @@ const Home = ({
           <ModalBody>
             <EditForm
               item={activeApplication}
-              handleSubmit={handleUpdate}
+              handleSubmit={(e) => {
+                handleUpdate(e).then(() => refreshApplications());
+              }}
               handleCancel={onClose}
             />
           </ModalBody>
@@ -369,7 +287,12 @@ const Home = ({
         <ModalContent>
           <ModalHeader>Add Application Information</ModalHeader>
           <ModalBody>
-            <AddForm handleSubmit={handleAdd} handleCancel={onClose} />
+            <AddForm
+              handleSubmit={(e) => {
+                handleAdd(e).then(() => refreshApplications());
+              }}
+              handleCancel={onClose}
+            />
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -468,8 +391,18 @@ const Home = ({
     <>
       <Nav
         isConnected={isConnected}
-        handleOpenAi={handleOpenAi}
-        handleFirecrawl={handleFirecrawl}
+        handleOpenAi={async (e) => {
+          setLoading(true);
+          handleOpenAi({ e, user_id })
+            .then(() => setLoading(false))
+            .catch(() => {});
+        }}
+        handleFirecrawl={async (e) => {
+          setLoading(true);
+          handleFirecrawl({ e, user_id })
+            .then(() => setLoading(false))
+            .catch(() => {});
+        }}
         openAiKey={openai_key}
         firecrawlKey={firecrawl_key}
       />
