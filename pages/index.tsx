@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Form,
   Input,
   Modal,
@@ -27,11 +26,11 @@ import Footer from '@/app/components/Footer/Footer';
 import Nav from '@/app/components/Nav/Nav';
 import SkeletonList from '@/app/components/List/SkeletonList';
 import {
-  createApplication,
   deleteApplication,
   fetchApplications,
   getListingData,
   handleAdd,
+  handleAiAdd,
   handleFirecrawl,
   handleOpenAi,
   handleUpdate,
@@ -298,33 +297,6 @@ const Home = ({
       </Modal>
     );
   };
-  const quickAdd = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setLoading(true);
-    const formData = new FormData(e.currentTarget);
-    const url = formData.get('posting_url') as string;
-    await getListingData({ url, apiKey: firecrawl_key! })
-      .then(async (data) => {
-        const scrapedData = data;
-        scrapedData._user_id = user_id;
-        const body = JSON.stringify(scrapedData);
-        await createApplication({ body }).catch(() =>
-          addToast({
-            color: 'danger',
-            title:
-              'There was an error creating application with the listing data.',
-          })
-        );
-      })
-      .catch((e) => {
-        addToast({
-          color: 'danger',
-          title: `There was an error with quickly adding the application, ${e}`,
-        });
-      });
-    refreshApplications();
-    setLoading(false);
-  };
   const renderWelcome = () => {
     return (
       <div className='w-full flex flex-col md:flex-row mb-8'>
@@ -342,7 +314,13 @@ const Home = ({
               id='quick-add'
               className='flex flex-col'
               validationBehavior='native'
-              onSubmit={quickAdd}
+              onSubmit={async (e) => {
+                setLoading(true);
+                handleAiAdd({ e, apiKey: firecrawl_key!, user_id }).then(() => {
+                  refreshApplications();
+                  setLoading(false);
+                });
+              }}
             >
               <Input
                 className='hidden'
@@ -375,7 +353,7 @@ const Home = ({
                 <Button
                   color='secondary'
                   type='submit'
-                  isDisabled={loading || !openai_key}
+                  isDisabled={loading || !firecrawl_key}
                   className='w-full'
                 >
                   Add with AI

@@ -45,6 +45,35 @@ export const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
     })
   );
 };
+export const handleAiAdd = async (args: {
+  e: FormEvent<HTMLFormElement>;
+  apiKey: string;
+  user_id: string;
+}) => {
+  const { e, apiKey, user_id } = args;
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const url = formData.get('posting_url') as string;
+  await getListingData({ url, apiKey })
+    .then(async (data) => {
+      const scrapedData = data;
+      scrapedData._user_id = user_id;
+      const body = JSON.stringify(scrapedData);
+      await createApplication({ body }).catch(() =>
+        addToast({
+          color: 'danger',
+          title:
+            'There was an error creating application with the listing data.',
+        })
+      );
+    })
+    .catch((e) => {
+      addToast({
+        color: 'danger',
+        title: `There was an error with quickly adding the application, ${e}`,
+      });
+    });
+};
 export const handleUpdate = async (e: FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   const formData = new FormData(e.currentTarget);

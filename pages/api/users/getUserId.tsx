@@ -1,4 +1,3 @@
-import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
 interface JwtPayload {
@@ -6,16 +5,6 @@ interface JwtPayload {
 }
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   // check for database and users collection
-  const client = await clientPromise;
-  const db = client.db(process.env.MONGODB);
-  const sessionsCollectionVariable = process.env.MONGODB_COLLECTION_SESSIONS;
-  if (!sessionsCollectionVariable) {
-    return res.status(500).json('Missing sessions collection variable.');
-  }
-  const sessionsCollection = await db.collection(sessionsCollectionVariable);
-  if (!db || !sessionsCollection) {
-    return res.status(500).json('Missing database or sessions collection.');
-  }
   const tokenSecret = process.env.TOKEN_SECRET;
   if (!tokenSecret) {
     return res.status(403).json('Missing token secret variable.');
