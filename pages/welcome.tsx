@@ -108,8 +108,8 @@ const Welcome = () => {
     const items = [
       {
         icon: <MagicWandIcon />,
-        title: `AI vs. AI`,
-        content: `Hiring teams use AI to sift through thousands of applications and generate applicant data. That power at your fingertips reverse-engineered so you have the best fighting chance against the ATS systems.`,
+        title: `Clean interface`,
+        content: `The information you want when you want to see it. A highly customizable table to showcase your source of truth.`,
       },
       {
         icon: <UserBlurbIcon />,
