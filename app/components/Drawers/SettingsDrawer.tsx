@@ -2,18 +2,16 @@ import {
   Button,
   Accordion,
   AccordionItem,
-  Alert,
   Badge,
   Form,
   Input,
-  Link,
   Drawer,
   DrawerBody,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
+  Link,
 } from '@heroui/react';
-import { label } from 'framer-motion/client';
 import React, { FormEvent } from 'react';
 interface Props {
   isOpen: boolean;
@@ -23,7 +21,6 @@ interface Props {
   handleFirecrawl?: (e: FormEvent<HTMLFormElement>) => void;
   firecrawlKey?: string;
   openAiKey?: string;
-  loading?: boolean;
 }
 export const Settings = (props: Props) => {
   const {
@@ -34,7 +31,6 @@ export const Settings = (props: Props) => {
     handleFirecrawl,
     firecrawlKey,
     openAiKey,
-    loading,
   } = props;
   const userSettings = [
     {
@@ -47,19 +43,21 @@ export const Settings = (props: Props) => {
       name: openAiKey,
       title: 'OpenAI Key',
       success: 'Open AI Key successfully added.',
-      error: `Open AI is required to use AI features,{' '}
-                <Link
-                  href='https://platform.openai.com/api-keys'
-                  className='inline'
-                >
-                  get a key on the Open AI website.
-                </Link>`,
+      error: (
+        <>
+          Open AI is required to use AI features,{' '}
+          <Link href='https://platform.openai.com/api-keys' className='inline'>
+            get a key on the Open AI website.
+          </Link>
+        </>
+      ),
       form: {
         id: 'add-openai',
         required: true,
-        name: 'openAiKey',
+        name: 'openAi',
         placeholder: 'sk-proj-***************',
         error: 'Please enter your Open AI key.',
+        value: openAiKey,
         handleSubmit: handleOpenAi,
       },
     },
@@ -67,16 +65,21 @@ export const Settings = (props: Props) => {
       name: firecrawlKey,
       title: 'Firecrawl Key',
       success: 'Firecrawl Key successfully added.',
-      error: `Firecrawl is required to use AI features,{' '}
-                <Link href='https://www.firecrawl.dev' className='inline'>
-                  get a key on the Firecrawl website.
-                </Link>`,
+      error: (
+        <>
+          Firecrawl is required to use AI features,{' '}
+          <Link href='https://www.firecrawl.dev' className='inline'>
+            get a key on the Firecrawl website.
+          </Link>
+        </>
+      ),
       form: {
         id: 'add-firecrawl',
         required: true,
         name: 'firecrawl',
         placeholder: 'fc-***************',
         error: 'Please enter your Firecrawl key.',
+        value: firecrawlKey,
         handleSubmit: handleFirecrawl,
       },
     },
@@ -119,13 +122,9 @@ export const Settings = (props: Props) => {
                 labelPlacement={'outside'}
                 name={setting.form.name}
                 placeholder={setting.form.placeholder}
+                defaultValue={setting.form.value}
               />
-              <Button
-                color='primary'
-                type='submit'
-                isLoading={loading}
-                className='w-full'
-              >
+              <Button color='primary' type='submit' className='w-full'>
                 {setting.name ? 'Update' : 'Add'}
               </Button>
             </div>
@@ -137,7 +136,7 @@ export const Settings = (props: Props) => {
     <Drawer
       isOpen={isOpen}
       onClose={onClose}
-      size='md'
+      size='lg'
       className='dark text-white p-5'
     >
       <DrawerContent>

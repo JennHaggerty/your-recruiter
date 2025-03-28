@@ -5,9 +5,8 @@ export const scrapeResponse = async (args: {
   apiKey: string;
 }): Promise<any> => {
   const { url, apiKey } = args;
-  const myApiKey = process.env.NEXT_PUBLIC_FIRECRAWL_KEY;
-  if (!myApiKey && !apiKey) return;
-  const theOneKey = myApiKey || apiKey;
+  if (!apiKey) return;
+  const theOneKey = apiKey;
   const app = new FirecrawlApp({ apiKey: theOneKey });
   const schema = z.object({
     posting_url: z.string(),

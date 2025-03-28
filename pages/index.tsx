@@ -44,7 +44,7 @@ const inter = Inter({ subsets: ['latin'] });
 const Home = ({
   isConnected,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-  const { user_id, resume } = useUserContext();
+  const { user_id, resume, firecrawl_key, openai_key } = useUserContext();
   if (!user_id) return;
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
@@ -54,11 +54,9 @@ const Home = ({
   const [showAddModal, setShowAddModal] = useState<boolean>();
   const [showCoverLetterModal, setShowCoverLetterModal] = useState<boolean>();
   const [showDetails, setShowDetails] = useState<boolean>();
-  const [openAiKey, setOpenAiKey] = useState<string>();
-  const [firecrawlKey, setFirecrawlKey] = useState<string>();
   const [showSkeletonList, setShowSkeletonList] = useState<boolean>(true);
-  const disableOpenAi = !openAiKey || loading;
-  const disableFirecrawl = !firecrawlKey || loading;
+  const disableOpenAi = !openai_key || loading;
+  const disableFirecrawl = !firecrawl_key || loading;
   const refreshApplications = async () => {
     setShowSkeletonList(true);
     const applications = await fetchApplications({ user_id })
@@ -76,22 +74,7 @@ const Home = ({
     setShowSkeletonList(false);
   };
   useEffect(function fetchApplicationsOnPageLoad() {
-    refreshApplications()
-      .then(() => setShowSkeletonList(false))
-      .catch(() =>
-        addToast({
-          color: 'danger',
-          title: 'There was an error fetching applications on page load.',
-        })
-      );
-  }, []);
-  useEffect(function checkForAPIKeysOnPageLoad() {
-    if (!firecrawlKey && process.env.NEXT_PUBLIC_FIRECRAWL_KEY) {
-      setFirecrawlKey(process.env.NEXT_PUBLIC_FIRECRAWL_KEY);
-    }
-    if (!openAiKey && process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-      setOpenAiKey(process.env.NEXT_PUBLIC_OPENAI_API_KEY);
-    }
+    refreshApplications();
   }, []);
   const handleAdd = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -161,7 +144,7 @@ const Home = ({
     onOpen();
   };
   const handleAutoCollect = async (id: string) => {
-    if (!firecrawlKey) return;
+    if (!firecrawl_key) return;
     const applicationToUpdate =
       applications &&
       applications.find((application) => application._id === id);
@@ -169,7 +152,7 @@ const Home = ({
     setLoading(true);
     await getListingData({
       url: applicationToUpdate.posting_url,
-      apiKey: firecrawlKey,
+      apiKey: firecrawl_key,
     })
       .then(async (data) => {
         const scrapedData = data;
@@ -193,17 +176,56 @@ const Home = ({
       });
     setLoading(false);
   };
-  const handleOpenAi = (e: FormEvent<HTMLFormElement>) => {
+  const handleOpenAi = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setLoading(true);
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
-    setOpenAiKey(data.openAiKey.toString());
+    const body = JSON.stringify(data);
+    await fetch('./api/users/editUser?id=' + user_id, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+    }).then((res) => {
+      if (res.status !== 201) {
+        return addToast({
+          color: 'danger',
+          title: 'Could not add OpenAi Key.',
+          description: JSON.stringify(res.json),
+        });
+      }
+      if (res.status === 201) {
+        return addToast({ color: 'success', title: 'OpenAi Key added.' });
+      }
+    });
+    setLoading(false);
   };
-  const handleFirecrawl = (e: FormEvent<HTMLFormElement>) => {
+  const handleFirecrawl = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(formData);
-    setFirecrawlKey(data.firecrawlKey.toString());
+    const body = JSON.stringify(data);
+    await fetch('./api/users/editUser?id=' + user_id, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body,
+    }).then((res) => {
+      if (res.status !== 201) {
+        return addToast({
+          color: 'danger',
+          title: 'Could not add Firecrawl Key.',
+          description: JSON.stringify(res.json),
+        });
+      }
+      if (res.status === 201) {
+        return addToast({ color: 'success', title: 'Firecrawl Key added.' });
+      }
+    });
+    setLoading(false);
   };
   const handleAutoWriteCoverLetter = async (id: string) => {
     const application =
@@ -212,9 +234,14 @@ const Home = ({
     if (!application._resume && resume) {
       application._resume = resume;
     }
-    const key = openAiKey ? openAiKey : '';
+    if (!openai_key) {
+      return addToast({
+        color: 'danger',
+        title: 'Missing OpenAI key, please add it to your Settings.',
+      });
+    }
     setLoading(true);
-    await automatedCoverLetter({ job: application, openAiKey: key })
+    await automatedCoverLetter({ job: application, openAiKey: openai_key })
       .then(async (res) => {
         application.automated_cover_letter = res;
         const body = JSON.stringify(application);
@@ -257,7 +284,6 @@ const Home = ({
               onAutoCollect={handleAutoCollect}
               onAutoCoverLetter={handleAutoWriteCoverLetter}
               onViewCoverLetter={handleViewCoverLetter}
-              loading={loading}
               disableOpenAi={disableOpenAi}
               disableFirecrawl={disableFirecrawl}
             />
@@ -323,7 +349,6 @@ const Home = ({
               item={activeApplication}
               handleSubmit={handleUpdate}
               handleCancel={onClose}
-              loading={loading}
             />
           </ModalBody>
         </ModalContent>
@@ -344,11 +369,7 @@ const Home = ({
         <ModalContent>
           <ModalHeader>Add Application Information</ModalHeader>
           <ModalBody>
-            <AddForm
-              handleSubmit={handleAdd}
-              handleCancel={onClose}
-              loading={loading}
-            />
+            <AddForm handleSubmit={handleAdd} handleCancel={onClose} />
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -359,7 +380,7 @@ const Home = ({
     setLoading(true);
     const formData = new FormData(e.currentTarget);
     const url = formData.get('posting_url') as string;
-    await getListingData({ url, apiKey: firecrawlKey! })
+    await getListingData({ url, apiKey: firecrawl_key! })
       .then(async (data) => {
         const scrapedData = data;
         scrapedData._user_id = user_id;
@@ -431,7 +452,7 @@ const Home = ({
                 <Button
                   color='secondary'
                   type='submit'
-                  isDisabled={loading || !openAiKey}
+                  isDisabled={loading || !openai_key}
                   className='w-full'
                 >
                   Add with AI
@@ -449,8 +470,8 @@ const Home = ({
         isConnected={isConnected}
         handleOpenAi={handleOpenAi}
         handleFirecrawl={handleFirecrawl}
-        openAiKey={openAiKey}
-        firecrawlKey={firecrawlKey}
+        openAiKey={openai_key}
+        firecrawlKey={firecrawl_key}
       />
       <main className={`${inter.className} dark relative md:max-w-7xl`}>
         {loading && <Loading />}
@@ -476,7 +497,6 @@ const Home = ({
                 onAutoCoverLetter={handleAutoWriteCoverLetter}
                 onViewCoverLetter={handleViewCoverLetter}
                 onViewCard={handleViewCard}
-                loading={loading}
                 disableOpenAi={disableOpenAi}
                 disableFirecrawl={disableFirecrawl}
               />
@@ -492,7 +512,6 @@ const Home = ({
                 onAutoCoverLetter={handleAutoWriteCoverLetter}
                 onViewCoverLetter={handleViewCoverLetter}
                 onViewCard={handleViewCard}
-                loading={loading}
                 disableOpenAi={disableOpenAi}
                 disableFirecrawl={disableFirecrawl}
               />

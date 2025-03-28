@@ -5,10 +5,9 @@ import { EyeFilledIcon } from '../Icons/EyeFilledIcon';
 import { EyeSlashFilledIcon } from '../Icons/EyeSlashFilledIcon';
 interface Props {
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  loading?: boolean;
 }
 const SignupForm = (props: Props) => {
-  const { handleSubmit, loading } = props;
+  const { handleSubmit } = props;
   const [isVisible, setIsVisible] = useState<boolean>();
   const toggleVisibility = () => setIsVisible(!isVisible);
   return (
@@ -56,12 +55,7 @@ const SignupForm = (props: Props) => {
         Password must be at least 8 characters long and contain at least 1
         letter, number, and special character.
       </span>
-      <Button
-        type='submit'
-        color={'primary'}
-        className='w-full'
-        isLoading={loading}
-      >
+      <Button type='submit' color={'primary'} className='w-full'>
         Sign up
       </Button>
     </Form>

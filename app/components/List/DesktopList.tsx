@@ -31,7 +31,6 @@ interface Props {
   items?: JobInterface[];
   selectedkeys?: string[];
   setSelectedKeys?: () => void;
-  loading?: boolean;
   onAdd?: () => void;
   onAutoCollect?: (id: string) => void;
   onAutoCoverLetter?: (id: string) => void;
@@ -69,7 +68,6 @@ const INITIAL_VISIBLE_COLUMNS = [
 const DesktopList = (props: Props) => {
   const {
     items,
-    loading,
     onAdd,
     onAutoCollect,
     onAutoCoverLetter,
@@ -292,7 +290,6 @@ const DesktopList = (props: Props) => {
               variant='flat'
               color='primary'
               onPress={() => onViewCard(item._id)}
-              isLoading={loading}
               aria-label='View your cover letter.'
               isIconOnly={true}
               className='m-auto'
@@ -381,7 +378,6 @@ const DesktopList = (props: Props) => {
             variant='flat'
             color='primary'
             onPress={() => onViewCoverLetter(item._id)}
-            isLoading={loading}
             isDisabled={!item.automated_cover_letter}
             aria-label='View your cover letter.'
             isIconOnly={true}
@@ -414,7 +410,6 @@ const DesktopList = (props: Props) => {
             variant='flat'
             color='primary'
             onPress={() => onEdit(item._id)}
-            isLoading={loading}
             aria-label='Edit'
             isIconOnly={true}
           >
@@ -428,7 +423,6 @@ const DesktopList = (props: Props) => {
             variant='flat'
             color='danger'
             onPress={() => onDelete(item._id)}
-            isLoading={loading}
             aria-label='Delete'
             isIconOnly={true}
           >

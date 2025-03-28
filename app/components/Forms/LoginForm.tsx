@@ -5,10 +5,9 @@ import { EyeFilledIcon } from '../Icons/EyeFilledIcon';
 import { EyeSlashFilledIcon } from '../Icons/EyeSlashFilledIcon';
 interface Props {
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  loading?: boolean;
 }
 const LoginForm = (props: Props) => {
-  const { loading, handleSubmit } = props;
+  const { handleSubmit } = props;
   const [isVisible, setIsVisible] = useState<boolean>();
   const toggleVisibility = () => setIsVisible(!isVisible);
   return (
@@ -52,12 +51,7 @@ const LoginForm = (props: Props) => {
           </Button>
         }
       />
-      <Button
-        type='submit'
-        color={'primary'}
-        className='w-full'
-        isLoading={loading}
-      >
+      <Button type='submit' color={'primary'} className='w-full'>
         Login
       </Button>
     </Form>

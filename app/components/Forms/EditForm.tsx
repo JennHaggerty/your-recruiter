@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
   Form,
   Input,
@@ -24,11 +24,9 @@ interface Props {
   item: JobInterface;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   handleCancel?: () => void;
-  loading?: boolean;
 }
 const EditForm = (props: Props) => {
-  const { item, handleSubmit, handleCancel, loading } = props;
-  const [addCustomStage, setAddCustomStage] = useState(false);
+  const { item, handleSubmit, handleCancel } = props;
   const [followUp, setFollowUp] = useState(false);
   const [followupDate, setFollowUpDate] = useState(
     today(getLocalTimeZone()).toString()
@@ -202,7 +200,7 @@ const EditForm = (props: Props) => {
           </div>
         )}
       </div>
-      <ActionButtons handleCancel={handleCancel} loading={loading} />
+      <ActionButtons handleCancel={handleCancel} />
     </Form>
   );
 };

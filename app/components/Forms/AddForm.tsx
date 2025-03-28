@@ -11,7 +11,6 @@ import {
 } from '@heroui/react';
 import { today, getLocalTimeZone } from '@internationalized/date';
 import ActionButtons from '../ActionButtons/ActionButtons';
-import { label } from 'framer-motion/client';
 import { useUserContext } from '@/contexts/UserContext';
 const stages = [
   { key: 'interested', label: 'Interested' },
@@ -23,12 +22,11 @@ const stages = [
 interface Props {
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
   handleCancel?: () => void;
-  loading?: boolean;
 }
 const AddForm = (props: Props) => {
   const { user_id } = useUserContext();
   if (!user_id) return;
-  const { handleSubmit, handleCancel, loading } = props;
+  const { handleSubmit, handleCancel } = props;
   const [followUp, setFollowUp] = useState(false);
   const [followupDate, setFollowUpDate] = useState(
     today(getLocalTimeZone()).toString()
@@ -159,7 +157,7 @@ const AddForm = (props: Props) => {
           </div>
         )}
       </div>
-      <ActionButtons handleCancel={handleCancel} loading={loading} />
+      <ActionButtons handleCancel={handleCancel} />
     </Form>
   );
 };

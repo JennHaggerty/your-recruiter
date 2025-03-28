@@ -30,8 +30,6 @@ interface Props {
   items?: JobInterface[];
   selectedkeys?: string[];
   setSelectedKeys?: () => void;
-  loading?: boolean;
-  loadingAI?: boolean;
   onAdd?: () => void;
   onAutoCollect?: (id: string) => void;
   onAutoCoverLetter?: (id: string) => void;
@@ -61,8 +59,6 @@ const INITIAL_VISIBLE_COLUMNS = ['name', 'stage', 'actions'];
 const MobileList = (props: Props) => {
   const {
     items,
-    loading,
-    loadingAI,
     onAdd,
     onAutoCollect,
     onAutoCoverLetter,
@@ -332,7 +328,6 @@ const MobileList = (props: Props) => {
             variant='flat'
             color='secondary'
             onPress={() => onAutoCoverLetter(item._id)}
-            isLoading={loadingAI}
             isDisabled={
               !!item.automated_cover_letter ||
               !item._markdown ||
@@ -358,7 +353,6 @@ const MobileList = (props: Props) => {
             variant='flat'
             color='primary'
             onPress={() => onViewCoverLetter(item._id)}
-            isLoading={loading}
             isDisabled={!item.automated_cover_letter}
             aria-label='View your cover letter.'
             isIconOnly={true}

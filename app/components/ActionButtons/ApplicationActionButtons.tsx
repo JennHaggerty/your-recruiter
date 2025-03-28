@@ -4,8 +4,6 @@ import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
 interface Props {
   item: JobInterface;
-  loading?: boolean;
-  loadingAI?: boolean;
   onAutoCollect?: (id: string) => void;
   onAutoCoverLetter?: (id: string) => void;
   onViewCoverLetter?: (id: string) => void;
@@ -26,8 +24,6 @@ interface Props {
 const ApplicationActionButtons = (props: Props) => {
   const {
     item,
-    loading,
-    loadingAI,
     onAutoCollect,
     onAutoCoverLetter,
     onViewCoverLetter,
@@ -45,7 +41,6 @@ const ApplicationActionButtons = (props: Props) => {
           color='secondary'
           onPress={() => onAutoCollect(item._id)}
           className='w-full'
-          isLoading={loadingAI}
           isDisabled={
             !!item._markdown ||
             item.stage?.toLocaleLowerCase() === 'closed' ||
@@ -61,7 +56,6 @@ const ApplicationActionButtons = (props: Props) => {
           color='default'
           onPress={() => onViewCoverLetter(item._id)}
           className='w-full'
-          isLoading={loading}
           isDisabled={!item.automated_cover_letter}
         >
           View cover letter
@@ -73,7 +67,6 @@ const ApplicationActionButtons = (props: Props) => {
           color='secondary'
           onPress={() => onAutoCoverLetter(item._id)}
           className='w-full'
-          isLoading={loadingAI}
           isDisabled={
             !!item.automated_cover_letter ||
             !item._markdown ||
@@ -97,7 +90,6 @@ const ApplicationActionButtons = (props: Props) => {
               variant={variant ? variant : 'flat'}
               color='primary'
               onPress={() => onEdit(item._id)}
-              isLoading={loading}
               aria-label='Edit'
               className='desktop-only'
               isIconOnly={true}
@@ -110,7 +102,6 @@ const ApplicationActionButtons = (props: Props) => {
             color='primary'
             onPress={() => onEdit(item._id)}
             className='w-full mobile-only'
-            isLoading={loading}
           >
             Edit
           </Button>
@@ -127,7 +118,6 @@ const ApplicationActionButtons = (props: Props) => {
               variant={variant ? variant : 'flat'}
               color='danger'
               onPress={() => onDelete(item._id)}
-              isLoading={loading}
               aria-label='Delete'
               className='desktop-only'
               isIconOnly={true}
@@ -140,7 +130,6 @@ const ApplicationActionButtons = (props: Props) => {
             color='danger'
             onPress={() => onDelete(item._id)}
             className='w-full mobile-only'
-            isLoading={loading}
           >
             Delete
           </Button>

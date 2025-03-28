@@ -4,10 +4,9 @@ interface Props {
   handleSubmit?: () => void;
   handleCancel?: () => void;
   handleReset?: () => void;
-  loading?: boolean;
 }
 const ActionButtons = (props: Props) => {
-  const { handleSubmit, handleCancel, handleReset, loading } = props;
+  const { handleSubmit, handleCancel, handleReset } = props;
   return (
     <div className='flex gap-2 w-full'>
       <Button
@@ -26,7 +25,6 @@ const ActionButtons = (props: Props) => {
         type='submit'
         onPress={handleSubmit}
         className='w-full'
-        isLoading={loading}
       >
         Submit
       </Button>

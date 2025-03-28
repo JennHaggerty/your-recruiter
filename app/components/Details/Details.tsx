@@ -4,8 +4,6 @@ import ApplicationActionButtons from '../ActionButtons/ApplicationActionButtons'
 import { getBadgeColor } from '@/functions/functions';
 interface Props {
   item: JobInterface;
-  loading?: boolean;
-  loadingAI?: boolean;
   onAutoCollect: (id: string) => void;
   onAutoCoverLetter?: (id: string) => void;
   onViewCoverLetter?: (id: string) => void;
@@ -17,8 +15,6 @@ interface Props {
 const Details = (props: Props) => {
   const {
     item,
-    loading,
-    loadingAI,
     onAutoCollect,
     onAutoCoverLetter,
     onViewCoverLetter,
@@ -130,8 +126,6 @@ const Details = (props: Props) => {
       <div className='flex flex-col gap-2 justify-center w-full'>
         <ApplicationActionButtons
           item={item}
-          loading={loading}
-          loadingAI={loadingAI}
           onAutoCollect={onAutoCollect}
           onAutoCoverLetter={onAutoCoverLetter}
           onViewCoverLetter={onViewCoverLetter}
