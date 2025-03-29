@@ -1,6 +1,7 @@
 import { createContext, FormEvent, useContext } from 'react';
 export interface UserContext {
   user_id?: string;
+  email?: string;
   resume?: string;
   openai_key?: string;
   firecrawl_key?: string;
@@ -10,6 +11,7 @@ export interface UserContext {
 }
 export const UserContext = createContext<UserContext>({
   user_id: '',
+  email: '',
   resume: '',
   openai_key: '',
   firecrawl_key: '',

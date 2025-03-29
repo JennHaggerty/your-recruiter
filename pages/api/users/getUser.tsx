@@ -27,6 +27,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     }
     const response: UserContext = {
       user_id: user._id.toString(),
+      email: user.email,
       resume: user.resume,
       openai_key: user.openai_key,
       firecrawl_key: user.firecrawl_key,

@@ -45,11 +45,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       success: true,
       token: token,
     });
-    if (response === undefined) {
-      return res
-        .status(500)
-        .json({ message: `Repsonse not found for user login.` });
-    }
     return response;
   } catch (e) {
     console.error(e);

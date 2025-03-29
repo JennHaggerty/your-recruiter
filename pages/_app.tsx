@@ -47,21 +47,20 @@ export default function App({ Component, pageProps }: AppProps) {
     const email = Object.fromEntries(formData).email.toString();
     const password = Object.fromEntries(formData).password.toString();
     await fetchUserLogin({ email, password })
-      .then((user) => {
-        setUser(user);
+      .then((res) => {
+        if (res === 'success') Router.reload();
       })
-      .finally(() => Router.push('./'))
       .catch((e) => {
-        addToast({
+        return addToast({
           color: 'danger',
           title: `There was an error logging in, ${e}`,
         });
-        return;
       });
   };
   const userContextValue = {
     user_id: user && user.user_id,
     resume: user && user.resume,
+    email: user && user.email,
     openai_key: user && user.openai_key,
     firecrawl_key: user && user.firecrawl_key,
     login: login,

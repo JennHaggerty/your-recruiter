@@ -19,8 +19,8 @@ interface Props {
   handleOpenAi?: (e: FormEvent<HTMLFormElement>) => void;
   handleFirecrawl?: (e: FormEvent<HTMLFormElement>) => void;
   handleSignup?: (e: FormEvent<HTMLFormElement>) => void;
-  openAiKey?: string;
-  firecrawlKey?: string;
+  handleEmailChange?: (e: FormEvent<HTMLFormElement>) => void;
+  handlePasswordChange?: (e: FormEvent<HTMLFormElement>) => void;
 }
 
 const Nav = (props: Props) => {
@@ -28,17 +28,18 @@ const Nav = (props: Props) => {
     isConnected,
     handleFirecrawl,
     handleOpenAi,
-    openAiKey,
-    firecrawlKey,
+    handleEmailChange,
+    handlePasswordChange,
   } = props;
-  const { user_id, logout, login, signup } = useUserContext();
+  const { user_id, firecrawl_key, openai_key, logout, login, signup } =
+    useUserContext();
   const [showSignupForm, setShowSignupForm] = useState<boolean>();
   const [showLoginForm, setShowLoginForm] = useState<boolean>();
   const [showLegend, setShowLegend] = useState<boolean>();
   const [showSettings, setShowSettings] = useState<boolean>();
   const [badgeCount, setBadgeCount] = useState<number>(0);
-  const hasOpenAiKey = !!openAiKey;
-  const hasFirecrawlKey = !!firecrawlKey;
+  const hasOpenAiKey = !!openai_key;
+  const hasFirecrawlKey = !!firecrawl_key;
 
   useEffect(
     function getSettingsBadgeCount() {
@@ -146,8 +147,8 @@ const Nav = (props: Props) => {
           isConnected={isConnected}
           handleOpenAi={handleOpenAi}
           handleFirecrawl={handleFirecrawl}
-          firecrawlKey={firecrawlKey}
-          openAiKey={openAiKey}
+          handleEmailChange={handleEmailChange}
+          handlePasswordChange={handlePasswordChange}
         />
       )}
     </Navbar>

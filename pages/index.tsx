@@ -31,8 +31,10 @@ import {
   getListingData,
   handleAdd,
   handleAiAdd,
+  handleEmailChange,
   handleFirecrawl,
   handleOpenAi,
+  handlePasswordChange,
   handleUpdate,
   updateApplication,
 } from '@/functions/functions';
@@ -381,8 +383,16 @@ const Home = ({
             .then(() => setLoading(false))
             .catch(() => {});
         }}
-        openAiKey={openai_key}
-        firecrawlKey={firecrawl_key}
+        handleEmailChange={async (e) => {
+          setLoading(true);
+          await handleEmailChange(e);
+          setLoading(false);
+        }}
+        handlePasswordChange={async (e) => {
+          setLoading(true);
+          await handlePasswordChange(e);
+          setLoading(false);
+        }}
       />
       <main className={`${inter.className} dark relative md:max-w-7xl`}>
         {loading && <Loading />}

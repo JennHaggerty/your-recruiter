@@ -136,6 +136,71 @@ export const handleUserSignup = (e: FormEvent<HTMLFormElement>) => {
       addToast({ color: 'danger', description: 'There was an error.' });
     });
 };
+export const handleEmailChange = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData);
+  const body = JSON.stringify(data);
+  await fetch('./api/users/editUser?id=' + data.user_id, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then(async (res) => {
+    if (res.status !== 201) {
+      return addToast({
+        color: 'danger',
+        title: 'Could not change email.',
+        description: JSON.stringify(await res.json()),
+      });
+    }
+    if (res.status === 201) {
+      return addToast({ color: 'success', title: 'Email updated.' });
+    }
+  });
+  return;
+};
+export const handlePasswordChange = async (e: FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  const formData = new FormData(e.currentTarget);
+  const data = Object.fromEntries(formData);
+  const body = JSON.stringify(data);
+  await fetch('./api/users/editUser?id=' + data.user_id, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body,
+  }).then(async (res) => {
+    if (res.status !== 201) {
+      if (res.status === 400) {
+        res.json().then((json) => {
+          if (json.issues) {
+            const issues = json.issues;
+            issues.forEach((issue: { path: any; message: any }) => {
+              addToast({
+                color: 'danger',
+                title: issue.path[0],
+                description: issue.message,
+              });
+            });
+          } else {
+            addToast({
+              color: 'danger',
+              description: json.message,
+            });
+          }
+          return;
+        });
+      }
+    }
+    if (res.status === 201) {
+      return addToast({ color: 'success', title: 'Password updated.' });
+    }
+  });
+  return;
+};
 export const fetchUserLogin = async (args: {
   email: string;
   password: string;
@@ -153,39 +218,32 @@ export const fetchUserLogin = async (args: {
     body,
   })
     .then((res) => {
-      if (res.status === 400) {
+      if (res.status !== 201) {
         res.json().then((json) => {
           if (json.issues) {
             const issues = json.issues;
-            issues.forEach((issue: { path: any; message: any }) => {
+            return issues.forEach((issue: { path: any; message: any }) => {
               addToast({
                 color: 'danger',
                 title: issue.path[0],
                 description: issue.message,
               });
             });
-            return;
           } else {
-            addToast({
+            return addToast({
               color: 'danger',
               description: json.message,
             });
-            return;
           }
         });
-      } else if (res.status === 201) {
-        addToast({
-          color: 'success',
-          description: 'Successfully logged in.',
-        });
-        return res.json();
       }
+      return res.json();
     })
     .then((data) => {
       const token = data.token;
-      const user = data.user;
       window.localStorage.setItem('token', token);
-      return user;
+      addToast({ color: 'success', title: 'Successfully logged in.' });
+      return 'success';
     })
     .catch(() => {});
   return user;
