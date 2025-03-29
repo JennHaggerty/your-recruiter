@@ -23,13 +23,11 @@ const LegendDrawer = (props: Props) => {
       className='dark text-white p-5'
     >
       <DrawerContent>
-        <DrawerHeader className='text-2xl'>
-          Understanding the color code.
-        </DrawerHeader>
+        <DrawerHeader>Understanding the color code.</DrawerHeader>
         <DrawerBody>
           <div>
             <dl className='color-legend flex flex-col gap-3'>
-              <dt>Blue is the action color.</dt>
+              <dt className='text-2xl'>Blue is the action color.</dt>
               <dd>
                 <ul className='legend-list'>
                   <li>
@@ -48,7 +46,7 @@ const LegendDrawer = (props: Props) => {
                   </li>
                 </ul>
               </dd>
-              <dt>Purple is the color of AI.</dt>
+              <dt className='text-2xl'>Purple is the color of AI.</dt>
               <dd>
                 <ul>
                   <li>
@@ -66,7 +64,7 @@ const LegendDrawer = (props: Props) => {
                   </li>
                 </ul>
               </dd>
-              <dt>Gray is Neurtral.</dt>
+              <dt className='text-2xl'>Gray is Neurtral.</dt>
               <dd>
                 <ul>
                   <li>
@@ -84,7 +82,7 @@ const LegendDrawer = (props: Props) => {
                   </li>
                 </ul>
               </dd>
-              <dt>Green is success or cash money!</dt>
+              <dt className='text-2xl'>Green is success or cash money!</dt>
               <dd>
                 <ul>
                   <li>
@@ -106,7 +104,7 @@ const LegendDrawer = (props: Props) => {
                   </li>
                 </ul>
               </dd>
-              <dt>Red is an Error.</dt>
+              <dt className='text-2xl'>Red is an Error.</dt>
               <dd>
                 <ul>
                   <li>
@@ -128,7 +126,7 @@ const LegendDrawer = (props: Props) => {
                   </li>
                 </ul>
               </dd>
-              <dt>Yellow is a Warning Color.</dt>
+              <dt className='text-2xl'>Yellow is a Warning Color.</dt>
               <dd>
                 <ul>
                   <li>
