@@ -70,8 +70,6 @@ const IndexList = (props: Props) => {
             onAutoCoverLetter={onAutoCoverLetter}
             onViewCoverLetter={onViewCoverLetter}
             onViewCard={onViewCard}
-            disableOpenAi={!openai_key}
-            disableFirecrawl={!firecrawl_key}
           />
           <DesktopList
             items={items}
@@ -85,8 +83,6 @@ const IndexList = (props: Props) => {
             onAutoCoverLetter={onAutoCoverLetter}
             onViewCoverLetter={onViewCoverLetter}
             onViewCard={onViewCard}
-            disableOpenAi={!openai_key}
-            disableFirecrawl={!firecrawl_key}
           />
         </>
       )}

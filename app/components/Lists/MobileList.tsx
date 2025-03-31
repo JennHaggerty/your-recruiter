@@ -26,6 +26,7 @@ import { SearchIcon } from '../Icons/SearchIcon';
 import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
+import { useUserContext } from '@/contexts/UserContext';
 interface Column {
   name: string;
   uid: string;
@@ -49,10 +50,7 @@ interface Props {
   onViewCard?: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
-  disableOpenAi?: boolean;
-  disableFirecrawl?: boolean;
 }
-const INITIAL_VISIBLE_COLUMNS = ['name', 'stage', 'actions'];
 const MobileList = (props: Props) => {
   const {
     columns,
@@ -66,9 +64,9 @@ const MobileList = (props: Props) => {
     onViewCard,
     onDelete,
     onEdit,
-    disableOpenAi,
   } = props;
   if (!items) return;
+  const { firecrawl_key, openai_key } = useUserContext();
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
@@ -332,7 +330,7 @@ const MobileList = (props: Props) => {
               !!item.automated_cover_letter ||
               !item._markdown ||
               item.stage?.toLocaleLowerCase() === 'closed' ||
-              disableOpenAi
+              !openai_key
             }
             aria-label='Write cover letter with AI. This is a paid transaction.'
             isIconOnly={true}
@@ -389,14 +387,16 @@ const MobileList = (props: Props) => {
           <DropdownItem
             key='viewCoverLetter'
             onPress={() => onAutoCollect && onAutoCollect(item._id)}
-            isReadOnly={!onAutoCollect || !!item._markdown}
+            isReadOnly={!onAutoCollect || !!item._markdown || !firecrawl_key}
           >
             Collect listing with AI
           </DropdownItem>
           <DropdownItem
             key='viewCoverLetter'
             onPress={() => onAutoCoverLetter && onAutoCoverLetter(item._id)}
-            isReadOnly={!onAutoCoverLetter || !!item.automated_cover_letter}
+            isReadOnly={
+              !onAutoCoverLetter || !!item.automated_cover_letter || !openai_key
+            }
           >
             Write Cover Letter with AI
           </DropdownItem>

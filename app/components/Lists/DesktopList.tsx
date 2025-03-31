@@ -34,6 +34,7 @@ import { SearchIcon } from '../Icons/SearchIcon';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
 import { TableContext, useTableContext } from '@/contexts/TableContext';
+import { useUserContext } from '@/contexts/UserContext';
 interface Column {
   name: string;
   uid: string;
@@ -73,10 +74,9 @@ const DesktopList = (props: Props) => {
     onViewCard,
     onDelete,
     onEdit,
-    disableOpenAi,
-    disableFirecrawl,
   } = props;
   if (!items) return;
+  const { firecrawl_key, openai_key } = useUserContext();
   const { rowsPerPage, setRowsPerPage } = useContext(TableContext);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
@@ -356,7 +356,7 @@ const DesktopList = (props: Props) => {
               !!item.automated_cover_letter ||
               !item._markdown ||
               item.stage?.toLocaleLowerCase() === 'closed' ||
-              disableOpenAi
+              !openai_key
             }
             aria-label='Write cover letter with AI. This is a paid transaction.'
             isIconOnly={true}
@@ -397,7 +397,7 @@ const DesktopList = (props: Props) => {
             onPress={() => onAutoCollect(item._id)}
             aria-label='Get Listing Data'
             isIconOnly={true}
-            isDisabled={!!item._markdown || disableFirecrawl}
+            isDisabled={!!item._markdown || !firecrawl_key}
           >
             <AiIcon width={iconWidth} />
           </Button>
