@@ -42,6 +42,11 @@ import { useUserContext } from '@/contexts/UserContext';
 import DesktopList from '@/app/components/List/DesktopList';
 import MobileList from '@/app/components/List/MobileList';
 import Loading from '@/app/components/Loading/Loading';
+import ListJumbotron from '@/app/components/ListJumbotron/ListJumbotron';
+import AddModal from '@/app/components/Modals/AddModal';
+import EditModal from '@/app/components/Modals/EditModal';
+import ViewCoverLetterModal from '@/app/components/Modals/ViewCoverLetterModal';
+import DetailsModal from '@/app/components/Modals/DetailsModal';
 type ConnectionStatus = {
   isConnected: boolean;
 };
@@ -180,193 +185,6 @@ const Home = ({
       });
     setLoading(false);
   };
-  const renderDetailsModal = () => {
-    if (!activeApplication) return;
-    const onClose = () => setShowDetails(false);
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-        scrollBehavior='outside'
-        size='3xl'
-      >
-        <ModalContent>
-          <ModalHeader>{activeApplication.company_name}</ModalHeader>
-          <ModalBody>
-            <Details
-              item={activeApplication}
-              onDelete={handleDelete}
-              onEdit={handleListEditClick}
-              onAutoCollect={handleAutoCollect}
-              onAutoCoverLetter={handleAutoWriteCoverLetter}
-              onViewCoverLetter={handleViewCoverLetter}
-              disableOpenAi={disableOpenAi}
-              disableFirecrawl={disableFirecrawl}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  };
-  const renderViewCoverLetterModal = () => {
-    if (!activeApplication || !activeApplication.automated_cover_letter) return;
-    const onClose = () => setShowCoverLetterModal(false);
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-        scrollBehavior='outside'
-        size='3xl'
-      >
-        <ModalContent>
-          <ModalHeader>
-            {activeApplication.company_name} Cover Letter
-          </ModalHeader>
-          <ModalBody>{activeApplication.automated_cover_letter}</ModalBody>
-          <ModalFooter>
-            <Button
-              onPress={() => handleAutoWriteCoverLetter(activeApplication?._id)}
-              color='secondary'
-              isDisabled={
-                activeApplication.stage?.toLocaleLowerCase() === 'closed'
-              }
-            >
-              <span
-                className='text-success'
-                aria-label='This action requires a financial transaction'
-              >
-                $
-              </span>
-              Rewrite
-            </Button>
-            <Button onPress={onClose}>Close</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    );
-  };
-  const renderEditModal = () => {
-    if (!activeApplication) return null;
-    const onClose = () => setShowEditModal(false);
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-        scrollBehavior='outside'
-        placement='center'
-        size='3xl'
-      >
-        <ModalContent>
-          <ModalHeader>Edit Application Information</ModalHeader>
-          <ModalBody>
-            <EditForm
-              item={activeApplication}
-              handleSubmit={(e) => {
-                handleUpdate(e).then(() => refreshApplications());
-              }}
-              handleCancel={onClose}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  };
-  const renderAddModal = () => {
-    const onClose = () => setShowAddModal(false);
-    return (
-      <Modal
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpenChange={onOpenChange}
-        scrollBehavior='outside'
-        placement='center'
-        size='3xl'
-      >
-        <ModalContent>
-          <ModalHeader>Add Application Information</ModalHeader>
-          <ModalBody>
-            <AddForm
-              handleSubmit={(e) => {
-                handleAdd(e).then(() => refreshApplications());
-              }}
-              handleCancel={onClose}
-            />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  };
-  const renderWelcome = () => {
-    return (
-      <div className='w-full flex flex-col md:flex-row mb-8'>
-        <div className=' w-full md:w-1/2 flex flex-col gap-2 items-center md:items-start justify-center mb-12 lg:mb-0'>
-          <h1 className='tracking-tight inline font-semibold text-4xl lg:text-6xl'>
-            Begin your next&nbsp;
-          </h1>
-          <h1 className='tracking-tight inline font-semibold from-[#6FEE8D] to-[#17c964] text-4xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-b'>
-            adventure.
-          </h1>
-        </div>
-        <Card className='w-full md:w-1/2 flex flex-col p-3 md:p-5 items-start justify-center'>
-          <CardBody>
-            <Form
-              id='quick-add'
-              className='flex flex-col'
-              validationBehavior='native'
-              onSubmit={async (e) => {
-                setLoading(true);
-                handleAiAdd({ e, apiKey: firecrawl_key!, user_id }).then(() => {
-                  refreshApplications();
-                  setLoading(false);
-                });
-              }}
-            >
-              <Input
-                className='hidden'
-                name='_user_id'
-                defaultValue={user_id}
-              />
-              <Input
-                isRequired
-                variant={'underlined'}
-                errorMessage='Please enter a valid url.'
-                label='Posting Url'
-                labelPlacement={'outside'}
-                name='posting_url'
-                placeholder='Enter a posting url, http://example.com'
-                type='url'
-              />
-              <div className='flex flex-row w-full gap-2'>
-                <Button
-                  variant='flat'
-                  color='primary'
-                  type='button'
-                  onPress={() => {
-                    onOpen();
-                    setShowAddModal(true);
-                  }}
-                  className='w-full'
-                >
-                  Add Manually
-                </Button>
-                <Button
-                  color='secondary'
-                  type='submit'
-                  isDisabled={loading || !firecrawl_key}
-                  className='w-full'
-                >
-                  Add with AI
-                </Button>
-              </div>
-            </Form>
-          </CardBody>
-        </Card>
-      </div>
-    );
-  };
   return (
     <>
       <Nav
@@ -396,11 +214,70 @@ const Home = ({
       />
       <main className={`${inter.className} dark relative md:max-w-7xl`}>
         {loading && <Loading />}
-        {isOpen && showEditModal && renderEditModal()}
-        {isOpen && showAddModal && renderAddModal()}
-        {isOpen && showCoverLetterModal && renderViewCoverLetterModal()}
-        {isOpen && showDetails && renderDetailsModal()}
-        {renderWelcome()}
+        {isOpen && showEditModal && activeApplication && (
+          <EditModal
+            item={activeApplication}
+            isOpen={isOpen}
+            onClose={() => setShowEditModal(false)}
+            onOpenChange={onOpenChange}
+            onSubmit={(e) => {
+              handleUpdate(e).then(() => refreshApplications());
+            }}
+          />
+        )}
+        {isOpen && showAddModal && (
+          <AddModal
+            isOpen={isOpen}
+            onClose={() => setShowAddModal(false)}
+            onOpenChange={onOpenChange}
+            onSubmit={(e) => {
+              handleAdd(e).then(() => refreshApplications());
+            }}
+          />
+        )}
+        {isOpen && showCoverLetterModal && activeApplication && (
+          <ViewCoverLetterModal
+            item={activeApplication}
+            isOpen={isOpen}
+            onClose={() => setShowCoverLetterModal(false)}
+            onOpenChange={onOpenChange}
+            onSubmit={(e) => {
+              handleAutoWriteCoverLetter(activeApplication?._id);
+            }}
+          />
+        )}
+        {isOpen && showDetails && activeApplication && (
+          <DetailsModal
+            item={activeApplication}
+            handleDelete={() => handleDelete(activeApplication._id)}
+            handleListEditClick={() =>
+              handleListEditClick(activeApplication._id)
+            }
+            handleAutoCollect={() => handleAutoCollect(activeApplication._id)}
+            handleAutoWriteCoverLetter={() =>
+              handleAutoWriteCoverLetter(activeApplication._id)
+            }
+            handleViewCoverLetter={() =>
+              handleViewCoverLetter(activeApplication._id)
+            }
+            onClose={() => setShowDetails(false)}
+            onOpenChange={onOpenChange}
+            isOpen={isOpen}
+          />
+        )}
+        <ListJumbotron
+          onSubmit={async (e) => {
+            setLoading(true);
+            handleAiAdd({ e, apiKey: firecrawl_key!, user_id }).then(() => {
+              refreshApplications();
+              setLoading(false);
+            });
+          }}
+          onManualAdd={() => {
+            onOpen();
+            setShowAddModal(true);
+          }}
+        />
         <section className='mt-8 p-0 w-full'>
           {showSkeletonList ? (
             <SkeletonList />

@@ -2,6 +2,7 @@ import JobInterface from '@/interfaces/JobInterface';
 import { Chip, Divider } from '@heroui/react';
 import ApplicationActionButtons from '../ActionButtons/ApplicationActionButtons';
 import { getBadgeColor } from '@/functions/functions';
+import { useUserContext } from '@/contexts/UserContext';
 interface Props {
   item: JobInterface;
   onAutoCollect: (id: string) => void;
@@ -9,8 +10,6 @@ interface Props {
   onViewCoverLetter?: (id: string) => void;
   onDelete?: (id: string) => void;
   onEdit?: (id: string) => void;
-  disableOpenAi?: boolean;
-  disableFirecrawl?: boolean;
 }
 const Details = (props: Props) => {
   const {
@@ -20,9 +19,8 @@ const Details = (props: Props) => {
     onViewCoverLetter,
     onDelete,
     onEdit,
-    disableFirecrawl,
-    disableOpenAi,
   } = props;
+  const { firecrawl_key, openai_key } = useUserContext();
   const renderNotes = (item: JobInterface) => {
     if (!item.notes) return;
     item.notes.sort((a, b) => {
@@ -131,8 +129,8 @@ const Details = (props: Props) => {
           onViewCoverLetter={onViewCoverLetter}
           onDelete={onDelete}
           onEdit={onEdit}
-          disableFirecrawl={disableFirecrawl}
-          disableOpenAi={disableOpenAi}
+          disableFirecrawl={!firecrawl_key}
+          disableOpenAi={!openai_key}
           variant='solid'
         />
         {item._date_modified ? (
