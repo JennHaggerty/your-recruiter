@@ -23,10 +23,9 @@ const stages = [
 interface Props {
   item: JobInterface;
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  handleCancel?: () => void;
 }
 const EditForm = (props: Props) => {
-  const { item, handleSubmit, handleCancel } = props;
+  const { item, handleSubmit } = props;
   const [followUp, setFollowUp] = useState(false);
   const [followupDate, setFollowUpDate] = useState(
     today(getLocalTimeZone()).toString()
@@ -200,7 +199,7 @@ const EditForm = (props: Props) => {
           </div>
         )}
       </div>
-      <ActionButtons handleCancel={handleCancel} />
+      <ActionButtons />
     </Form>
   );
 };

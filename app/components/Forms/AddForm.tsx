@@ -21,12 +21,11 @@ const stages = [
 ];
 interface Props {
   handleSubmit: (e: FormEvent<HTMLFormElement>) => void;
-  handleCancel?: () => void;
 }
 const AddForm = (props: Props) => {
   const { user_id } = useUserContext();
   if (!user_id) return;
-  const { handleSubmit, handleCancel } = props;
+  const { handleSubmit } = props;
   const [followUp, setFollowUp] = useState(false);
   const [followupDate, setFollowUpDate] = useState(
     today(getLocalTimeZone()).toString()
@@ -157,7 +156,7 @@ const AddForm = (props: Props) => {
           </div>
         )}
       </div>
-      <ActionButtons handleCancel={handleCancel} />
+      <ActionButtons />
     </Form>
   );
 };
