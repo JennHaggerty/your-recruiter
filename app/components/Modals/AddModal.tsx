@@ -21,7 +21,7 @@ const AddModal = (props: Props) => {
       <ModalContent>
         <ModalHeader>Add Application Information</ModalHeader>
         <ModalBody>
-          <AddForm handleSubmit={onSubmit} handleCancel={onClose} />
+          <AddForm handleSubmit={onSubmit} />
         </ModalBody>
       </ModalContent>
     </Modal>

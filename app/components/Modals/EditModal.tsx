@@ -23,11 +23,7 @@ const EditModal = (props: Props) => {
       <ModalContent>
         <ModalHeader>Edit Application Information</ModalHeader>
         <ModalBody>
-          <EditForm
-            item={item}
-            handleSubmit={onSubmit}
-            handleCancel={() => onClose()}
-          />
+          <EditForm item={item} handleSubmit={onSubmit} />
         </ModalBody>
       </ModalContent>
     </Modal>
