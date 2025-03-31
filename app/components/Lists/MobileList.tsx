@@ -26,7 +26,19 @@ import { SearchIcon } from '../Icons/SearchIcon';
 import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
+interface Column {
+  name: string;
+  uid: string;
+  sortable?: boolean;
+}
+interface Status {
+  name: string;
+  uid: string;
+}
 interface Props {
+  columns: Column[];
+  statusOptions: Status[];
+  initialVisibleColumns: string[];
   items?: JobInterface[];
   selectedkeys?: string[];
   setSelectedKeys?: () => void;
@@ -40,24 +52,12 @@ interface Props {
   disableOpenAi?: boolean;
   disableFirecrawl?: boolean;
 }
-const columns = [
-  { name: 'Details', uid: 'name', sortable: true },
-  { name: 'Role', uid: 'role', sortable: true },
-  { name: 'Salary', uid: 'salary', sortable: true },
-  { name: 'Stage', uid: 'stage', sortable: true },
-  { name: 'Cover Letter', uid: 'coverLetter' },
-  { name: 'Actions', uid: 'actions' },
-];
-export const statusOptions = [
-  { name: 'Interested', uid: 'interested' },
-  { name: 'Applied', uid: 'applied' },
-  { name: 'Rejected', uid: 'rejected' },
-  { name: 'Closed', uid: 'closed' },
-  { name: 'Interviewing', uid: 'interviewing' },
-];
 const INITIAL_VISIBLE_COLUMNS = ['name', 'stage', 'actions'];
 const MobileList = (props: Props) => {
   const {
+    columns,
+    statusOptions,
+    initialVisibleColumns,
     items,
     onAdd,
     onAutoCollect,
@@ -72,7 +72,7 @@ const MobileList = (props: Props) => {
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
+    new Set(initialVisibleColumns)
   );
   const [statusFilter, setStatusFilter] = React.useState<Selection>('all');
   const [page, setPage] = useState(1);

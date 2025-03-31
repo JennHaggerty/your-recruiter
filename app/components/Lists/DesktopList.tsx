@@ -18,7 +18,13 @@ import {
   DropdownItem,
   DropdownTrigger,
 } from '@heroui/react';
-import React, { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import React, {
+  ChangeEvent,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
 import { AiIcon } from '../Icons/AiIcon';
@@ -27,7 +33,20 @@ import { capitalize, getBadgeColor } from '@/functions/functions';
 import { SearchIcon } from '../Icons/SearchIcon';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
+import { TableContext, useTableContext } from '@/contexts/TableContext';
+interface Column {
+  name: string;
+  uid: string;
+  sortable?: boolean;
+}
+interface Status {
+  name: string;
+  uid: string;
+}
 interface Props {
+  columns: Column[];
+  statusOptions: Status[];
+  initialVisibleColumns: string[];
   items?: JobInterface[];
   selectedkeys?: string[];
   setSelectedKeys?: () => void;
@@ -41,32 +60,11 @@ interface Props {
   disableOpenAi?: boolean;
   disableFirecrawl?: boolean;
 }
-const columns = [
-  { name: 'Details', uid: 'name', sortable: true },
-  { name: 'Location', uid: 'location', sortable: true },
-  { name: 'Role', uid: 'role', sortable: true },
-  { name: 'Salary', uid: 'salary', sortable: true },
-  { name: 'Stage', uid: 'stage', sortable: true },
-  { name: 'Cover Letter', uid: 'coverLetter' },
-  { name: 'Actions', uid: 'actions' },
-];
-export const statusOptions = [
-  { name: 'Interested', uid: 'interested' },
-  { name: 'Applied', uid: 'applied' },
-  { name: 'Rejected', uid: 'rejected' },
-  { name: 'Closed', uid: 'closed' },
-  { name: 'Interviewing', uid: 'interviewing' },
-];
-const INITIAL_VISIBLE_COLUMNS = [
-  'name',
-  'role',
-  'salary',
-  'stage',
-  'coverLetter',
-  'actions',
-];
 const DesktopList = (props: Props) => {
   const {
+    columns,
+    statusOptions,
+    initialVisibleColumns,
     items,
     onAdd,
     onAutoCollect,
@@ -79,14 +77,15 @@ const DesktopList = (props: Props) => {
     disableFirecrawl,
   } = props;
   if (!items) return;
+  const { rowsPerPage, setRowsPerPage } = useContext(TableContext);
   const [filterValue, setFilterValue] = useState('');
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(INITIAL_VISIBLE_COLUMNS)
+    new Set(initialVisibleColumns)
   );
   const [statusFilter, setStatusFilter] = React.useState<Selection>('all');
   const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
+  //const [rowsPerPage, setRowsPerPage] = useState(15);
   const iconWidth = '15px';
   const hasSearchFilter = Boolean(filterValue);
   const headerColumns = React.useMemo(() => {
@@ -125,7 +124,7 @@ const DesktopList = (props: Props) => {
   }, [page]);
   const onRowsPerPageChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
-      setRowsPerPage(Number(e.target.value));
+      //setRowsPerPage(Number(e.target.value));
       setPage(1);
     },
     []

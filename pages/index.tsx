@@ -24,14 +24,13 @@ import {
 } from '@/functions/functions';
 import { useUserContext } from '@/contexts/UserContext';
 import { TableContext, TableContextInterface } from '@/contexts/TableContext';
-import DesktopList from '@/app/components/Lists/DesktopList';
-import MobileList from '@/app/components/Lists/MobileList';
 import Loading from '@/app/components/Loading/Loading';
 import ListJumbotron from '@/app/components/ListJumbotron/ListJumbotron';
 import AddModal from '@/app/components/Modals/AddModal';
 import EditModal from '@/app/components/Modals/EditModal';
 import ViewCoverLetterModal from '@/app/components/Modals/ViewCoverLetterModal';
 import DetailsModal from '@/app/components/Modals/DetailsModal';
+import IndexList from '@/app/components/Lists/IndexList';
 type ConnectionStatus = {
   isConnected: boolean;
 };
@@ -192,6 +191,8 @@ const Home = ({
   const tableContextValue = {
     page: table && table.page,
     rowsPerPage: table && table.rowsPerPage,
+    setPage: table && table.setPage,
+    setRowsPerPage: table && table.setRowsPerPage,
   };
   console.log(table);
   return (
@@ -294,7 +295,7 @@ const Home = ({
             <SkeletonList />
           ) : (
             <>
-              <MobileList
+              <IndexList
                 items={applications}
                 onAdd={() => {
                   onOpen();
@@ -306,23 +307,7 @@ const Home = ({
                 onAutoCoverLetter={handleAutoWriteCoverLetter}
                 onViewCoverLetter={handleViewCoverLetter}
                 onViewCard={handleViewCard}
-                disableOpenAi={disableOpenAi}
-                disableFirecrawl={disableFirecrawl}
-              />
-              <DesktopList
-                items={applications}
-                onAdd={() => {
-                  onOpen();
-                  setShowAddModal(true);
-                }}
-                onDelete={handleDelete}
-                onEdit={handleListEditClick}
-                onAutoCollect={handleAutoCollect}
-                onAutoCoverLetter={handleAutoWriteCoverLetter}
-                onViewCoverLetter={handleViewCoverLetter}
-                onViewCard={handleViewCard}
-                disableOpenAi={disableOpenAi}
-                disableFirecrawl={disableFirecrawl}
+                loading={showSkeletonList}
               />
             </>
           )}
