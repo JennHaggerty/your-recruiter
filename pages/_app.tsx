@@ -1,4 +1,5 @@
-import { UserContext } from '@/contexts/UserContext';
+import { TableContext, useTableContext } from '@/contexts/TableContext';
+import { UserContext, UserContextInterface } from '@/contexts/UserContext';
 import { fetchUser, fetchUserId, fetchUserLogin } from '@/functions/functions';
 import '@/styles/globals.css';
 import { addToast, HeroUIProvider, ToastProvider } from '@heroui/react';
@@ -6,7 +7,7 @@ import type { AppProps } from 'next/app';
 import Router from 'next/router';
 import { FormEvent, useCallback, useEffect, useState } from 'react';
 export default function App({ Component, pageProps }: AppProps) {
-  const [user, setUser] = useState<UserContext>();
+  const [user, setUser] = useState<UserContextInterface>();
   const fetchMyUser = useCallback(async (args: { token: string }) => {
     const { token } = args;
     await fetchUserId({ token })

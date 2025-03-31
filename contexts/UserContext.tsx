@@ -1,5 +1,5 @@
 import { createContext, FormEvent, useContext } from 'react';
-export interface UserContext {
+export interface UserContextInterface {
   user_id?: string;
   email?: string;
   resume?: string;
@@ -9,7 +9,7 @@ export interface UserContext {
   logout?: () => void;
   signup?: (e: FormEvent<HTMLFormElement>) => void;
 }
-export const UserContext = createContext<UserContext>({
+export const UserContext = createContext<UserContextInterface>({
   user_id: '',
   email: '',
   resume: '',

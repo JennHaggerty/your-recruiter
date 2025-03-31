@@ -1,30 +1,14 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Inter } from 'next/font/google';
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next';
-import {
-  addToast,
-  Button,
-  Card,
-  CardBody,
-  Form,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  useDisclosure,
-} from '@heroui/react';
-import { useState, useEffect, FormEvent } from 'react';
+import { addToast, useDisclosure } from '@heroui/react';
+import { useState, useEffect } from 'react';
 import { automatedCoverLetter } from '@/lib/openai';
 import client from '@/lib/mongodb';
 import JobInterface from '@/interfaces/JobInterface';
-import AddForm from '@/app/components/Forms/AddForm';
-import EditForm from '@/app/components/Forms/EditForm';
-import Details from '@/app/components/Details/Details';
 import Footer from '@/app/components/Footer/Footer';
 import Nav from '@/app/components/Nav/Nav';
-import SkeletonList from '@/app/components/List/SkeletonList';
+import SkeletonList from '@/app/components/Lists/SkeletonList';
 import {
   deleteApplication,
   fetchApplications,
@@ -39,8 +23,9 @@ import {
   updateApplication,
 } from '@/functions/functions';
 import { useUserContext } from '@/contexts/UserContext';
-import DesktopList from '@/app/components/List/DesktopList';
-import MobileList from '@/app/components/List/MobileList';
+import { TableContext, TableContextInterface } from '@/contexts/TableContext';
+import DesktopList from '@/app/components/Lists/DesktopList';
+import MobileList from '@/app/components/Lists/MobileList';
 import Loading from '@/app/components/Loading/Loading';
 import ListJumbotron from '@/app/components/ListJumbotron/ListJumbotron';
 import AddModal from '@/app/components/Modals/AddModal';
@@ -56,6 +41,10 @@ const Home = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { user_id, resume, firecrawl_key, openai_key } = useUserContext();
   if (!user_id) return;
+  const [table, setTable] = useState<TableContextInterface>({
+    page: 1,
+    rowsPerPage: 15,
+  });
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [applications, setApplications] = useState<JobInterface[]>();
@@ -86,6 +75,7 @@ const Home = ({
   useEffect(function fetchApplicationsOnPageLoad() {
     refreshApplications();
   }, []);
+  // table actions
   const handleDelete = async (id: string) => {
     await deleteApplication({ id })
       .then(() => refreshApplications())
@@ -185,8 +175,27 @@ const Home = ({
       });
     setLoading(false);
   };
+  // table settings
+  const pages = applications
+    ? Math.ceil(applications.length / table.rowsPerPage)
+    : 0;
+  const onNextPage = useCallback(() => {
+    if (table.page < pages) {
+      table.page++;
+    }
+  }, [table.page, pages]);
+  const onPreviousPage = useCallback(() => {
+    if (table.page > 1) {
+      table.page--;
+    }
+  }, [table.page]);
+  const tableContextValue = {
+    page: table && table.page,
+    rowsPerPage: table && table.rowsPerPage,
+  };
+  console.log(table);
   return (
-    <>
+    <TableContext.Provider value={tableContextValue}>
       <Nav
         isConnected={isConnected}
         handleOpenAi={async (e) => {
@@ -265,19 +274,21 @@ const Home = ({
             isOpen={isOpen}
           />
         )}
-        <ListJumbotron
-          onSubmit={async (e) => {
-            setLoading(true);
-            handleAiAdd({ e, apiKey: firecrawl_key!, user_id }).then(() => {
-              refreshApplications();
-              setLoading(false);
-            });
-          }}
-          onManualAdd={() => {
-            onOpen();
-            setShowAddModal(true);
-          }}
-        />
+        <section className='w-full mt-8'>
+          <ListJumbotron
+            onSubmit={async (e) => {
+              setLoading(true);
+              handleAiAdd({ e, apiKey: firecrawl_key!, user_id }).then(() => {
+                refreshApplications();
+                setLoading(false);
+              });
+            }}
+            onManualAdd={() => {
+              onOpen();
+              setShowAddModal(true);
+            }}
+          />
+        </section>
         <section className='mt-8 p-0 w-full'>
           {showSkeletonList ? (
             <SkeletonList />
@@ -318,7 +329,7 @@ const Home = ({
         </section>
       </main>
       <Footer />
-    </>
+    </TableContext.Provider>
   );
 };
 export default Home;
