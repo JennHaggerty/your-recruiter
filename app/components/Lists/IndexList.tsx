@@ -74,12 +74,12 @@ const IndexList = (props: Props) => {
   } = props;
   const { firecrawl_key, openai_key } = useUserContext();
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+  const [visibleColumns, setVisibleColumns] = useState<Selection>();
   const [state, setState] = useState<TableContextInterface>({
     page: 1,
     rowsPerPage: 15,
     filterCompanyName: '',
     statusFilter: 'all',
-    visibleColumns: undefined,
   });
   const hasSearchFilter = Boolean(state.filterCompanyName);
   const windowSize = useWindowSize();
@@ -94,6 +94,7 @@ const IndexList = (props: Props) => {
       }));
     });
   };
+  /*
   const setTableSession = (args: { key: string; value: any }) => {
     const { key, value } = args;
     sessionStorage.setItem(key, value);
@@ -111,21 +112,12 @@ const IndexList = (props: Props) => {
   useEffect(() => {
     getTableSession();
   }, []);
+  */
   useEffect(() => {
     if (windowSize.width < 769) {
-      updateState([
-        {
-          key: 'visibleColumns',
-          value: new Set(INITIAL_VISIBLE_COLUMNS_MOBILE),
-        },
-      ]);
+      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS_MOBILE));
     } else {
-      updateState([
-        {
-          key: 'visibleColumns',
-          value: new Set(INITIAL_VISIBLE_COLUMNS_DESKTOP),
-        },
-      ]);
+      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS_DESKTOP));
     }
   }, [windowSize.width]);
   const onSearchChange = useCallback((value?: string) => {
@@ -321,8 +313,8 @@ const IndexList = (props: Props) => {
                 closeOnSelect={false}
                 selectedKeys={state.statusFilter}
                 selectionMode='multiple'
-                onSelectionChange={(value) =>
-                  updateState([{ key: 'statusFilter', value }])
+                onSelectionChange={(v) =>
+                  setState((prev) => ({ ...prev, statusFilter: v }))
                 }
               >
                 {statusOptions.map((status) => (
@@ -345,11 +337,9 @@ const IndexList = (props: Props) => {
                 disallowEmptySelection
                 aria-label='Table Columns'
                 closeOnSelect={false}
-                selectedKeys={state.visibleColumns}
+                selectedKeys={visibleColumns}
                 selectionMode='multiple'
-                onSelectionChange={(value) =>
-                  updateState([{ key: 'visibleColumns', value }])
-                }
+                onSelectionChange={setVisibleColumns}
               >
                 {columns.map((column) => (
                   <DropdownItem key={column.uid} className='capitalize'>
@@ -389,7 +379,7 @@ const IndexList = (props: Props) => {
   }, [
     state.filterCompanyName,
     state.statusFilter,
-    state.visibleColumns,
+    visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
     items?.length,
@@ -437,12 +427,12 @@ const IndexList = (props: Props) => {
       </div>
     );
   }, [selectedKeys, jobs?.length, state.page, pages, hasSearchFilter]);
-  const tableContextValue = {
+  const tableContextValue: TableContextInterface = {
     page: state.page,
     filterCompanyName: state.filterCompanyName,
     rowsPerPage: state.rowsPerPage,
+    visibleColumns: visibleColumns,
     statusFilter: state.statusFilter,
-    visibleColumns: state.visibleColumns,
   };
   return (
     <TableContext.Provider value={tableContextValue}>
