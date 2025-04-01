@@ -12,7 +12,6 @@ import {
   Tooltip,
   Input,
   Selection,
-  Pagination,
   DropdownMenu,
   Dropdown,
   DropdownItem,
@@ -20,20 +19,18 @@ import {
 } from '@heroui/react';
 import React, {
   ChangeEvent,
+  Dispatch,
+  SetStateAction,
   useCallback,
-  useContext,
   useMemo,
   useState,
 } from 'react';
-import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
-import { AiIcon } from '../Icons/AiIcon';
 import { EyeIcon } from '../Icons/EyeIcon';
 import { capitalize, getBadgeColor } from '@/functions/functions';
 import { SearchIcon } from '../Icons/SearchIcon';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
-import { TableContext, useTableContext } from '@/contexts/TableContext';
 import { useUserContext } from '@/contexts/UserContext';
 interface Column {
   name: string;
@@ -48,104 +45,61 @@ interface Props {
   columns: Column[];
   statusOptions: Status[];
   initialVisibleColumns: string[];
-  items?: JobInterface[];
-  selectedkeys?: string[];
-  setSelectedKeys?: () => void;
   onAdd?: () => void;
-  onAutoCollect?: (id: string) => void;
   onAutoCoverLetter?: (id: string) => void;
   onViewCoverLetter?: (id: string) => void;
   onViewCard?: (id: string) => void;
-  onDelete?: (id: string) => void;
-  onEdit?: (id: string) => void;
   disableOpenAi?: boolean;
   disableFirecrawl?: boolean;
+  iconWidth?: string;
+  filterValue: string;
+  onSearchChange: () => void;
+  onClear: () => void;
+  statusFilter: Selection;
+  setStatusFilter: Dispatch<SetStateAction<Selection>>;
+  onRowsPerPageChange: (e: ChangeEvent<HTMLSelectElement>) => void;
+  selectedKeys: Selection;
+  setSelectedKeys: Dispatch<SetStateAction<Selection>>;
+  jobs: JobInterface[];
+  bottomContent: React.ReactNode;
+  actionButtons: (item: JobInterface) => void;
+  itemsLength?: number;
 }
 const DesktopList = (props: Props) => {
   const {
     columns,
     statusOptions,
     initialVisibleColumns,
-    items,
     onAdd,
-    onAutoCollect,
     onAutoCoverLetter,
     onViewCoverLetter,
     onViewCard,
-    onDelete,
-    onEdit,
+    iconWidth,
+    filterValue,
+    onSearchChange,
+    onClear,
+    statusFilter,
+    setStatusFilter,
+    onRowsPerPageChange,
+    selectedKeys,
+    setSelectedKeys,
+    jobs,
+    bottomContent,
+    actionButtons,
+    itemsLength,
   } = props;
-  if (!items) return;
-  const { firecrawl_key, openai_key } = useUserContext();
-  const { rowsPerPage, setRowsPerPage } = useContext(TableContext);
-  const [filterValue, setFilterValue] = useState('');
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
+  if (!jobs) return;
+  const { openai_key } = useUserContext();
   const [visibleColumns, setVisibleColumns] = useState<Selection>(
     new Set(initialVisibleColumns)
   );
-  const [statusFilter, setStatusFilter] = React.useState<Selection>('all');
-  const [page, setPage] = useState(1);
-  //const [rowsPerPage, setRowsPerPage] = useState(15);
-  const iconWidth = '15px';
   const hasSearchFilter = Boolean(filterValue);
-  const headerColumns = React.useMemo(() => {
+  const headerColumns = useMemo(() => {
     if (visibleColumns === 'all') return columns;
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid)
     );
   }, [visibleColumns]);
-  const filteredItems = useMemo(() => {
-    let filteredItems = items;
-    if (hasSearchFilter) {
-      filteredItems = filteredItems.filter((item) =>
-        item.company_name.toLowerCase().includes(filterValue.toLowerCase())
-      );
-    }
-    if (
-      statusFilter !== 'all' &&
-      Array.from(statusFilter).length !== statusOptions.length
-    ) {
-      filteredItems = filteredItems.filter((item) =>
-        Array.from(statusFilter).includes(item.stage || '')
-      );
-    }
-    return filteredItems;
-  }, [items, filterValue, statusFilter]);
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
-  const onNextPage = useCallback(() => {
-    if (page < pages) {
-      setPage(page + 1);
-    }
-  }, [page, pages]);
-  const onPreviousPage = useCallback(() => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  }, [page]);
-  const onRowsPerPageChange = useCallback(
-    (e: ChangeEvent<HTMLSelectElement>) => {
-      //setRowsPerPage(Number(e.target.value));
-      setPage(1);
-    },
-    []
-  );
-  const jobs = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
-  const onSearchChange = useCallback((value?: string) => {
-    if (value) {
-      setFilterValue(value);
-      setPage(1);
-    } else {
-      setFilterValue('');
-    }
-  }, []);
-  const onClear = useCallback(() => {
-    setFilterValue('');
-    setPage(1);
-  }, []);
   const topContent = useMemo(() => {
     return (
       <div className='flex flex-col gap-4'>
@@ -215,7 +169,7 @@ const DesktopList = (props: Props) => {
         </div>
         <div className='flex justify-between items-center'>
           <span className='text-default-400 text-small'>
-            Total of {items?.length} applications
+            Total of {itemsLength} applications
           </span>
           <label className='flex items-center text-default-400 text-small'>
             Rows per page:
@@ -237,49 +191,9 @@ const DesktopList = (props: Props) => {
     visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
-    items?.length,
+    itemsLength,
     hasSearchFilter,
   ]);
-  const bottomContent = useMemo(() => {
-    return (
-      <div className='py-2 px-2 flex justify-between items-center'>
-        <span className='w-[30%] text-small text-default-400'>
-          {selectedKeys === 'all'
-            ? 'All items selected'
-            : `${selectedKeys.size} of ${
-                filteredItems && filteredItems.length
-              } selected`}
-        </span>
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color='primary'
-          page={page}
-          total={pages}
-          onChange={setPage}
-        />
-        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
-          <Button
-            isDisabled={pages === 1}
-            size='sm'
-            variant='flat'
-            onPress={onPreviousPage}
-          >
-            Previous
-          </Button>
-          <Button
-            isDisabled={pages === 1}
-            size='sm'
-            variant='flat'
-            onPress={onNextPage}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    );
-  }, [selectedKeys, jobs?.length, page, pages, hasSearchFilter]);
   const renderHeader = (item: JobInterface) => (
     <div className='flex flex-row gap-3'>
       <div className='flex gap-2 h-full my-auto'>
@@ -387,79 +301,11 @@ const DesktopList = (props: Props) => {
       )}
     </div>
   );
-  const renderActionButtons = (item: JobInterface) => (
-    <div className='flex flex-row gap-3 justify-end'>
-      {onAutoCollect && !item._markdown && (
-        <Tooltip color='secondary' content='Get listing data'>
-          <Button
-            variant='flat'
-            color='secondary'
-            onPress={() => onAutoCollect(item._id)}
-            aria-label='Get Listing Data'
-            isIconOnly={true}
-            isDisabled={!!item._markdown || !firecrawl_key}
-          >
-            <AiIcon width={iconWidth} />
-          </Button>
-        </Tooltip>
-      )}
-      {onEdit && (
-        <Tooltip color='primary' content='Edit application information'>
-          <Button
-            variant='flat'
-            color='primary'
-            onPress={() => onEdit(item._id)}
-            aria-label='Edit'
-            isIconOnly={true}
-          >
-            <EditIcon width={iconWidth} />
-          </Button>
-        </Tooltip>
-      )}
-      {onDelete && (
-        <Tooltip color='danger' content='Delete application'>
-          <Button
-            variant='flat'
-            color='danger'
-            onPress={() => onDelete(item._id)}
-            aria-label='Delete'
-            isIconOnly={true}
-          >
-            <DeleteIcon width={iconWidth} />
-          </Button>
-        </Tooltip>
-      )}
-    </div>
-  );
   const renderCell = useCallback((item: JobInterface, columnKey: string) => {
     const cellValue = item[columnKey];
     switch (columnKey) {
       case 'name':
         return renderHeader(item);
-      case 'role':
-        return (
-          <div className='flex flex-col'>
-            <p className='text-bold text-sm capitalize text-default-400'>
-              {item.role}
-            </p>
-          </div>
-        );
-      case 'location':
-        return (
-          <div className='flex flex-col'>
-            <p className='text-bold text-sm capitalize text-default-400'>
-              {item.location}
-            </p>
-          </div>
-        );
-      case 'salary':
-        return (
-          <div className='flex flex-col'>
-            <p className='text-bold text-sm capitalize text-default-400'>
-              {item.salary}
-            </p>
-          </div>
-        );
       case 'stage':
         return (
           item.stage && (
@@ -476,7 +322,7 @@ const DesktopList = (props: Props) => {
       case 'coverLetter':
         return renderCoverLetterActions(item);
       case 'actions':
-        return renderActionButtons(item);
+        return actionButtons(item);
       default:
         return cellValue;
     }
@@ -501,7 +347,9 @@ const DesktopList = (props: Props) => {
         {(item) => (
           <TableRow key={item._id}>
             {(columnKey) => (
-              <TableCell>{renderCell(item, columnKey as string)}</TableCell>
+              <TableCell className='text-bold text-sm capitalize text-default-400'>
+                {renderCell(item, columnKey as string)}
+              </TableCell>
             )}
           </TableRow>
         )}

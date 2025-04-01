@@ -1,8 +1,9 @@
 import { createContext, useContext } from 'react';
 export interface TableContextInterface {
   page: number;
-  rowsPerPage: number;
+  setPage: () => void;
   /*
+  rowsPerPage: number;
   filterCompanyName?: string;
   statusFilter?: string[];
   columnFilter?: string[];
@@ -11,8 +12,9 @@ export interface TableContextInterface {
 }
 export const TableContext = createContext<TableContextInterface>({
   page: 1,
-  rowsPerPage: 15,
+  setPage: () => {},
   /*
+  rowsPerPage: 15,
   filterCompanyName: '',
   statusFilter: [''],
   columnFilter: [''],

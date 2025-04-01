@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import { Inter } from 'next/font/google';
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next';
 import { addToast, useDisclosure } from '@heroui/react';
@@ -23,7 +23,6 @@ import {
   updateApplication,
 } from '@/functions/functions';
 import { useUserContext } from '@/contexts/UserContext';
-import { TableContext, TableContextInterface } from '@/contexts/TableContext';
 import Loading from '@/app/components/Loading/Loading';
 import ListJumbotron from '@/app/components/ListJumbotron/ListJumbotron';
 import AddModal from '@/app/components/Modals/AddModal';
@@ -40,10 +39,6 @@ const Home = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { user_id, resume, firecrawl_key, openai_key } = useUserContext();
   if (!user_id) return;
-  const [table, setTable] = useState<TableContextInterface>({
-    page: 1,
-    rowsPerPage: 15,
-  });
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [applications, setApplications] = useState<JobInterface[]>();
@@ -53,8 +48,6 @@ const Home = ({
   const [showCoverLetterModal, setShowCoverLetterModal] = useState<boolean>();
   const [showDetails, setShowDetails] = useState<boolean>();
   const [showSkeletonList, setShowSkeletonList] = useState<boolean>(true);
-  const disableOpenAi = !openai_key || loading;
-  const disableFirecrawl = !firecrawl_key || loading;
   const refreshApplications = async () => {
     setShowSkeletonList(true);
     const applications = await fetchApplications({ user_id })
@@ -174,29 +167,8 @@ const Home = ({
       });
     setLoading(false);
   };
-  // table settings
-  const pages = applications
-    ? Math.ceil(applications.length / table.rowsPerPage)
-    : 0;
-  const onNextPage = useCallback(() => {
-    if (table.page < pages) {
-      table.page++;
-    }
-  }, [table.page, pages]);
-  const onPreviousPage = useCallback(() => {
-    if (table.page > 1) {
-      table.page--;
-    }
-  }, [table.page]);
-  const tableContextValue = {
-    page: table && table.page,
-    rowsPerPage: table && table.rowsPerPage,
-    setPage: table && table.setPage,
-    setRowsPerPage: table && table.setRowsPerPage,
-  };
-  console.log(table);
   return (
-    <TableContext.Provider value={tableContextValue}>
+    <>
       <Nav
         isConnected={isConnected}
         handleOpenAi={async (e) => {
@@ -314,7 +286,7 @@ const Home = ({
         </section>
       </main>
       <Footer />
-    </TableContext.Provider>
+    </>
   );
 };
 export default Home;
