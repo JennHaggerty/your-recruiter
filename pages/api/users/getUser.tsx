@@ -1,7 +1,7 @@
 import { ObjectId } from 'bson';
 import clientPromise from '../../../lib/mongodb';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { UserContext } from '@/contexts/UserContext';
+import { UserContextInterface } from '@/contexts/UserContext';
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   // check for database and users collection
@@ -25,7 +25,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (!user) {
       return res.status(402).json('User not found.');
     }
-    const response: UserContext = {
+    const response: UserContextInterface = {
       user_id: user._id.toString(),
       email: user.email,
       resume: user.resume,
