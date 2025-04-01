@@ -19,7 +19,7 @@ import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
 import { useUserContext } from '@/contexts/UserContext';
 import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
-import { TableContext } from '@/contexts/TableContext';
+import { TableContext, TableContextInterface } from '@/contexts/TableContext';
 import { capitalize, useWindowSize } from '@/functions/functions';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
@@ -73,76 +73,124 @@ const IndexList = (props: Props) => {
     loading,
   } = props;
   const { firecrawl_key, openai_key } = useUserContext();
-  const [page, setPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(15);
-  const [filterCompanyName, setFilterCompanyName] = useState('');
-  const [statusFilter, setStatusFilter] = useState<Selection>('all');
-  const windowSize = useWindowSize();
-  const [visibleColumns, setVisibleColumns] = useState<Selection>();
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const hasSearchFilter = Boolean(filterCompanyName);
+  const [state, setState] = useState<TableContextInterface>({
+    page: 1,
+    rowsPerPage: 15,
+    filterCompanyName: '',
+    statusFilter: 'all',
+    visibleColumns: undefined,
+  });
+  const hasSearchFilter = Boolean(state.filterCompanyName);
+  const windowSize = useWindowSize();
   const iconWidth = '15px';
+  const updateState = (args: { key: string; value: any }[]) => {
+    const updates = args;
+    updates.forEach((update) => {
+      const { key, value } = update;
+      setState((previousState) => ({
+        ...previousState,
+        [key]: value.toString(),
+      }));
+    });
+  };
+  const setTableSession = (args: { key: string; value: any }) => {
+    const { key, value } = args;
+    sessionStorage.setItem(key, value);
+  };
+  const getTableSession = () => {
+    const tableContextProperties = Object.keys(tableContextValue);
+    tableContextProperties.forEach((property) => {
+      const sessionValue = sessionStorage.getItem(property);
+      // if (sessionValue) {
+      //   updateState([{ key: property, value: sessionValue }]);
+      // }
+      console.log('sessionValue', sessionValue);
+    });
+  };
+  useEffect(() => {
+    getTableSession();
+  }, []);
   useEffect(() => {
     if (windowSize.width < 769) {
-      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS_MOBILE));
+      updateState([
+        {
+          key: 'visibleColumns',
+          value: new Set(INITIAL_VISIBLE_COLUMNS_MOBILE),
+        },
+      ]);
     } else {
-      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS_DESKTOP));
+      updateState([
+        {
+          key: 'visibleColumns',
+          value: new Set(INITIAL_VISIBLE_COLUMNS_DESKTOP),
+        },
+      ]);
     }
   }, [windowSize.width]);
   const onSearchChange = useCallback((value?: string) => {
     if (value) {
-      setFilterCompanyName(value);
-      setPage(1);
+      updateState([
+        { key: 'filterCompanyName', value },
+        { key: 'page', value: 1 },
+      ]);
     } else {
-      setFilterCompanyName('');
+      updateState([{ key: 'filterCompanyName', value: '' }]);
     }
   }, []);
   const filteredItems = useMemo(() => {
     let filteredItems = items || [];
-    if (filterCompanyName) {
+    if (state.filterCompanyName) {
       filteredItems = filteredItems.filter((item) =>
         item.company_name
           .toLowerCase()
-          .includes(filterCompanyName.toLowerCase())
+          .includes(state.filterCompanyName.toLowerCase())
       );
     }
     if (
-      statusFilter !== 'all' &&
-      Array.from(statusFilter).length !== statusOptions.length
+      state.statusFilter !== 'all' &&
+      Array.from(state.statusFilter).length !== statusOptions.length
     ) {
       filteredItems = filteredItems.filter((item) =>
-        Array.from(statusFilter).includes(item.stage || '')
+        Array.from(state.statusFilter).includes(item.stage || '')
       );
     }
     return filteredItems;
-  }, [items, filterCompanyName, statusFilter]);
-  const pages = Math.ceil(filteredItems.length / rowsPerPage);
+  }, [items, state.filterCompanyName, state.statusFilter]);
+  const pages = Math.ceil(filteredItems.length / state.rowsPerPage);
   const onNextPage = useCallback(() => {
-    if (page < pages) {
-      setPage(page + 1);
+    if (state.page < pages) {
+      updateState([{ key: 'page', value: state.page + 1 }]);
     }
-  }, [page, pages]);
+  }, [state.page, pages]);
   const onPreviousPage = useCallback(() => {
-    if (page > 1) {
-      setPage(page - 1);
+    if (state.page > 1) {
+      updateState([{ key: 'page', value: state.page - 1 }]);
     }
-  }, [page]);
+  }, [state.page]);
   const onRowsPerPageChange = useCallback(
     (e: ChangeEvent<HTMLSelectElement>) => {
-      setRowsPerPage(Number(e.target.value));
-      setPage(1);
+      updateState([
+        { key: 'page', value: 1 },
+        { key: 'rowsPerPage', value: Number(e.target.value) },
+      ]);
     },
     []
   );
   const onClear = useCallback(() => {
-    setFilterCompanyName('');
-    setPage(1);
+    updateState([
+      {
+        key: 'filterCompanyName',
+        value: '',
+      },
+      { key: 'page', value: 1 },
+    ]);
   }, []);
   const jobs = useMemo(() => {
-    const start = (page - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
+    const start = (state.page - 1) * state.rowsPerPage;
+    const end = start + state.rowsPerPage;
     return filteredItems.slice(start, end);
-  }, [page, filteredItems, rowsPerPage]);
+  }, [state.page, filteredItems, state.rowsPerPage]);
   const renderDesktopActionButtons = (item: JobInterface) => (
     <div className='flex flex-row gap-3 justify-end'>
       {onAutoCollect && !item._markdown && (
@@ -253,7 +301,7 @@ const IndexList = (props: Props) => {
             className='w-full md:max-w-[44%] text-default-400'
             placeholder='Search by company name...'
             startContent={<SearchIcon />}
-            value={filterCompanyName}
+            value={state.filterCompanyName}
             onClear={() => onClear()}
             onValueChange={onSearchChange}
           />
@@ -271,9 +319,11 @@ const IndexList = (props: Props) => {
                 disallowEmptySelection
                 aria-label='Table Columns'
                 closeOnSelect={false}
-                selectedKeys={statusFilter}
+                selectedKeys={state.statusFilter}
                 selectionMode='multiple'
-                onSelectionChange={setStatusFilter}
+                onSelectionChange={(value) =>
+                  updateState([{ key: 'statusFilter', value }])
+                }
               >
                 {statusOptions.map((status) => (
                   <DropdownItem key={status.uid} className='capitalize'>
@@ -295,9 +345,11 @@ const IndexList = (props: Props) => {
                 disallowEmptySelection
                 aria-label='Table Columns'
                 closeOnSelect={false}
-                selectedKeys={visibleColumns}
+                selectedKeys={state.visibleColumns}
                 selectionMode='multiple'
-                onSelectionChange={setVisibleColumns}
+                onSelectionChange={(value) =>
+                  updateState([{ key: 'visibleColumns', value }])
+                }
               >
                 {columns.map((column) => (
                   <DropdownItem key={column.uid} className='capitalize'>
@@ -335,9 +387,9 @@ const IndexList = (props: Props) => {
       </div>
     );
   }, [
-    filterCompanyName,
-    statusFilter,
-    visibleColumns,
+    state.filterCompanyName,
+    state.statusFilter,
+    state.visibleColumns,
     onSearchChange,
     onRowsPerPageChange,
     items?.length,
@@ -358,9 +410,11 @@ const IndexList = (props: Props) => {
           showControls
           showShadow
           color='primary'
-          page={page}
+          page={state.page}
           total={pages}
-          onChange={setPage}
+          onChange={(value) => {
+            updateState([{ key: 'page', value }]);
+          }}
         />
         <div className='hidden sm:flex w-[30%] justify-end gap-2'>
           <Button
@@ -382,13 +436,13 @@ const IndexList = (props: Props) => {
         </div>
       </div>
     );
-  }, [selectedKeys, jobs?.length, page, pages, hasSearchFilter]);
+  }, [selectedKeys, jobs?.length, state.page, pages, hasSearchFilter]);
   const tableContextValue = {
-    page: page,
-    filterCompanyName: filterCompanyName,
-    rowsPerPage: rowsPerPage,
-    statusFilter: statusFilter,
-    visibleColumns: visibleColumns,
+    page: state.page,
+    filterCompanyName: state.filterCompanyName,
+    rowsPerPage: state.rowsPerPage,
+    statusFilter: state.statusFilter,
+    visibleColumns: state.visibleColumns,
   };
   return (
     <TableContext.Provider value={tableContextValue}>
