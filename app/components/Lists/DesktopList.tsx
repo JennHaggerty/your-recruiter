@@ -10,190 +10,55 @@ import {
   Link,
   Button,
   Tooltip,
-  Input,
   Selection,
-  DropdownMenu,
-  Dropdown,
-  DropdownItem,
-  DropdownTrigger,
 } from '@heroui/react';
-import React, {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { EditIcon } from '../Icons/EditIcon';
 import { EyeIcon } from '../Icons/EyeIcon';
-import { capitalize, getBadgeColor } from '@/functions/functions';
-import { SearchIcon } from '../Icons/SearchIcon';
-import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
-import { PlusIcon } from '../Icons/PlusIcon';
+import { getBadgeColor } from '@/functions/functions';
 import { useUserContext } from '@/contexts/UserContext';
+import { useTableContext } from '@/contexts/TableContext';
 interface Column {
   name: string;
   uid: string;
   sortable?: boolean;
 }
-interface Status {
-  name: string;
-  uid: string;
-}
 interface Props {
   columns: Column[];
-  statusOptions: Status[];
-  initialVisibleColumns: string[];
-  onAdd?: () => void;
   onAutoCoverLetter?: (id: string) => void;
   onViewCoverLetter?: (id: string) => void;
   onViewCard?: (id: string) => void;
-  disableOpenAi?: boolean;
-  disableFirecrawl?: boolean;
   iconWidth?: string;
-  filterValue: string;
-  onSearchChange: () => void;
-  onClear: () => void;
-  statusFilter: Selection;
-  setStatusFilter: Dispatch<SetStateAction<Selection>>;
-  onRowsPerPageChange: (e: ChangeEvent<HTMLSelectElement>) => void;
   selectedKeys: Selection;
   setSelectedKeys: Dispatch<SetStateAction<Selection>>;
   jobs: JobInterface[];
+  topContent: React.ReactNode;
   bottomContent: React.ReactNode;
   actionButtons: (item: JobInterface) => void;
-  itemsLength?: number;
 }
 const DesktopList = (props: Props) => {
   const {
     columns,
-    statusOptions,
-    initialVisibleColumns,
-    onAdd,
     onAutoCoverLetter,
     onViewCoverLetter,
     onViewCard,
     iconWidth,
-    filterValue,
-    onSearchChange,
-    onClear,
-    statusFilter,
-    setStatusFilter,
-    onRowsPerPageChange,
     selectedKeys,
     setSelectedKeys,
     jobs,
+    topContent,
     bottomContent,
     actionButtons,
-    itemsLength,
   } = props;
   if (!jobs) return;
   const { openai_key } = useUserContext();
-  const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(initialVisibleColumns)
-  );
-  const hasSearchFilter = Boolean(filterValue);
+  const { visibleColumns } = useTableContext();
   const headerColumns = useMemo(() => {
-    if (visibleColumns === 'all') return columns;
+    if (visibleColumns === 'all' || !visibleColumns) return columns;
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid)
     );
   }, [visibleColumns]);
-  const topContent = useMemo(() => {
-    return (
-      <div className='flex flex-col gap-4'>
-        <div className='flex justify-between gap-3 items-end'>
-          <Input
-            isClearable
-            className='w-full sm:max-w-[44%] text-default-400'
-            placeholder='Search by company name...'
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
-          <div className='flex gap-3'>
-            <Dropdown>
-              <DropdownTrigger className='hidden sm:flex'>
-                <Button
-                  endContent={<ChevronDownIcon className='text-small' />}
-                  variant='flat'
-                >
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label='Table Columns'
-                closeOnSelect={false}
-                selectedKeys={statusFilter}
-                selectionMode='multiple'
-                onSelectionChange={setStatusFilter}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className='capitalize'>
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className='hidden sm:flex'>
-                <Button
-                  endContent={<ChevronDownIcon className='text-small' />}
-                  variant='flat'
-                >
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label='Table Columns'
-                closeOnSelect={false}
-                selectedKeys={visibleColumns}
-                selectionMode='multiple'
-                onSelectionChange={setVisibleColumns}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className='capitalize'>
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Button color='primary' onPress={onAdd} endContent={<PlusIcon />}>
-              Add New
-            </Button>
-          </div>
-        </div>
-        <div className='flex justify-between items-center'>
-          <span className='text-default-400 text-small'>
-            Total of {itemsLength} applications
-          </span>
-          <label className='flex items-center text-default-400 text-small'>
-            Rows per page:
-            <select
-              className='bg-transparent outline-none text-default-400 text-small'
-              onChange={onRowsPerPageChange}
-            >
-              <option value='15'>15</option>
-              <option value='25'>25</option>
-              <option value='50'>50</option>
-            </select>
-          </label>
-        </div>
-      </div>
-    );
-  }, [
-    filterValue,
-    statusFilter,
-    visibleColumns,
-    onSearchChange,
-    onRowsPerPageChange,
-    itemsLength,
-    hasSearchFilter,
-  ]);
   const renderHeader = (item: JobInterface) => (
     <div className='flex flex-row gap-3'>
       <div className='flex gap-2 h-full my-auto'>

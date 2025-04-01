@@ -8,22 +8,12 @@ import {
   TableRow,
   TableCell,
   Link,
-  Button,
   Tooltip,
-  Input,
   Selection,
 } from '@heroui/react';
-import React, {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useCallback, useMemo } from 'react';
 import { getBadgeColor } from '@/functions/functions';
-import { SearchIcon } from '../Icons/SearchIcon';
-import { PlusIcon } from '../Icons/PlusIcon';
+import { useTableContext } from '@/contexts/TableContext';
 interface Column {
   name: string;
   uid: string;
@@ -31,93 +21,31 @@ interface Column {
 }
 interface Props {
   columns: Column[];
-  initialVisibleColumns: string[];
-  onAdd?: () => void;
-  filterValue: string;
-  onSearchChange: () => void;
-  onClear: () => void;
-  statusFilter: Selection;
-  onRowsPerPageChange: (e: ChangeEvent<HTMLSelectElement>) => void;
   selectedKeys: Selection;
   setSelectedKeys: Dispatch<SetStateAction<Selection>>;
   jobs: JobInterface[];
+  topContent: React.ReactNode;
   bottomContent: React.ReactNode;
   actionButtons: (item: JobInterface) => void;
-  itemsLength?: number;
 }
 const MobileList = (props: Props) => {
   const {
     columns,
-    initialVisibleColumns,
-    onAdd,
-    filterValue,
-    onSearchChange,
-    onClear,
-    statusFilter,
-    onRowsPerPageChange,
     selectedKeys,
     setSelectedKeys,
     jobs,
     bottomContent,
     actionButtons,
-    itemsLength,
+    topContent,
   } = props;
   if (!jobs) return;
-  const [visibleColumns, setVisibleColumns] = useState<Selection>(
-    new Set(initialVisibleColumns)
-  );
+  const { visibleColumns } = useTableContext();
   const headerColumns = useMemo(() => {
-    if (visibleColumns === 'all') return columns;
+    if (visibleColumns === 'all' || !visibleColumns) return columns;
     return columns.filter((column) =>
       Array.from(visibleColumns).includes(column.uid)
     );
   }, [visibleColumns]);
-  const hasSearchFilter = Boolean(filterValue);
-  const topContent = useMemo(() => {
-    return (
-      <div className='flex flex-col gap-4'>
-        <div className='flex justify-between gap-3 items-end'>
-          <Input
-            isClearable
-            className='w-full sm:max-w-[44%] text-default-400'
-            placeholder='Search by company name...'
-            startContent={<SearchIcon />}
-            value={filterValue}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
-          <div className='flex gap-3'>
-            <Button color='primary' onPress={onAdd} endContent={<PlusIcon />}>
-              Add New
-            </Button>
-          </div>
-        </div>
-        <div className='flex justify-between items-center'>
-          <span className='text-default-400 text-small'>
-            Total of {itemsLength} applications
-          </span>
-          <label className='flex items-center text-default-400 text-small'>
-            Rows per page:
-            <select
-              className='bg-transparent outline-none text-default-400 text-small'
-              onChange={onRowsPerPageChange}
-            >
-              <option value='15'>15</option>
-              <option value='25'>25</option>
-              <option value='50'>50</option>
-            </select>
-          </label>
-        </div>
-      </div>
-    );
-  }, [
-    filterValue,
-    statusFilter,
-    onSearchChange,
-    onRowsPerPageChange,
-    itemsLength,
-    hasSearchFilter,
-  ]);
   const renderHeader = (item: JobInterface) => (
     <div className='flex flex-row gap-3'>
       <div className='flex flex-col my-auto grow'>

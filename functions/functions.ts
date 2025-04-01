@@ -1,8 +1,20 @@
 import DatabaseResponseInterface from '@/interfaces/DatabaseResponseInterface';
 import { scrapeResponse } from '@/lib/firecrawl';
 import { addToast } from '@heroui/react';
-import { FormEvent } from 'react';
+import { FormEvent, useLayoutEffect, useState } from 'react';
 // General functions
+export const useWindowSize = () => {
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize({ width: window.innerWidth, height: window.innerHeight });
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+};
 export const getBadgeColor = (stage: string | undefined) => {
   let badgeColor:
     | 'success'

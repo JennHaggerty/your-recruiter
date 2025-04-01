@@ -2,13 +2,14 @@ import JobInterface from '@/interfaces/JobInterface';
 import DesktopList from './DesktopList';
 import MobileList from './MobileList';
 import SkeletonList from './SkeletonList';
-import { ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
+  Input,
   Pagination,
   Selection,
   Tooltip,
@@ -18,6 +19,11 @@ import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
 import { useUserContext } from '@/contexts/UserContext';
 import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
+import { TableContext } from '@/contexts/TableContext';
+import { capitalize, useWindowSize } from '@/functions/functions';
+import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
+import { PlusIcon } from '../Icons/PlusIcon';
+import { SearchIcon } from '../Icons/SearchIcon';
 interface Props {
   items?: JobInterface[];
   onAdd: () => void;
@@ -69,24 +75,35 @@ const IndexList = (props: Props) => {
   const { firecrawl_key, openai_key } = useUserContext();
   const [page, setPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(15);
-  const [filterValue, setFilterValue] = useState('');
+  const [filterCompanyName, setFilterCompanyName] = useState('');
   const [statusFilter, setStatusFilter] = useState<Selection>('all');
+  const windowSize = useWindowSize();
+  const [visibleColumns, setVisibleColumns] = useState<Selection>();
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set([]));
-  const hasSearchFilter = Boolean(filterValue);
+  const hasSearchFilter = Boolean(filterCompanyName);
   const iconWidth = '15px';
+  useEffect(() => {
+    if (windowSize.width < 769) {
+      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS_MOBILE));
+    } else {
+      setVisibleColumns(new Set(INITIAL_VISIBLE_COLUMNS_DESKTOP));
+    }
+  }, [windowSize.width]);
   const onSearchChange = useCallback((value?: string) => {
     if (value) {
-      setFilterValue(value);
+      setFilterCompanyName(value);
       setPage(1);
     } else {
-      setFilterValue('');
+      setFilterCompanyName('');
     }
   }, []);
   const filteredItems = useMemo(() => {
     let filteredItems = items || [];
-    if (filterValue) {
+    if (filterCompanyName) {
       filteredItems = filteredItems.filter((item) =>
-        item.company_name.toLowerCase().includes(filterValue.toLowerCase())
+        item.company_name
+          .toLowerCase()
+          .includes(filterCompanyName.toLowerCase())
       );
     }
     if (
@@ -98,7 +115,7 @@ const IndexList = (props: Props) => {
       );
     }
     return filteredItems;
-  }, [items, filterValue, statusFilter]);
+  }, [items, filterCompanyName, statusFilter]);
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
   const onNextPage = useCallback(() => {
     if (page < pages) {
@@ -118,7 +135,7 @@ const IndexList = (props: Props) => {
     []
   );
   const onClear = useCallback(() => {
-    setFilterValue('');
+    setFilterCompanyName('');
     setPage(1);
   }, []);
   const jobs = useMemo(() => {
@@ -126,46 +143,6 @@ const IndexList = (props: Props) => {
     const end = start + rowsPerPage;
     return filteredItems.slice(start, end);
   }, [page, filteredItems, rowsPerPage]);
-  const bottomContent = useMemo(() => {
-    return (
-      <div className='py-2 px-2 flex justify-between items-center'>
-        <span className='w-[30%] text-small text-default-400'>
-          {selectedKeys === 'all'
-            ? 'All items selected'
-            : `${selectedKeys.size} of ${
-                filteredItems && filteredItems.length
-              } selected`}
-        </span>
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color='primary'
-          page={page}
-          total={pages}
-          onChange={setPage}
-        />
-        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
-          <Button
-            isDisabled={pages === 1}
-            size='sm'
-            variant='flat'
-            onPress={onPreviousPage}
-          >
-            Previous
-          </Button>
-          <Button
-            isDisabled={pages === 1}
-            size='sm'
-            variant='flat'
-            onPress={onNextPage}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
-    );
-  }, [selectedKeys, jobs?.length, page, pages, hasSearchFilter]);
   const renderDesktopActionButtons = (item: JobInterface) => (
     <div className='flex flex-row gap-3 justify-end'>
       {onAutoCollect && !item._markdown && (
@@ -267,51 +244,183 @@ const IndexList = (props: Props) => {
       </Dropdown>
     </div>
   );
+  const topContent = useMemo(() => {
+    return (
+      <div className='flex flex-col gap-4'>
+        <div className='flex flex-col md:flex-row justify-between gap-3 items-end'>
+          <Input
+            isClearable
+            className='w-full md:max-w-[44%] text-default-400'
+            placeholder='Search by company name...'
+            startContent={<SearchIcon />}
+            value={filterCompanyName}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
+          />
+          <div className='flex w-full md:w-auto gap-3'>
+            <Dropdown>
+              <DropdownTrigger className='w-full'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
+                  Status
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={statusFilter}
+                selectionMode='multiple'
+                onSelectionChange={setStatusFilter}
+              >
+                {statusOptions.map((status) => (
+                  <DropdownItem key={status.uid} className='capitalize'>
+                    {capitalize(status.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className='w-full'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={visibleColumns}
+                selectionMode='multiple'
+                onSelectionChange={setVisibleColumns}
+              >
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className='capitalize'>
+                    {capitalize(column.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Button
+              className='w-full'
+              color='primary'
+              onPress={onAdd}
+              endContent={<PlusIcon />}
+            >
+              Add New
+            </Button>
+          </div>
+        </div>
+        <div className='flex justify-between items-center'>
+          <span className='text-default-400 text-small'>
+            Total of {items?.length} applications
+          </span>
+          <label className='flex items-center text-default-400 text-small'>
+            Rows per page:
+            <select
+              className='bg-transparent outline-none text-default-400 text-small'
+              onChange={onRowsPerPageChange}
+            >
+              <option value='15'>15</option>
+              <option value='25'>25</option>
+              <option value='50'>50</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    );
+  }, [
+    filterCompanyName,
+    statusFilter,
+    visibleColumns,
+    onSearchChange,
+    onRowsPerPageChange,
+    items?.length,
+    hasSearchFilter,
+  ]);
+  const bottomContent = useMemo(() => {
+    return (
+      <div className='py-2 px-2 flex justify-between items-center'>
+        <span className='w-[30%] text-small text-default-400'>
+          {selectedKeys === 'all'
+            ? 'All items selected'
+            : `${selectedKeys.size} of ${
+                filteredItems && filteredItems.length
+              } selected`}
+        </span>
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color='primary'
+          page={page}
+          total={pages}
+          onChange={setPage}
+        />
+        <div className='hidden sm:flex w-[30%] justify-end gap-2'>
+          <Button
+            isDisabled={pages === 1}
+            size='sm'
+            variant='flat'
+            onPress={onPreviousPage}
+          >
+            Previous
+          </Button>
+          <Button
+            isDisabled={pages === 1}
+            size='sm'
+            variant='flat'
+            onPress={onNextPage}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    );
+  }, [selectedKeys, jobs?.length, page, pages, hasSearchFilter]);
+  const tableContextValue = {
+    page: page,
+    filterCompanyName: filterCompanyName,
+    rowsPerPage: rowsPerPage,
+    statusFilter: statusFilter,
+    visibleColumns: visibleColumns,
+  };
   return (
-    <>
+    <TableContext.Provider value={tableContextValue}>
       {loading ? (
         <SkeletonList />
       ) : (
         <>
           <MobileList
+            jobs={jobs}
             columns={columns}
-            initialVisibleColumns={INITIAL_VISIBLE_COLUMNS_MOBILE}
-            onAdd={onAdd}
-            filterValue={filterValue}
-            onSearchChange={onSearchChange}
-            onClear={onClear}
-            statusFilter={statusFilter}
-            onRowsPerPageChange={onRowsPerPageChange}
             selectedKeys={'all'}
             setSelectedKeys={setSelectedKeys}
-            jobs={jobs}
             bottomContent={bottomContent}
             actionButtons={renderMobileActionButtons}
+            topContent={topContent}
           />
           <DesktopList
+            jobs={jobs}
             columns={columns}
-            initialVisibleColumns={INITIAL_VISIBLE_COLUMNS_DESKTOP}
-            statusOptions={statusOptions}
-            onAdd={onAdd}
+            selectedKeys={selectedKeys}
+            setSelectedKeys={setSelectedKeys}
+            topContent={topContent}
+            bottomContent={bottomContent}
+            actionButtons={renderDesktopActionButtons}
             onAutoCoverLetter={onAutoCoverLetter}
             onViewCoverLetter={onViewCoverLetter}
             onViewCard={onViewCard}
             iconWidth={iconWidth}
-            filterValue={filterValue}
-            onSearchChange={onSearchChange}
-            onClear={onClear}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            onRowsPerPageChange={onRowsPerPageChange}
-            selectedKeys={selectedKeys}
-            setSelectedKeys={setSelectedKeys}
-            jobs={jobs}
-            bottomContent={bottomContent}
-            actionButtons={renderDesktopActionButtons}
           />
         </>
       )}
-    </>
+    </TableContext.Provider>
   );
 };
 export default IndexList;

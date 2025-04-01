@@ -1,24 +1,17 @@
-import { createContext, useContext } from 'react';
+import { createContext, Dispatch, SetStateAction, useContext } from 'react';
+import { Selection } from '@heroui/react';
 export interface TableContextInterface {
   page: number;
-  setPage: () => void;
-  /*
   rowsPerPage: number;
   filterCompanyName?: string;
-  statusFilter?: string[];
-  columnFilter?: string[];
-  visibleColumns?: string;
-  */
+  statusFilter?: Selection;
+  visibleColumns?: Selection;
 }
 export const TableContext = createContext<TableContextInterface>({
-  page: 1,
-  setPage: () => {},
-  /*
-  rowsPerPage: 15,
+  page: 0,
+  rowsPerPage: 0,
   filterCompanyName: '',
-  statusFilter: [''],
-  columnFilter: [''],
-  visibleColumns: '',
-  */
+  statusFilter: undefined,
+  visibleColumns: undefined,
 });
 export const useTableContext = () => useContext(TableContext);
