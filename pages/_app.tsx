@@ -1,4 +1,3 @@
-import { TableContext, useTableContext } from '@/contexts/TableContext';
 import { UserContext, UserContextInterface } from '@/contexts/UserContext';
 import { fetchUser, fetchUserId, fetchUserLogin } from '@/functions/functions';
 import '@/styles/globals.css';
@@ -61,7 +60,6 @@ export default function App({ Component, pageProps }: AppProps) {
     email: user && user.email,
     openai_key: user && user.openai_key,
     firecrawl_key: user && user.firecrawl_key,
-    login: login,
     logout: logout,
   };
   return (
