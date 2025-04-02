@@ -265,13 +265,13 @@ export const fetchUserId = async (args: { token: string }) => {
   const id = await fetch('/api/users/getUserId?token=' + token)
     .then((res) => {
       if (res.status !== 201) {
-        addToast({ color: 'danger', title: res.json() });
+        return addToast({ color: 'danger', title: res.json() });
       } else {
         return res.json();
       }
     })
     .catch((e) => {
-      addToast({
+      return addToast({
         color: 'danger',
         title: `There was an error fetching session, ${e}`,
       });

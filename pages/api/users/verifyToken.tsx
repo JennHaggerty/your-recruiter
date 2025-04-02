@@ -1,10 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import jwt from 'jsonwebtoken';
-interface JwtPayload {
-  id: string;
-}
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  // check for database and users collection
+  // check for token secret
   const tokenSecret = process.env.TOKEN_SECRET;
   if (!tokenSecret) {
     return res.status(403).json('Missing token secret variable.');
@@ -15,14 +12,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(400).json(`Missing token, please login.`);
     }
     const token = req.query.token.toString();
-    jwt.verify(token, tokenSecret, function (error, decoded) {
+    const response = jwt.verify(token, tokenSecret, function (error, decoded) {
       if (error) {
-        return res.status(401).json(error);
+        return error;
       } else {
-        const { id } = decoded as JwtPayload;
-        return res.status(201).json(id);
+        return decoded;
       }
     });
+    return response;
   } catch (e) {
     console.error(e);
   }

@@ -32,10 +32,7 @@ export default function App({ Component, pageProps }: AppProps) {
     const token = window.localStorage.getItem('token');
     if (token) {
       fetchMyUser({ token });
-    } else {
-      logout();
     }
-    return;
   }, []);
   const logout = () => {
     window.localStorage.removeItem('token');
