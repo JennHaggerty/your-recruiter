@@ -105,7 +105,8 @@ const Details = (props: Props) => {
           key !== 'posting_url' &&
           key !== 'company_name' &&
           key !== 'company_url' &&
-          key !== 'automated_cover_letter' &&
+          key !== 'cover_letter' &&
+          key !== 'resume' &&
           item[key]
         ) {
           return (

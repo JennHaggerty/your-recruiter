@@ -5,17 +5,15 @@ import JobInterface from '@/interfaces/JobInterface';
 interface Props {
   item: JobInterface;
   onClose: () => void;
-  onOpenChange: () => void;
   isOpen: boolean;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
 }
 const EditModal = (props: Props) => {
-  const { item, onClose, onOpenChange, isOpen, onSubmit } = props;
+  const { item, onClose, isOpen, onSubmit } = props;
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      onOpenChange={onOpenChange}
       scrollBehavior='outside'
       placement='center'
       size='3xl'

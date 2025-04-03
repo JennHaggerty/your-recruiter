@@ -4,7 +4,6 @@ import JobInterface from '@/interfaces/JobInterface';
 interface Props {
   item: JobInterface;
   onClose: () => void;
-  onOpenChange: () => void;
   isOpen: boolean;
   handleDelete: () => void;
   handleListEditClick: () => void;
@@ -16,7 +15,6 @@ const DetailsModal = (props: Props) => {
   const {
     item,
     onClose,
-    onOpenChange,
     isOpen,
     handleAutoCollect,
     handleAutoWriteCoverLetter,
@@ -28,7 +26,6 @@ const DetailsModal = (props: Props) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      onOpenChange={onOpenChange}
       scrollBehavior='outside'
       size='3xl'
     >

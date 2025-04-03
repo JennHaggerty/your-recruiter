@@ -40,7 +40,6 @@ export default function App({ Component, pageProps }: AppProps) {
   }, []);
   const logout = () => {
     window.localStorage.removeItem('token');
-    sessionStorage.clear();
     setUser(undefined);
     Router.push('./welcome');
   };

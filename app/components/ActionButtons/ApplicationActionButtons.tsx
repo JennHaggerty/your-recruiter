@@ -50,25 +50,25 @@ const ApplicationActionButtons = (props: Props) => {
           Get Information
         </Button>
       )}
-      {onViewCoverLetter && item.automated_cover_letter && (
+      {onViewCoverLetter && item.cover_letter && (
         <Button
           variant={variant ? variant : 'flat'}
           color='default'
           onPress={() => onViewCoverLetter(item._id)}
           className='w-full'
-          isDisabled={!item.automated_cover_letter}
+          isDisabled={!item.cover_letter}
         >
           View cover letter
         </Button>
       )}
-      {onAutoCoverLetter && !item.automated_cover_letter && (
+      {onAutoCoverLetter && !item.cover_letter && (
         <Button
           variant={variant ? variant : 'flat'}
           color='secondary'
           onPress={() => onAutoCoverLetter(item._id)}
           className='w-full'
           isDisabled={
-            !!item.automated_cover_letter ||
+            !!item.cover_letter ||
             !item._markdown ||
             item.stage?.toLocaleLowerCase() === 'closed' ||
             disableOpenAi

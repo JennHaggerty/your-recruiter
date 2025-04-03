@@ -1,7 +1,7 @@
 import React from 'react';
 import { Inter } from 'next/font/google';
 import type { InferGetServerSidePropsType, GetServerSideProps } from 'next';
-import { addToast, useDisclosure } from '@heroui/react';
+import { addToast } from '@heroui/react';
 import { useState, useEffect } from 'react';
 import { automatedCoverLetter } from '@/lib/openai';
 import client from '@/lib/mongodb';
@@ -27,9 +27,12 @@ import Loading from '@/app/components/Loading/Loading';
 import ListJumbotron from '@/app/components/ListJumbotron/ListJumbotron';
 import AddModal from '@/app/components/Modals/AddModal';
 import EditModal from '@/app/components/Modals/EditModal';
-import ViewCoverLetterModal from '@/app/components/Modals/ViewCoverLetterModal';
+import CoverLetterModal from '@/app/components/Modals/CoverLetterModal';
 import DetailsModal from '@/app/components/Modals/DetailsModal';
 import List from '@/app/components/Lists/List';
+import ResumeModal from '@/app/components/Modals/ResumeModal';
+import EditResumeModal from '@/app/components/Modals/EditResumeModal';
+import EditCoverLetterModal from '@/app/components/Modals/EditCoverLetterModal';
 type ConnectionStatus = {
   isConnected: boolean;
 };
@@ -39,13 +42,16 @@ const Home = ({
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
   const { user_id, resume, firecrawl_key, openai_key } = useUserContext();
   if (!user_id) return;
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [loading, setLoading] = useState<boolean>();
   const [applications, setApplications] = useState<JobInterface[]>();
   const [activeApplication, setActiveApplication] = useState<JobInterface>();
   const [showEditModal, setShowEditModal] = useState<boolean>();
   const [showAddModal, setShowAddModal] = useState<boolean>();
   const [showCoverLetterModal, setShowCoverLetterModal] = useState<boolean>();
+  const [showEditCoverLetterModal, setShowEditCoverLetterModal] =
+    useState<boolean>();
+  const [showResume, setShowResume] = useState<boolean>();
+  const [showEditResumeModal, setShowEditResumeModal] = useState<boolean>();
   const [showDetails, setShowDetails] = useState<boolean>();
   const [showSkeletonList, setShowSkeletonList] = useState<boolean>(true);
   const refreshApplications = async () => {
@@ -82,13 +88,26 @@ const Home = ({
     const target = applications?.find((application) => application._id === id);
     setActiveApplication(target);
     setShowEditModal(true);
-    onOpen();
   };
   const handleViewCoverLetter = async (id: string) => {
     const target = applications?.find((application) => application._id === id);
     setActiveApplication(target);
     setShowCoverLetterModal(true);
-    onOpen();
+  };
+  const handleEditCoverLetter = async (id: string) => {
+    const target = applications?.find((application) => application._id === id);
+    setActiveApplication(target);
+    setShowEditCoverLetterModal(true);
+  };
+  const handleViewResume = async (id: string) => {
+    const target = applications?.find((application) => application._id === id);
+    setActiveApplication(target);
+    setShowResume(true);
+  };
+  const handleEditResume = async (id: string) => {
+    const target = applications?.find((application) => application._id === id);
+    setActiveApplication(target);
+    setShowEditResumeModal(true);
   };
   const handleViewCard = (id: string) => {
     const target =
@@ -96,7 +115,6 @@ const Home = ({
       applications.find((application) => application._id === id);
     setActiveApplication(target);
     setShowDetails(true);
-    onOpen();
   };
   const handleAutoCollect = async (id: string) => {
     if (!firecrawl_key) return;
@@ -135,8 +153,8 @@ const Home = ({
     const application =
       applications && applications.find((item) => item._id === id);
     if (!application) return;
-    if (!application._resume && resume) {
-      application._resume = resume;
+    if (!application.resume && resume) {
+      application.resume = resume;
     }
     if (!openai_key) {
       return addToast({
@@ -147,7 +165,7 @@ const Home = ({
     setLoading(true);
     await automatedCoverLetter({ job: application, openAiKey: openai_key })
       .then(async (res) => {
-        application.automated_cover_letter = res;
+        application.cover_letter = res;
         const body = JSON.stringify(application);
         await updateApplication({ id: application._id, body })
           .then(() => refreshApplications())
@@ -196,56 +214,91 @@ const Home = ({
       />
       <main className={`${inter.className} dark relative md:max-w-7xl`}>
         {loading && <Loading />}
-        {isOpen && showEditModal && activeApplication && (
-          <EditModal
-            item={activeApplication}
-            isOpen={isOpen}
-            onClose={() => setShowEditModal(false)}
-            onOpenChange={onOpenChange}
-            onSubmit={(e) => {
-              handleUpdate(e).then(() => refreshApplications());
-            }}
-          />
-        )}
-        {isOpen && showAddModal && (
+        {showAddModal && (
           <AddModal
-            isOpen={isOpen}
+            isOpen={showAddModal}
             onClose={() => setShowAddModal(false)}
-            onOpenChange={onOpenChange}
             onSubmit={(e) => {
               handleAdd(e).then(() => refreshApplications());
             }}
           />
         )}
-        {isOpen && showCoverLetterModal && activeApplication && (
-          <ViewCoverLetterModal
-            item={activeApplication}
-            isOpen={isOpen}
-            onClose={() => setShowCoverLetterModal(false)}
-            onOpenChange={onOpenChange}
-            onSubmit={(e) => {
-              handleAutoWriteCoverLetter(activeApplication?._id);
-            }}
-          />
-        )}
-        {isOpen && showDetails && activeApplication && (
-          <DetailsModal
-            item={activeApplication}
-            handleDelete={() => handleDelete(activeApplication._id)}
-            handleListEditClick={() =>
-              handleListEditClick(activeApplication._id)
-            }
-            handleAutoCollect={() => handleAutoCollect(activeApplication._id)}
-            handleAutoWriteCoverLetter={() =>
-              handleAutoWriteCoverLetter(activeApplication._id)
-            }
-            handleViewCoverLetter={() =>
-              handleViewCoverLetter(activeApplication._id)
-            }
-            onClose={() => setShowDetails(false)}
-            onOpenChange={onOpenChange}
-            isOpen={isOpen}
-          />
+        {activeApplication && (
+          <>
+            {showEditModal && (
+              <EditModal
+                item={activeApplication}
+                isOpen={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                onSubmit={(e) =>
+                  handleUpdate(e).then(() => refreshApplications())
+                }
+              />
+            )}
+            {showEditCoverLetterModal && (
+              <EditCoverLetterModal
+                item={activeApplication}
+                isOpen={showEditCoverLetterModal}
+                onClose={() => setShowEditCoverLetterModal(false)}
+                onSubmit={(e) =>
+                  handleUpdate(e).then(() => refreshApplications())
+                }
+              />
+            )}
+            {showCoverLetterModal && (
+              <CoverLetterModal
+                item={activeApplication}
+                isOpen={showCoverLetterModal}
+                onClose={() => setShowCoverLetterModal(false)}
+                onAutoWrite={(e) =>
+                  handleAutoWriteCoverLetter(activeApplication?._id)
+                }
+                onEdit={(e) =>
+                  handleUpdate(e).then(() => refreshApplications())
+                }
+              />
+            )}
+            {showEditResumeModal && (
+              <EditResumeModal
+                item={activeApplication}
+                isOpen={showEditResumeModal}
+                onClose={() => setShowEditResumeModal(false)}
+                onEdit={(e) =>
+                  handleUpdate(e).then(() => refreshApplications())
+                }
+              />
+            )}
+            {showResume && (
+              <ResumeModal
+                item={activeApplication}
+                isOpen={showResume}
+                onClose={() => setShowResume(false)}
+                onEdit={(e) =>
+                  handleUpdate(e).then(() => refreshApplications())
+                }
+              />
+            )}
+            {showDetails && (
+              <DetailsModal
+                item={activeApplication}
+                isOpen={showDetails}
+                handleDelete={() => handleDelete(activeApplication._id)}
+                handleListEditClick={() =>
+                  handleListEditClick(activeApplication._id)
+                }
+                handleAutoCollect={() =>
+                  handleAutoCollect(activeApplication._id)
+                }
+                handleAutoWriteCoverLetter={() =>
+                  handleAutoWriteCoverLetter(activeApplication._id)
+                }
+                handleViewCoverLetter={() =>
+                  handleViewCoverLetter(activeApplication._id)
+                }
+                onClose={() => setShowDetails(false)}
+              />
+            )}
+          </>
         )}
         <section className='w-full mt-8'>
           <ListJumbotron
@@ -257,7 +310,6 @@ const Home = ({
               });
             }}
             onManualAdd={() => {
-              onOpen();
               setShowAddModal(true);
             }}
           />
@@ -270,14 +322,16 @@ const Home = ({
               <List
                 items={applications}
                 onAdd={() => {
-                  onOpen();
                   setShowAddModal(true);
                 }}
                 onDelete={handleDelete}
                 onEdit={handleListEditClick}
+                onViewResume={handleViewResume}
+                onEditResume={handleEditResume}
                 onAutoCollect={handleAutoCollect}
                 onAutoCoverLetter={handleAutoWriteCoverLetter}
                 onViewCoverLetter={handleViewCoverLetter}
+                onEditCoverLetter={handleEditCoverLetter}
                 onViewCard={handleViewCard}
                 loading={showSkeletonList}
               />

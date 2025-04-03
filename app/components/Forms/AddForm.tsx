@@ -1,5 +1,5 @@
 'use client';
-import { ChangeEvent, FormEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import {
   Form,
   Input,
@@ -32,7 +32,7 @@ const AddForm = (props: Props) => {
   );
   return (
     <Form className='form' validationBehavior='native' onSubmit={handleSubmit}>
-      <div className='flex flex-col gap-4 w-full mb-3'>
+      <div className='flex flex-col gap-4 w-full mb-5'>
         <span>Required Fields</span>
         <Input className='hidden' name='_user_id' defaultValue={user_id} />
         <Input
@@ -108,7 +108,7 @@ const AddForm = (props: Props) => {
         />
         <Input
           variant={'underlined'}
-          label='Cover letter'
+          label='Cover letter Requirements'
           labelPlacement={'outside'}
           name='cover_letter_requirements'
           placeholder='Cover letter requirements'
@@ -125,6 +125,22 @@ const AddForm = (props: Props) => {
             <SelectItem key={option.key}>{option.label}</SelectItem>
           ))}
         </Select>
+        <Textarea
+          variant={'underlined'}
+          isClearable
+          label='Cover Letter'
+          labelPlacement={'outside'}
+          name='cover_letter'
+          placeholder='Write your cover letter'
+        />
+        <Textarea
+          variant={'underlined'}
+          isClearable
+          label='Resume'
+          labelPlacement={'outside'}
+          name='resume'
+          placeholder='Add your resume in plain text. Remove all styling/html code, just add the text so the AI can fully read it.'
+        />
         <Textarea
           variant={'underlined'}
           isClearable

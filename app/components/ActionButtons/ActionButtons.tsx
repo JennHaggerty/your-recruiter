@@ -3,9 +3,10 @@ import { Button } from '@heroui/react';
 interface Props {
   handleSubmit?: () => void;
   handleReset?: () => void;
+  handleCancel?: () => void;
 }
 const ActionButtons = (props: Props) => {
-  const { handleSubmit, handleReset } = props;
+  const { handleSubmit, handleReset, handleCancel } = props;
   return (
     <div className='flex gap-2 w-full'>
       <Button
@@ -16,6 +17,11 @@ const ActionButtons = (props: Props) => {
       >
         Reset
       </Button>
+      {handleCancel && (
+        <Button onPress={handleCancel} className='w-full' color='danger'>
+          Cancel
+        </Button>
+      )}
       <Button
         color='primary'
         type='submit'

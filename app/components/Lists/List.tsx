@@ -19,7 +19,6 @@ import {
   TableRow,
   Tooltip,
 } from '@heroui/react';
-import { AiIcon } from '../Icons/AiIcon';
 import { DeleteIcon } from '../Icons/DeleteIcon';
 import { EditIcon } from '../Icons/EditIcon';
 import { useUserContext } from '@/contexts/UserContext';
@@ -44,14 +43,17 @@ export interface TableInterface {
 }
 interface Props {
   items?: JobInterface[];
-  onAdd: () => void;
-  onDelete: (id: string) => void;
-  onEdit: (id: string) => void;
-  onAutoCollect: (id: string) => void;
+  onAdd?: () => void;
+  onDelete?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onEditResume?: (id: string) => void;
+  onViewResume?: (id: string) => void;
+  onAutoCollect?: (id: string) => void;
   onAutoCoverLetter: (id: string) => void;
-  onViewCoverLetter: (id: string) => void;
-  onViewCard: (id: string) => void;
-  loading: boolean;
+  onEditCoverLetter?: (id: string) => void;
+  onViewCoverLetter?: (id: string) => void;
+  onViewCard?: (id: string) => void;
+  loading?: boolean;
 }
 const columns = [
   { name: 'Details', uid: 'name', sortable: true },
@@ -60,6 +62,7 @@ const columns = [
   { name: 'Salary', uid: 'salary', sortable: true },
   { name: 'Stage', uid: 'stage', sortable: true },
   { name: 'Cover Letter', uid: 'coverLetter' },
+  { name: 'Resume', uid: 'resume' },
   { name: 'Actions', uid: 'actions' },
 ];
 const statusOptions = [
@@ -76,6 +79,7 @@ const INITIAL_VISIBLE_COLUMNS_DESKTOP = [
   'salary',
   'stage',
   'coverLetter',
+  'resume',
   'actions',
 ];
 const List = (props: Props) => {
@@ -85,7 +89,10 @@ const List = (props: Props) => {
     onDelete,
     onEdit,
     onAutoCollect,
+    onEditResume,
+    onViewResume,
     onAutoCoverLetter,
+    onEditCoverLetter,
     onViewCoverLetter,
     onViewCard,
     loading,
@@ -385,22 +392,7 @@ const List = (props: Props) => {
   const renderHeader = (item: JobInterface) => (
     <>
       <div className='desktop-only flex flex-row gap-3'>
-        <div className='flex gap-2 h-full my-auto'>
-          {onViewCard && (
-            <Tooltip color='primary' content='View all listing information.'>
-              <Button
-                variant='flat'
-                color='primary'
-                onPress={() => onViewCard(item._id)}
-                aria-label='View your cover letter.'
-                isIconOnly={true}
-                className='m-auto'
-              >
-                <EyeIcon width={iconWidth} />
-              </Button>
-            </Tooltip>
-          )}
-        </div>
+        <div className='flex gap-2 h-full my-auto'></div>
         <div className='flex flex-col my-auto grow'>
           {item.company_name ? (
             item.company_url ? (
@@ -492,7 +484,7 @@ const List = (props: Props) => {
   );
   const renderCoverLetterActions = (item: JobInterface) => (
     <div className='flex flex-row gap-3 justify-center'>
-      {onAutoCoverLetter && !item.automated_cover_letter && (
+      {onAutoCoverLetter && !item.cover_letter && (
         <Tooltip
           color='secondary'
           content='Write cover letter. This is a paid AI action'
@@ -502,7 +494,7 @@ const List = (props: Props) => {
             color='secondary'
             onPress={() => onAutoCoverLetter(item._id)}
             isDisabled={
-              !!item.automated_cover_letter ||
+              !!item.cover_letter ||
               !item._markdown ||
               item.stage?.toLocaleLowerCase() === 'closed' ||
               !openai_key
@@ -520,17 +512,45 @@ const List = (props: Props) => {
           </Button>
         </Tooltip>
       )}
-      {onViewCoverLetter && item.automated_cover_letter && (
+      {onViewCoverLetter && item.cover_letter && (
         <Tooltip color='primary' content='View your cover letter.'>
           <Button
             variant='flat'
             color='primary'
             onPress={() => onViewCoverLetter(item._id)}
-            isDisabled={!item.automated_cover_letter}
+            isDisabled={!item.cover_letter}
             aria-label='View your cover letter.'
             isIconOnly={true}
           >
             <EyeIcon width={iconWidth} />
+          </Button>
+        </Tooltip>
+      )}
+    </div>
+  );
+  const renderResumeActions = (item: JobInterface) => (
+    <div className='flex flex-row gap-3 w-full justify-center'>
+      {onViewResume && item.resume && (
+        <Tooltip content='View your resume.'>
+          <Button
+            variant='flat'
+            onPress={() => onViewResume(item._id)}
+            aria-label='View your resume.'
+            isIconOnly={true}
+          >
+            <EyeIcon width={iconWidth} />
+          </Button>
+        </Tooltip>
+      )}
+      {!item.resume && onEditResume && (
+        <Tooltip content='Write your resume.'>
+          <Button
+            variant='flat'
+            onPress={() => onEditResume(item._id)}
+            aria-label='View your resume.'
+            isIconOnly={true}
+          >
+            <EditIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
@@ -551,40 +571,79 @@ const List = (props: Props) => {
               onPress={() => onViewCard && onViewCard(item._id)}
               isReadOnly={!onViewCard}
             >
-              View Application
+              View Details
             </DropdownItem>
             <DropdownItem
               key='edit'
               onPress={() => onEdit && onEdit(item._id)}
               isReadOnly={!onEdit}
             >
-              Edit Application
+              Edit Details
             </DropdownItem>
-            <DropdownItem
-              key='viewCoverLetter'
-              onPress={() => onAutoCollect && onAutoCollect(item._id)}
-              isReadOnly={!onAutoCollect || !!item._markdown || !firecrawl_key}
-            >
-              Collect listing with AI
-            </DropdownItem>
-            <DropdownItem
-              key='viewCoverLetter'
-              onPress={() => onAutoCoverLetter && onAutoCoverLetter(item._id)}
-              isReadOnly={
-                !onAutoCoverLetter ||
-                !!item.automated_cover_letter ||
-                !openai_key
-              }
-            >
-              Write Cover Letter with AI
-            </DropdownItem>
-            <DropdownItem
-              key='viewCoverLetter'
-              onPress={() => onViewCoverLetter && onViewCoverLetter(item._id)}
-              isReadOnly={!onViewCoverLetter || !item.automated_cover_letter}
-            >
-              View Cover Letter
-            </DropdownItem>
+            <>
+              {!item._markdown && (
+                <DropdownItem
+                  key='collectListing'
+                  onPress={() => onAutoCollect && onAutoCollect(item._id)}
+                  isReadOnly={
+                    !onAutoCollect || !!item._markdown || !firecrawl_key
+                  }
+                >
+                  Collect listing with AI
+                </DropdownItem>
+              )}
+              {!item.cover_letter && (
+                <DropdownItem
+                  key='autoWriteCoverLetter'
+                  onPress={() =>
+                    onAutoCoverLetter && onAutoCoverLetter(item._id)
+                  }
+                  isReadOnly={
+                    !onAutoCoverLetter || !!item.cover_letter || !openai_key
+                  }
+                >
+                  Write Cover Letter with AI
+                </DropdownItem>
+              )}
+              {item.cover_letter ? (
+                <DropdownItem
+                  key='viewCoverLetter'
+                  onPress={() =>
+                    onViewCoverLetter && onViewCoverLetter(item._id)
+                  }
+                  isReadOnly={!onViewCoverLetter}
+                >
+                  View Cover Letter
+                </DropdownItem>
+              ) : (
+                <DropdownItem
+                  key='editCoverLetter'
+                  onPress={() =>
+                    onEditCoverLetter && onEditCoverLetter(item._id)
+                  }
+                  isReadOnly={!onEditCoverLetter}
+                >
+                  Write Cover Letter
+                </DropdownItem>
+              )}
+              {item.resume ? (
+                <DropdownItem
+                  key='viewResume'
+                  onPress={() => onViewResume && onViewResume(item._id)}
+                  isReadOnly={!onViewResume}
+                >
+                  View Resume
+                </DropdownItem>
+              ) : (
+                <DropdownItem
+                  key='writeResume'
+                  onPress={() => onEditResume && onEditResume(item._id)}
+                  isReadOnly={!onEditResume}
+                >
+                  Write Resume
+                </DropdownItem>
+              )}
+            </>
             <DropdownItem
               key='delete'
               onPress={() => onDelete && onDelete(item._id)}
@@ -596,7 +655,20 @@ const List = (props: Props) => {
         </Dropdown>
       </div>
       <div className='desktop-only flex flex-row gap-3 justify-end'>
-        {onAutoCollect && !item._markdown && (
+        {onViewCard && (
+          <Tooltip color='primary' content='View all listing information.'>
+            <Button
+              variant='flat'
+              color='primary'
+              onPress={() => onViewCard(item._id)}
+              aria-label='View your cover letter.'
+              isIconOnly={true}
+            >
+              <EyeIcon width={iconWidth} />
+            </Button>
+          </Tooltip>
+        )}
+        {onAutoCollect && (
           <Tooltip color='secondary' content='Get listing data'>
             <Button
               variant='flat'
@@ -659,6 +731,8 @@ const List = (props: Props) => {
         );
       case 'coverLetter':
         return renderCoverLetterActions(item);
+      case 'resume':
+        return renderResumeActions(item);
       case 'actions':
         return renderActionButtons(item);
       default:

@@ -8,7 +8,6 @@ import {
   Textarea,
   Calendar,
   Checkbox,
-  Divider,
 } from '@heroui/react';
 import { today, getLocalTimeZone } from '@internationalized/date';
 import JobInterface from '@/interfaces/JobInterface';
@@ -135,7 +134,7 @@ const EditForm = (props: Props) => {
         />
         <Input
           variant={'underlined'}
-          label='Cover letter'
+          label='Cover letter Requirements'
           labelPlacement={'outside'}
           name='cover_letter_requirements'
           placeholder='Cover letter requirements'
@@ -165,16 +164,6 @@ const EditForm = (props: Props) => {
           placeholder='Write a note'
           defaultValue={''}
         />
-        {item.notes &&
-          item.notes.map((note, i) => (
-            <div key={`notes-${i}`} className='flex flex-col'>
-              {note.content}
-              <span className='w-full text-right text-default-500 italic mt-1'>
-                {new Date(note._date).toDateString()}
-              </span>
-              {item.notes!.length > 1 && <Divider />}
-            </div>
-          ))}
         {item.followup_date && <span>Follow-up: {item.followup_date}</span>}
         <Checkbox
           aria-label='Schedule a new follow-up reminder'

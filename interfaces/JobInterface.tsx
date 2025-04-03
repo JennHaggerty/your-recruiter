@@ -16,8 +16,8 @@ export default interface JobInterface extends Record<string, any> {
   stage?: string;
   notes?: Note[];
   followup_date?: string;
-  automated_cover_letter?: string;
-  _resume?: string;
+  cover_letter?: string;
+  resume?: string;
   _markdown?: string;
   _date_modified?: Date;
   _date_added?: Date;
