@@ -1,16 +1,22 @@
 import JobInterface from '@/interfaces/JobInterface';
-import DesktopList from './DesktopList';
-import MobileList from './MobileList';
 import SkeletonList from './SkeletonList';
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
+  Chip,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
+  Link,
   Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableColumn,
+  TableHeader,
+  TableRow,
   Tooltip,
 } from '@heroui/react';
 import { AiIcon } from '../Icons/AiIcon';
@@ -19,10 +25,23 @@ import { EditIcon } from '../Icons/EditIcon';
 import { useUserContext } from '@/contexts/UserContext';
 import { VerticalDotsIcon } from '../Icons/VerticalDotsIcon';
 import { TableContext, TableContextInterface } from '@/contexts/TableContext';
-import { capitalize, useWindowSize } from '@/functions/functions';
+import {
+  capitalize,
+  getBadgeColor,
+  useWindowSize,
+} from '@/functions/functions';
 import { ChevronDownIcon } from '../Icons/ChevronDownIcon';
 import { PlusIcon } from '../Icons/PlusIcon';
 import { SearchIcon } from '../Icons/SearchIcon';
+import { EyeIcon } from '../Icons/EyeIcon';
+export interface TableInterface {
+  page: number;
+  rowsPerPage: number;
+  filterCompanyName: string;
+  statusFilter: Selection;
+  visibleColumns: Selection;
+  selectedRows: Selection;
+}
 interface Props {
   items?: JobInterface[];
   onAdd: () => void;
@@ -59,7 +78,7 @@ const INITIAL_VISIBLE_COLUMNS_DESKTOP = [
   'coverLetter',
   'actions',
 ];
-const IndexList = (props: Props) => {
+const List = (props: Props) => {
   const {
     items,
     onAdd,
@@ -100,7 +119,11 @@ const IndexList = (props: Props) => {
         ...prevState,
         [key]: value,
       }));
-      if (key === 'visibleColumns' || key === 'statusFilter') {
+      if (
+        key === 'visibleColumns' ||
+        key === 'statusFilter' ||
+        key === 'selectedRows'
+      ) {
         setTableSession({ key, value: JSON.stringify([...value]) });
       } else {
         setTableSession({ key, value });
@@ -114,25 +137,29 @@ const IndexList = (props: Props) => {
   // retrieve table info from sessionStorage
   const getTableSession = () => {
     const tableContextProperties = Object.keys(tableContextValue);
-    tableContextProperties.forEach((property) => {
-      const sessionValue = sessionStorage.getItem(property);
+    tableContextProperties.forEach((key) => {
+      const sessionValue = sessionStorage.getItem(key);
       if (!sessionValue) return;
-      if (property === 'visibleColumns' || property === 'statusFilter') {
+      if (
+        key === 'visibleColumns' ||
+        key === 'statusFilter' ||
+        key === 'selectedRows'
+      ) {
         const value = new Set(JSON.parse(sessionValue));
         setTableState((prevState) => ({
           ...prevState,
-          [property]: value,
+          [key]: value,
           page: parseInt(sessionStorage.getItem('page') || '1'),
         }));
-      } else if (property === 'page') {
+      } else if (key === 'page') {
         setTableState((prevState) => ({
           ...prevState,
-          property: parseInt(sessionValue),
+          key: parseInt(sessionValue),
         }));
       } else {
         setTableState((prevState) => ({
           ...prevState,
-          property: sessionValue,
+          key: sessionValue,
         }));
       }
     });
@@ -187,6 +214,13 @@ const IndexList = (props: Props) => {
     ]);
   }, []);
   // table variables
+  const headerColumns = useMemo(() => {
+    if (tableState.visibleColumns === 'all' || !tableState.visibleColumns)
+      return columns;
+    return columns.filter((column) =>
+      Array.from(tableState.visibleColumns).includes(column.uid)
+    );
+  }, [tableState.visibleColumns]);
   const filteredItems = useMemo(() => {
     let filteredItems = items || [];
     if (tableState.filterCompanyName) {
@@ -348,143 +382,332 @@ const IndexList = (props: Props) => {
     pages,
     hasSearchFilter,
   ]);
-  // renders
-  const renderDesktopActionButtons = (item: JobInterface) => (
-    <div className='flex flex-row gap-3 justify-end'>
-      {onAutoCollect && !item._markdown && (
-        <Tooltip color='secondary' content='Get listing data'>
+  const renderHeader = (item: JobInterface) => (
+    <>
+      <div className='desktop-only flex flex-row gap-3'>
+        <div className='flex gap-2 h-full my-auto'>
+          {onViewCard && (
+            <Tooltip color='primary' content='View all listing information.'>
+              <Button
+                variant='flat'
+                color='primary'
+                onPress={() => onViewCard(item._id)}
+                aria-label='View your cover letter.'
+                isIconOnly={true}
+                className='m-auto'
+              >
+                <EyeIcon width={iconWidth} />
+              </Button>
+            </Tooltip>
+          )}
+        </div>
+        <div className='flex flex-col my-auto grow'>
+          {item.company_name ? (
+            item.company_url ? (
+              <h3>
+                <Link href={item.company_url} isExternal className='text-lg'>
+                  {item.company_name}
+                </Link>
+              </h3>
+            ) : (
+              <h3 className='text-lg'>{item.company_name}</h3>
+            )
+          ) : (
+            ''
+          )}
+          {!item.company_name ? (
+            <>
+              <h3>
+                <Link href={item.posting_url} isExternal showAnchorIcon>
+                  Posting url{' '}
+                </Link>
+              </h3>
+              <div className='text-default-400'>{item.location}</div>
+            </>
+          ) : (
+            <div className='mt-1'>
+              <span className='text-sm text-default-400'>{item.location}</span>
+            </div>
+          )}
+        </div>
+        <div className='my-auto'>
+          {item.posting_url && (
+            <Tooltip color='primary' content={'Go to the posting'}>
+              <Link
+                href={item.posting_url}
+                isExternal
+                showAnchorIcon
+                aria-label='Go to the original post'
+              />
+            </Tooltip>
+          )}
+        </div>
+      </div>
+      <div className='mobile-only flex flex-row gap-3'>
+        <div className='flex flex-col my-auto grow'>
+          {item.company_name ? (
+            item.company_url ? (
+              <h3>
+                <Link href={item.company_url} isExternal className='text-lg'>
+                  {item.company_name}
+                </Link>
+              </h3>
+            ) : (
+              <h3 className='text-lg'>{item.company_name}</h3>
+            )
+          ) : (
+            ''
+          )}
+          {!item.company_name ? (
+            <>
+              <h3>
+                <Link href={item.posting_url} isExternal showAnchorIcon>
+                  Posting url{' '}
+                </Link>
+              </h3>
+              <div className='text-default-400'>{item.location}</div>
+            </>
+          ) : (
+            <div className='mt-1'>
+              <span className='text-sm text-default-400'>{item.location}</span>
+            </div>
+          )}
+          <div className='text-default-400'>{item.role}</div>
+          <div className='text-default-500'>{item.salary}</div>
+        </div>
+        <div className='my-auto'>
+          {item.posting_url && (
+            <Tooltip color='primary' content={'Go to the posting'}>
+              <Link
+                href={item.posting_url}
+                isExternal
+                showAnchorIcon
+                aria-label='Go to the original post'
+              />
+            </Tooltip>
+          )}
+        </div>
+      </div>
+    </>
+  );
+  const renderCoverLetterActions = (item: JobInterface) => (
+    <div className='flex flex-row gap-3 justify-center'>
+      {onAutoCoverLetter && !item.automated_cover_letter && (
+        <Tooltip
+          color='secondary'
+          content='Write cover letter. This is a paid AI action'
+        >
           <Button
             variant='flat'
             color='secondary'
-            onPress={() => onAutoCollect(item._id)}
-            aria-label='Get Listing Data'
-            isIconOnly={true}
-            isDisabled={!!item._markdown || !firecrawl_key}
-          >
-            <AiIcon width={iconWidth} />
-          </Button>
-        </Tooltip>
-      )}
-      {onEdit && (
-        <Tooltip color='primary' content='Edit application information'>
-          <Button
-            variant='flat'
-            color='primary'
-            onPress={() => onEdit(item._id)}
-            aria-label='Edit'
+            onPress={() => onAutoCoverLetter(item._id)}
+            isDisabled={
+              !!item.automated_cover_letter ||
+              !item._markdown ||
+              item.stage?.toLocaleLowerCase() === 'closed' ||
+              !openai_key
+            }
+            aria-label='Write cover letter with AI. This is a paid transaction.'
             isIconOnly={true}
           >
+            <span
+              className='text-success'
+              aria-label='This action requires a financial transaction'
+            >
+              $
+            </span>
             <EditIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
-      {onDelete && (
-        <Tooltip color='danger' content='Delete application'>
+      {onViewCoverLetter && item.automated_cover_letter && (
+        <Tooltip color='primary' content='View your cover letter.'>
           <Button
             variant='flat'
-            color='danger'
-            onPress={() => onDelete(item._id)}
-            aria-label='Delete'
+            color='primary'
+            onPress={() => onViewCoverLetter(item._id)}
+            isDisabled={!item.automated_cover_letter}
+            aria-label='View your cover letter.'
             isIconOnly={true}
           >
-            <DeleteIcon width={iconWidth} />
+            <EyeIcon width={iconWidth} />
           </Button>
         </Tooltip>
       )}
     </div>
   );
-  const renderMobileActionButtons = (item: JobInterface) => (
-    <div className='relative flex justify-end items-center gap-2'>
-      <Dropdown className='bg-background border-1 border-default-200'>
-        <DropdownTrigger>
-          <Button isIconOnly radius='full' size='sm' variant='light'>
-            <VerticalDotsIcon className='text-default-400' />
-          </Button>
-        </DropdownTrigger>
-        <DropdownMenu>
-          <DropdownItem
-            key='view'
-            onPress={() => onViewCard && onViewCard(item._id)}
-            isReadOnly={!onViewCard}
-          >
-            View Application
-          </DropdownItem>
-          <DropdownItem
-            key='edit'
-            onPress={() => onEdit && onEdit(item._id)}
-            isReadOnly={!onEdit}
-          >
-            Edit Application
-          </DropdownItem>
-          <DropdownItem
-            key='viewCoverLetter'
-            onPress={() => onAutoCollect && onAutoCollect(item._id)}
-            isReadOnly={!onAutoCollect || !!item._markdown || !firecrawl_key}
-          >
-            Collect listing with AI
-          </DropdownItem>
-          <DropdownItem
-            key='viewCoverLetter'
-            onPress={() => onAutoCoverLetter && onAutoCoverLetter(item._id)}
-            isReadOnly={
-              !onAutoCoverLetter || !!item.automated_cover_letter || !openai_key
-            }
-          >
-            Write Cover Letter with AI
-          </DropdownItem>
-          <DropdownItem
-            key='viewCoverLetter'
-            onPress={() => onViewCoverLetter && onViewCoverLetter(item._id)}
-            isReadOnly={!onViewCoverLetter || !item.automated_cover_letter}
-          >
-            View Cover Letter
-          </DropdownItem>
-          <DropdownItem
-            key='delete'
-            onPress={() => onDelete && onDelete(item._id)}
-            isReadOnly={!onDelete}
-          >
-            Delete Application
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-    </div>
+  const renderActionButtons = (item: JobInterface) => (
+    <>
+      <div className='mobile-only relative flex justify-end items-center gap-2'>
+        <Dropdown className='bg-background border-1 border-default-200'>
+          <DropdownTrigger>
+            <Button isIconOnly radius='full' size='sm' variant='light'>
+              <VerticalDotsIcon className='text-default-400' />
+            </Button>
+          </DropdownTrigger>
+          <DropdownMenu>
+            <DropdownItem
+              key='view'
+              onPress={() => onViewCard && onViewCard(item._id)}
+              isReadOnly={!onViewCard}
+            >
+              View Application
+            </DropdownItem>
+            <DropdownItem
+              key='edit'
+              onPress={() => onEdit && onEdit(item._id)}
+              isReadOnly={!onEdit}
+            >
+              Edit Application
+            </DropdownItem>
+            <DropdownItem
+              key='viewCoverLetter'
+              onPress={() => onAutoCollect && onAutoCollect(item._id)}
+              isReadOnly={!onAutoCollect || !!item._markdown || !firecrawl_key}
+            >
+              Collect listing with AI
+            </DropdownItem>
+            <DropdownItem
+              key='viewCoverLetter'
+              onPress={() => onAutoCoverLetter && onAutoCoverLetter(item._id)}
+              isReadOnly={
+                !onAutoCoverLetter ||
+                !!item.automated_cover_letter ||
+                !openai_key
+              }
+            >
+              Write Cover Letter with AI
+            </DropdownItem>
+            <DropdownItem
+              key='viewCoverLetter'
+              onPress={() => onViewCoverLetter && onViewCoverLetter(item._id)}
+              isReadOnly={!onViewCoverLetter || !item.automated_cover_letter}
+            >
+              View Cover Letter
+            </DropdownItem>
+            <DropdownItem
+              key='delete'
+              onPress={() => onDelete && onDelete(item._id)}
+              isReadOnly={!onDelete}
+            >
+              Delete Application
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </div>
+      <div className='desktop-only flex flex-row gap-3 justify-end'>
+        {onAutoCollect && !item._markdown && (
+          <Tooltip color='secondary' content='Get listing data'>
+            <Button
+              variant='flat'
+              color='secondary'
+              onPress={() => onAutoCollect(item._id)}
+              aria-label='Get Listing Data'
+              isIconOnly={true}
+              isDisabled={!!item._markdown || !firecrawl_key}
+            >
+              <AiIcon width={iconWidth} />
+            </Button>
+          </Tooltip>
+        )}
+        {onEdit && (
+          <Tooltip color='primary' content='Edit application information'>
+            <Button
+              variant='flat'
+              color='primary'
+              onPress={() => onEdit(item._id)}
+              aria-label='Edit'
+              isIconOnly={true}
+            >
+              <EditIcon width={iconWidth} />
+            </Button>
+          </Tooltip>
+        )}
+        {onDelete && (
+          <Tooltip color='danger' content='Delete application'>
+            <Button
+              variant='flat'
+              color='danger'
+              onPress={() => onDelete(item._id)}
+              aria-label='Delete'
+              isIconOnly={true}
+            >
+              <DeleteIcon width={iconWidth} />
+            </Button>
+          </Tooltip>
+        )}
+      </div>
+    </>
   );
+  const renderCell = useCallback((item: JobInterface, columnKey: string) => {
+    const cellValue = item[columnKey];
+    switch (columnKey) {
+      case 'name':
+        return renderHeader(item);
+      case 'stage':
+        return (
+          item.stage && (
+            <Chip
+              className='capitalize'
+              color={getBadgeColor(item.stage)}
+              size='sm'
+              variant='flat'
+            >
+              {item.stage}
+            </Chip>
+          )
+        );
+      case 'coverLetter':
+        return renderCoverLetterActions(item);
+      case 'actions':
+        return renderActionButtons(item);
+      default:
+        return cellValue;
+    }
+  }, []);
   return (
     <TableContext.Provider value={tableContextValue}>
       {loading ? (
         <SkeletonList />
       ) : (
         <>
-          <MobileList
-            jobs={jobs}
-            columns={columns}
+          <Table
+            isHeaderSticky
+            isStriped
+            // selectionMode='multiple' // enable with enhancement#2
+            aria-label='List of your applications'
             selectedKeys={tableState.selectedRows}
-            setSelectedKeys={(value) =>
-              updateTableState([{ key: 'selectedRows', value }])
-            }
-            bottomContent={bottomContent}
-            actionButtons={renderMobileActionButtons}
-            topContent={topContent}
-          />
-          <DesktopList
-            jobs={jobs}
-            columns={columns}
-            selectedKeys={tableState.selectedRows}
-            setSelectedKeys={(value) =>
+            onSelectionChange={(value) =>
               updateTableState([{ key: 'selectedRows', value }])
             }
             topContent={topContent}
+            topContentPlacement='outside'
             bottomContent={bottomContent}
-            actionButtons={renderDesktopActionButtons}
-            onAutoCoverLetter={onAutoCoverLetter}
-            onViewCoverLetter={onViewCoverLetter}
-            onViewCard={onViewCard}
-            iconWidth={iconWidth}
-          />
+            bottomContentPlacement='outside'
+          >
+            <TableHeader columns={headerColumns}>
+              {(column) => (
+                <TableColumn key={column.uid}>{column.name}</TableColumn>
+              )}
+            </TableHeader>
+            <TableBody
+              items={jobs}
+              emptyContent={'No applications to display.'}
+            >
+              {(item) => (
+                <TableRow key={item._id}>
+                  {(columnKey) => (
+                    <TableCell className='text-bold text-sm capitalize text-default-400'>
+                      {renderCell(item, columnKey as string)}
+                    </TableCell>
+                  )}
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </>
       )}
     </TableContext.Provider>
   );
 };
-export default IndexList;
+export default List;

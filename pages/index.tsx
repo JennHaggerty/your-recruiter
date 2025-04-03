@@ -29,7 +29,7 @@ import AddModal from '@/app/components/Modals/AddModal';
 import EditModal from '@/app/components/Modals/EditModal';
 import ViewCoverLetterModal from '@/app/components/Modals/ViewCoverLetterModal';
 import DetailsModal from '@/app/components/Modals/DetailsModal';
-import IndexList from '@/app/components/Lists/IndexList';
+import List from '@/app/components/Lists/List';
 type ConnectionStatus = {
   isConnected: boolean;
 };
@@ -267,7 +267,7 @@ const Home = ({
             <SkeletonList />
           ) : (
             <>
-              <IndexList
+              <List
                 items={applications}
                 onAdd={() => {
                   onOpen();
