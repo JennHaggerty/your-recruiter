@@ -67,7 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
     openai_key: user && user.openai_key,
     firecrawl_key: user && user.firecrawl_key,
     //signup: handleUserSignup,
-    //login,
+    login,
     logout,
   };
   return (
