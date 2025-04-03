@@ -1,5 +1,4 @@
 import React, { FormEvent, useEffect, useState } from 'react';
-import LegendDrawer from '../Drawers/LegendDrawer';
 import {
   Badge,
   Button,
@@ -35,7 +34,6 @@ const Nav = (props: Props) => {
     useUserContext();
   const [showSignupForm, setShowSignupForm] = useState<boolean>();
   const [showLoginForm, setShowLoginForm] = useState<boolean>();
-  const [showLegend, setShowLegend] = useState<boolean>();
   const [showSettings, setShowSettings] = useState<boolean>();
   const [badgeCount, setBadgeCount] = useState<number>(0);
   const hasOpenAiKey = !!openai_key;
@@ -60,21 +58,12 @@ const Nav = (props: Props) => {
         <p className='font-bold text-white'>{strings.siteTitle}</p>
       </NavbarBrand>
       <NavbarContent justify='end'>
-        <NavbarItem>
-          <Button
-            color='primary'
-            variant='flat'
-            onPress={() => setShowLegend(true)}
-          >
-            Legend
-          </Button>
-        </NavbarItem>
         {!user_id ? (
           <>
             {signup && (
               <NavbarItem>
                 <Button
-                  color='primary'
+                  color='default'
                   variant='flat'
                   onPress={() => setShowSignupForm(true)}
                 >
@@ -85,7 +74,7 @@ const Nav = (props: Props) => {
             {login && (
               <NavbarItem>
                 <Button
-                  color='primary'
+                  color={'primary'}
                   variant='flat'
                   onPress={() => setShowLoginForm(true)}
                 >
@@ -113,7 +102,7 @@ const Nav = (props: Props) => {
               </Badge>
             </NavbarItem>
             <NavbarItem>
-              <Button color='primary' variant='flat' onPress={logout}>
+              <Button color='danger' variant='flat' onPress={logout}>
                 Logout
               </Button>
             </NavbarItem>
@@ -132,12 +121,6 @@ const Nav = (props: Props) => {
           isOpen={showLoginForm}
           onClose={() => setShowLoginForm(false)}
           handleSubmit={login}
-        />
-      )}
-      {showLegend && (
-        <LegendDrawer
-          isOpen={showLegend}
-          onClose={() => setShowLegend(false)}
         />
       )}
       {showSettings && (

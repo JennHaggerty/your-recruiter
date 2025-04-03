@@ -1,5 +1,10 @@
 import { UserContext, UserContextInterface } from '@/contexts/UserContext';
-import { fetchUser, fetchUserId, fetchUserLogin } from '@/functions/functions';
+import {
+  fetchUser,
+  fetchUserId,
+  fetchUserLogin,
+  handleUserSignup,
+} from '@/functions/functions';
 import '@/styles/globals.css';
 import { addToast, HeroUIProvider, ToastProvider } from '@heroui/react';
 import type { AppProps } from 'next/app';
@@ -61,7 +66,9 @@ export default function App({ Component, pageProps }: AppProps) {
     email: user && user.email,
     openai_key: user && user.openai_key,
     firecrawl_key: user && user.firecrawl_key,
-    logout: logout,
+    //signup: handleUserSignup,
+    //login,
+    logout,
   };
   return (
     <HeroUIProvider className='dark'>
