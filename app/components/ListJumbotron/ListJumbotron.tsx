@@ -1,6 +1,7 @@
 import { useUserContext } from '@/contexts/UserContext';
 import { Card, CardBody, Form, Button, Input } from '@heroui/react';
 import { FormEvent } from 'react';
+import { PlusIcon } from '../Icons/PlusIcon';
 interface Props {
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   onManualAdd: () => void;
@@ -42,13 +43,14 @@ const ListJumbotron = (props: Props) => {
             />
             <div className='flex flex-row w-full gap-2'>
               <Button
-                variant='flat'
+                variant='solid'
                 color='primary'
                 type='button'
                 onPress={onManualAdd}
                 className='w-full'
+                endContent={<PlusIcon />}
               >
-                Add Manually
+                Add New
               </Button>
               <Button
                 color='secondary'

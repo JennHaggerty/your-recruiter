@@ -606,7 +606,7 @@ const List = (props: Props) => {
               isIconOnly={true}
               isDisabled={!!item._markdown || !firecrawl_key}
             >
-              <AiIcon width={iconWidth} />
+              <SearchIcon width={iconWidth} />
             </Button>
           </Tooltip>
         )}
