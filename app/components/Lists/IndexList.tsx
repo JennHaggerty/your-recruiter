@@ -91,24 +91,27 @@ const IndexList = (props: Props) => {
   const hasSearchFilter = Boolean(tableState.filterCompanyName);
   const iconWidth = '15px';
   const windowSize = useWindowSize();
+  // updates table and saves values to sessionStorage
+  const updateTableState = (args: { key: string; value: any }[]) => {
+    const updates = args;
+    updates.forEach((update: { key: string; value: any }) => {
+      const { key, value } = update;
+      setTableState((prevState) => ({
+        ...prevState,
+        [key]: value,
+      }));
+      if (key === 'visibleColumns' || key === 'statusFilter') {
+        setTableSession({ key, value: JSON.stringify([...value]) });
+      } else {
+        setTableSession({ key, value });
+      }
+    });
+  };
   const setTableSession = (args: { key: string; value: any }) => {
     const { key, value } = args;
     sessionStorage.setItem(key, value);
   };
-  const updateTableState = (args: { key: string; value: any }[]) => {
-    const updates = args;
-    updates.forEach((update) => {
-      const { key, value } = update;
-      setTableState((previousState) => ({
-        ...previousState,
-        key: value.toString(),
-      }));
-      setTableSession({
-        key,
-        value,
-      });
-    });
-  };
+  // retrieve table info from sessionStorage
   const getTableSession = () => {
     const tableContextProperties = Object.keys(tableContextValue);
     tableContextProperties.forEach((property) => {
@@ -122,9 +125,15 @@ const IndexList = (props: Props) => {
           page: parseInt(sessionStorage.getItem('page') || '1'),
         }));
       } else if (property === 'page') {
-        updateTableState([{ key: property, value: parseInt(sessionValue) }]);
+        setTableState((prevState) => ({
+          ...prevState,
+          property: parseInt(sessionValue),
+        }));
       } else {
-        updateTableState([{ key: property, value: sessionValue }]);
+        setTableState((prevState) => ({
+          ...prevState,
+          property: sessionValue,
+        }));
       }
     });
   };
@@ -139,26 +148,45 @@ const IndexList = (props: Props) => {
       } else {
         columns = new Set(INITIAL_VISIBLE_COLUMNS_DESKTOP);
       }
-      setTableState((prevState) => ({
-        ...prevState,
-        visibleColumns: columns,
-      }));
-      setTableSession({
-        key: 'visibleColumns',
-        value: JSON.stringify([...columns]),
-      });
+      updateTableState([{ key: 'visibleColumns', value: columns }]);
     }
   }, [windowSize.width]);
+  // table functions
   const onSearchChange = useCallback((value?: string) => {
     if (value) {
       updateTableState([
-        { key: 'filterCompanyName', value },
+        {
+          key: 'filterCompanyName',
+          value: value,
+        },
         { key: 'page', value: 1 },
       ]);
     } else {
-      updateTableState([{ key: 'filterCompanyName', value: '' }]);
+      updateTableState([
+        {
+          key: 'filterCompanyName',
+          value: '',
+        },
+        { key: 'page', value: 1 },
+      ]);
     }
   }, []);
+  const onRowsPerPageChange = useCallback(
+    (e: ChangeEvent<HTMLSelectElement>) => {
+      updateTableState([
+        { key: 'page', value: 1 },
+        { key: 'rowsPerPage', value: Number(e.target.value) },
+      ]);
+    },
+    []
+  );
+  const onClear = useCallback(() => {
+    updateTableState([
+      { key: 'filterCompanyName', value: '' },
+      { key: 'page', value: 1 },
+    ]);
+  }, []);
+  // table variables
   const filteredItems = useMemo(() => {
     let filteredItems = items || [];
     if (tableState.filterCompanyName) {
@@ -179,29 +207,148 @@ const IndexList = (props: Props) => {
     return filteredItems;
   }, [items, tableState.filterCompanyName, tableState.statusFilter]);
   const pages = Math.ceil(filteredItems.length / tableState.rowsPerPage);
-  const onRowsPerPageChange = useCallback(
-    (e: ChangeEvent<HTMLSelectElement>) => {
-      updateTableState([
-        { key: 'page', value: 1 },
-        { key: 'rowsPerPage', value: Number(e.target.value) },
-      ]);
-    },
-    []
-  );
-  const onClear = useCallback(() => {
-    updateTableState([
-      {
-        key: 'filterCompanyName',
-        value: '',
-      },
-      { key: 'page', value: 1 },
-    ]);
-  }, []);
   const jobs = useMemo(() => {
     const start = (tableState.page - 1) * tableState.rowsPerPage;
     const end = start + tableState.rowsPerPage;
     return filteredItems.slice(start, end);
   }, [tableState.page, filteredItems, tableState.rowsPerPage]);
+  const topContent = useMemo(() => {
+    return (
+      <div className='flex flex-col gap-4'>
+        <div className='flex flex-col md:flex-row justify-between gap-3 items-end'>
+          <Input
+            isClearable
+            className='w-full md:max-w-[44%] text-default-400'
+            placeholder='Search by company name...'
+            startContent={<SearchIcon />}
+            defaultValue={tableState.filterCompanyName}
+            onClear={() => onClear()}
+            onValueChange={onSearchChange}
+          />
+          <div className='flex w-full md:w-auto gap-3'>
+            <Dropdown>
+              <DropdownTrigger className='w-full'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
+                  Status
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={tableState.statusFilter}
+                selectionMode='multiple'
+                onSelectionChange={(value) =>
+                  updateTableState([{ key: 'statusFilter', value }])
+                }
+              >
+                {statusOptions.map((status) => (
+                  <DropdownItem key={status.uid} className='capitalize'>
+                    {capitalize(status.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Dropdown>
+              <DropdownTrigger className='w-full'>
+                <Button
+                  endContent={<ChevronDownIcon className='text-small' />}
+                  variant='flat'
+                >
+                  Columns
+                </Button>
+              </DropdownTrigger>
+              <DropdownMenu
+                disallowEmptySelection
+                aria-label='Table Columns'
+                closeOnSelect={false}
+                selectedKeys={tableState.visibleColumns}
+                selectionMode='multiple'
+                onSelectionChange={(value) =>
+                  updateTableState([{ key: 'visibleColumns', value }])
+                }
+              >
+                {columns.map((column) => (
+                  <DropdownItem key={column.uid} className='capitalize'>
+                    {capitalize(column.name)}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
+            <Button
+              className='w-full'
+              color='primary'
+              onPress={onAdd}
+              endContent={<PlusIcon />}
+            >
+              Add New
+            </Button>
+          </div>
+        </div>
+        <div className='flex justify-between items-center'>
+          <span className='text-default-400 text-small'>
+            Total of {items?.length} applications
+          </span>
+          <label className='flex items-center text-default-400 text-small'>
+            Rows per page:
+            <select
+              className='bg-transparent outline-none text-default-400 text-small'
+              onChange={onRowsPerPageChange}
+            >
+              <option value='15'>15</option>
+              <option value='25'>25</option>
+              <option value='50'>50</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    );
+  }, [
+    tableState.filterCompanyName,
+    tableState.statusFilter,
+    tableState.visibleColumns,
+    onSearchChange,
+    onRowsPerPageChange,
+    items?.length,
+    hasSearchFilter,
+  ]);
+  const bottomContent = useMemo(() => {
+    const sessionPage = parseInt(
+      JSON.parse(sessionStorage.getItem('page') || '1')
+    );
+    return (
+      <div className='py-2 px-2 flex flex-col gap-2 items-center'>
+        <span className='text-small text-default-400'>
+          {tableState.selectedRows === 'all'
+            ? 'All items selected'
+            : `${tableState.selectedRows.size || 0} of ${
+                filteredItems && filteredItems.length
+              } selected`}
+        </span>
+        <Pagination
+          isCompact
+          showControls
+          showShadow
+          color='primary'
+          initialPage={sessionPage ? sessionPage : 1}
+          total={pages}
+          onChange={(value) => {
+            updateTableState([{ key: 'page', value }]);
+          }}
+        />
+      </div>
+    );
+  }, [
+    tableState.selectedRows,
+    jobs?.length,
+    tableState.page,
+    pages,
+    hasSearchFilter,
+  ]);
+  // renders
   const renderDesktopActionButtons = (item: JobInterface) => (
     <div className='flex flex-row gap-3 justify-end'>
       {onAutoCollect && !item._markdown && (
@@ -303,155 +450,6 @@ const IndexList = (props: Props) => {
       </Dropdown>
     </div>
   );
-  const topContent = useMemo(() => {
-    return (
-      <div className='flex flex-col gap-4'>
-        <div className='flex flex-col md:flex-row justify-between gap-3 items-end'>
-          <Input
-            isClearable
-            className='w-full md:max-w-[44%] text-default-400'
-            placeholder='Search by company name...'
-            startContent={<SearchIcon />}
-            value={tableState.filterCompanyName}
-            onClear={() => onClear()}
-            onValueChange={onSearchChange}
-          />
-          <div className='flex w-full md:w-auto gap-3'>
-            <Dropdown>
-              <DropdownTrigger className='w-full'>
-                <Button
-                  endContent={<ChevronDownIcon className='text-small' />}
-                  variant='flat'
-                >
-                  Status
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label='Table Columns'
-                closeOnSelect={false}
-                selectedKeys={tableState.statusFilter}
-                selectionMode='multiple'
-                onSelectionChange={(v) => {
-                  setTableState((prev) => ({ ...prev, statusFilter: v }));
-                  setTableSession({
-                    key: 'statusFilter',
-                    value: JSON.stringify([...v]),
-                  });
-                }}
-              >
-                {statusOptions.map((status) => (
-                  <DropdownItem key={status.uid} className='capitalize'>
-                    {capitalize(status.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Dropdown>
-              <DropdownTrigger className='w-full'>
-                <Button
-                  endContent={<ChevronDownIcon className='text-small' />}
-                  variant='flat'
-                >
-                  Columns
-                </Button>
-              </DropdownTrigger>
-              <DropdownMenu
-                disallowEmptySelection
-                aria-label='Table Columns'
-                closeOnSelect={false}
-                selectedKeys={tableState.visibleColumns}
-                selectionMode='multiple'
-                onSelectionChange={(v) => {
-                  setTableState((prev) => ({ ...prev, visibleColumns: v }));
-                  setTableSession({
-                    key: 'visibleColumns',
-                    value: JSON.stringify([...v]),
-                  });
-                }}
-              >
-                {columns.map((column) => (
-                  <DropdownItem key={column.uid} className='capitalize'>
-                    {capitalize(column.name)}
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
-            <Button
-              className='w-full'
-              color='primary'
-              onPress={onAdd}
-              endContent={<PlusIcon />}
-            >
-              Add New
-            </Button>
-          </div>
-        </div>
-        <div className='flex justify-between items-center'>
-          <span className='text-default-400 text-small'>
-            Total of {items?.length} applications
-          </span>
-          <label className='flex items-center text-default-400 text-small'>
-            Rows per page:
-            <select
-              className='bg-transparent outline-none text-default-400 text-small'
-              onChange={onRowsPerPageChange}
-            >
-              <option value='15'>15</option>
-              <option value='25'>25</option>
-              <option value='50'>50</option>
-            </select>
-          </label>
-        </div>
-      </div>
-    );
-  }, [
-    tableState.filterCompanyName,
-    tableState.statusFilter,
-    tableState.visibleColumns,
-    onSearchChange,
-    onRowsPerPageChange,
-    items?.length,
-    hasSearchFilter,
-  ]);
-  const bottomContent = useMemo(() => {
-    const sessionPage = parseInt(
-      JSON.parse(sessionStorage.getItem('page') || '1')
-    );
-    return (
-      <div className='py-2 px-2 flex flex-col gap-2 items-center'>
-        <span className='text-small text-default-400'>
-          {tableState.selectedRows === 'all'
-            ? 'All items selected'
-            : `${tableState.selectedRows.size || 0} of ${
-                filteredItems && filteredItems.length
-              } selected`}
-        </span>
-        <Pagination
-          isCompact
-          showControls
-          showShadow
-          color='primary'
-          initialPage={sessionPage ? sessionPage : 1}
-          total={pages}
-          onChange={(value) => {
-            setTableState((prevState) => ({
-              ...prevState,
-              page: value,
-            }));
-            setTableSession({ key: 'page', value });
-            console.log(tableState.page, value, sessionStorage.getItem('page'));
-          }}
-        />
-      </div>
-    );
-  }, [
-    tableState.selectedRows,
-    jobs?.length,
-    tableState.page,
-    pages,
-    hasSearchFilter,
-  ]);
   return (
     <TableContext.Provider value={tableContextValue}>
       {loading ? (
@@ -462,11 +460,8 @@ const IndexList = (props: Props) => {
             jobs={jobs}
             columns={columns}
             selectedKeys={tableState.selectedRows}
-            setSelectedKeys={(v) =>
-              setTableState((prevState) => ({
-                ...prevState,
-                selectedRows: v,
-              }))
+            setSelectedKeys={(value) =>
+              updateTableState([{ key: 'selectedRows', value }])
             }
             bottomContent={bottomContent}
             actionButtons={renderMobileActionButtons}
@@ -476,11 +471,8 @@ const IndexList = (props: Props) => {
             jobs={jobs}
             columns={columns}
             selectedKeys={tableState.selectedRows}
-            setSelectedKeys={(v) =>
-              setTableState((prevState) => ({
-                ...prevState,
-                selectedRows: v,
-              }))
+            setSelectedKeys={(value) =>
+              updateTableState([{ key: 'selectedRows', value }])
             }
             topContent={topContent}
             bottomContent={bottomContent}
